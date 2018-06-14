@@ -15,6 +15,7 @@
           <h1>Coursetro Instructor</h1>
 
           <h2 id="instructor"></h2>
+          <img id="loader" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif">
 
           <label for="name" class="col-lg-2 control-label">Instructor Name</label>
           <input id="name" type="text">
@@ -27,10 +28,120 @@
 
       </div>
 
+      <!-- Jquery -->
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 
       <script>
-         // Our future code here..
+      /**
+      * Give to the client a way to connect to the blockchain `created using ethereum`. web3 requires a provider object that includes
+      * the connection protocol and the address/port of the node that the client is going to connect to.
+      */
+         if (typeof web3 !== 'undefined')
+         {
+           web3 = new Web3(web3.currentProvider);
+         }
+         else
+         {
+           web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+         }
+
+         // Define the default account that we will use test RCP creates 10 address
+         web3.eth.defaultAccount = web3.eth.accounts[0];
+         /**
+         * Use the ETH contract method to create the contract on an address
+         * it accepts one parameter that is the ABI 'Application Binary interface'
+         * ABI allows to call functions and recive data from the smart contract "it is an interface"
+         * We have the interface to interact with the CoursetroContract
+         */
+         var CoursetroContract = web3.eth.contract([
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_fName",
+				"type": "string"
+			},
+			{
+				"name": "_age",
+				"type": "uint256"
+			}
+		],
+		"name": "setInstructor",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getInstructor",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "age",
+				"type": "uint256"
+			}
+		],
+		"name": "Instructor",
+		"type": "event"
+	}
+]);
+            /**
+            * Finally we have to define the contract address.
+            */
+            var Coursetro = CoursetroContract.at('0xf727b1ccf5e6438e290efaa39bd48d1534dc25da');
+
+            // Coursetro is the smartcontract and have the functions setInstructor and getInstructor.
+            console.log(Coursetro);
+
+            /**
+            * getInstructor accepts a callback as a parameter
+            */
+            var instructorEvent = Coursetro.Instructor();
+
+            instructorEvent.watch(function(error, result)
+            {
+              console.log("HOLA");
+              if(!error)
+              {
+                $("#loader").hide();
+                $("#instructor").html(result.args.name+" ("+result.args.age+" years old)");
+              }
+              else
+              {
+                $("#loader").hide();
+                console.log(error);
+              }
+            });
+
+            $("#button").click(
+              function()
+              {
+                Coursetro.setInstructor($("#name").val(), $("#age").val());
+                $("#loader").show();
+              });
       </script>
 
   </body>
