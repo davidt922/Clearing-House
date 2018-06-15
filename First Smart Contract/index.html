@@ -57,7 +57,7 @@
 
          // Define the default account that we will use. Test RCP creates 10 address
          // The first account will be the account that have deployed the contract in http://remix.ethereum.org
-         web3.eth.defaultAccount = web3.eth.accounts[0];
+         web3.eth.defaultAccount = web3.eth.accounts[1];
 
          /**
          * As we have compiled the contract at http://remix.ethereum.org, get the ABI
@@ -65,65 +65,71 @@
          * We have the interface to interact with the CoursetroContract
          */
          var CoursetroContract = web3.eth.contract([
-        	{
-        		"anonymous": false,
-        		"inputs": [
-        			{
-        				"indexed": false,
-        				"name": "name",
-        				"type": "string"
-        			},
-        			{
-        				"indexed": false,
-        				"name": "age",
-        				"type": "uint256"
-        			}
-        		],
-        		"name": "Instructor",
-        		"type": "event"
-        	},
-        	{
-        		"constant": false,
-        		"inputs": [
-        			{
-        				"name": "_fName",
-        				"type": "string"
-        			},
-        			{
-        				"name": "_age",
-        				"type": "uint256"
-        			}
-        		],
-        		"name": "setInstructor",
-        		"outputs": [],
-        		"payable": false,
-        		"stateMutability": "nonpayable",
-        		"type": "function"
-        	},
-        	{
-        		"constant": true,
-        		"inputs": [],
-        		"name": "getInstructor",
-        		"outputs": [
-        			{
-        				"name": "",
-        				"type": "string"
-        			},
-        			{
-        				"name": "",
-        				"type": "uint256"
-        			}
-        		],
-        		"payable": false,
-        		"stateMutability": "view",
-        		"type": "function"
-        	}
-        ]);
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "age",
+				"type": "uint256"
+			}
+		],
+		"name": "Instructor",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_fName",
+				"type": "string"
+			},
+			{
+				"name": "_age",
+				"type": "uint256"
+			}
+		],
+		"name": "setInstructor",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getInstructor",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+]);
             /**
             * As we have deployed the contract we get the contract address, so
             * So we set the contract address to the CoursetroContract object
             */
-            var Coursetro = CoursetroContract.at('0x0961c3910faa32a9f5f65f98e255d70dc68ae938');
+            var Coursetro = CoursetroContract.at('0x1d099e2f4911438f642c72244967cbca9d868bd4');
 
             // Coursetro is the smartcontract and have the functions setInstructor and getInstructor.
             console.log(Coursetro);
@@ -150,7 +156,13 @@
             $("#button").click(function()
             {
                    $("#loader").show();
-                   Coursetro.setInstructor($("#name").val(), $("#age").val());
+                   Coursetro.setInstructor($("#name").val(), $("#age").val(), (err, res) =>{
+                     if (err)
+                     {
+                       $("#loader").hide();
+                       $("#instructor").html("This address could not modify the smart contract");
+                     }
+                   });
             });
       </script>
 
