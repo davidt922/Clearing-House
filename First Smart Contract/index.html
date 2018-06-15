@@ -32,86 +32,98 @@
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 
       <script>
-      /**
-      * Give to the client a way to connect to the blockchain `created using ethereum`. web3 requires a provider object that includes
-      * the connection protocol and the address/port of the node that the client is going to connect to.
-      */
-         if (typeof web3 !== 'undefined')
-         {
-           web3 = new Web3(web3.currentProvider);
-         }
-         else
-         {
-           web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-         }
+        /**
+        * We use Web3 to connect and interact with the actual smartcontract.
+        * Give to the client a way to connect to the blockchain `created using ethereum`. web3 requires a provider object that includes
+        * the connection protocol and the address/port of the node that the client is going to connect to.
+        */
+        if (typeof web3 !== 'undefined')
+        {
+            web3 = new Web3(web3.currentProvider);
+        }
+        else
+        {
+            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545")); // localhost:8545 we are runing testrpc
+        }
 
-         // Define the default account that we will use test RCP creates 10 address
+        /**
+        * Check if the connection to the Ethereum blockchain is done succesfully
+        */
+        if(web3.isConnected()==true)
+        {
+          console.log("Ethereum connection successful");
+        }
+
+
+         // Define the default account that we will use. Test RCP creates 10 address
+         // The first account will be the account that have deployed the contract in http://remix.ethereum.org
          web3.eth.defaultAccount = web3.eth.accounts[0];
+
          /**
-         * Use the ETH contract method to create the contract on an address
-         * it accepts one parameter that is the ABI 'Application Binary interface'
+         * As we have compiled the contract at http://remix.ethereum.org, get the ABI
          * ABI allows to call functions and recive data from the smart contract "it is an interface"
          * We have the interface to interact with the CoursetroContract
          */
          var CoursetroContract = web3.eth.contract([
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_fName",
-				"type": "string"
-			},
-			{
-				"name": "_age",
-				"type": "uint256"
-			}
-		],
-		"name": "setInstructor",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "getInstructor",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "age",
-				"type": "uint256"
-			}
-		],
-		"name": "Instructor",
-		"type": "event"
-	}
-]);
+        	{
+        		"anonymous": false,
+        		"inputs": [
+        			{
+        				"indexed": false,
+        				"name": "name",
+        				"type": "string"
+        			},
+        			{
+        				"indexed": false,
+        				"name": "age",
+        				"type": "uint256"
+        			}
+        		],
+        		"name": "Instructor",
+        		"type": "event"
+        	},
+        	{
+        		"constant": false,
+        		"inputs": [
+        			{
+        				"name": "_fName",
+        				"type": "string"
+        			},
+        			{
+        				"name": "_age",
+        				"type": "uint256"
+        			}
+        		],
+        		"name": "setInstructor",
+        		"outputs": [],
+        		"payable": false,
+        		"stateMutability": "nonpayable",
+        		"type": "function"
+        	},
+        	{
+        		"constant": true,
+        		"inputs": [],
+        		"name": "getInstructor",
+        		"outputs": [
+        			{
+        				"name": "",
+        				"type": "string"
+        			},
+        			{
+        				"name": "",
+        				"type": "uint256"
+        			}
+        		],
+        		"payable": false,
+        		"stateMutability": "view",
+        		"type": "function"
+        	}
+        ]);
             /**
-            * Finally we have to define the contract address.
+            * As we have deployed the contract we get the contract address, so
+            * So we set the contract address to the CoursetroContract object
             */
-            var Coursetro = CoursetroContract.at('0xf727b1ccf5e6438e290efaa39bd48d1534dc25da');
+            var Coursetro = CoursetroContract.at('0x0961c3910faa32a9f5f65f98e255d70dc68ae938');
 
             // Coursetro is the smartcontract and have the functions setInstructor and getInstructor.
             console.log(Coursetro);
@@ -123,25 +135,23 @@
 
             instructorEvent.watch(function(error, result)
             {
-              console.log("HOLA");
-              if(!error)
-              {
-                $("#loader").hide();
-                $("#instructor").html(result.args.name+" ("+result.args.age+" years old)");
-              }
-              else
-              {
-                $("#loader").hide();
-                console.log(error);
-              }
+            if (!error)
+                {
+                    $("#loader").hide();
+                    $("#instructor").html(result.args.name + ' (' + result.args.age + ' years old)');
+                }
+                else
+                {
+                    $("#loader").hide();
+                    console.log(error);
+                }
             });
 
-            $("#button").click(
-              function()
-              {
-                Coursetro.setInstructor($("#name").val(), $("#age").val());
-                $("#loader").show();
-              });
+            $("#button").click(function()
+            {
+                   $("#loader").show();
+                   Coursetro.setInstructor($("#name").val(), $("#age").val());
+            });
       </script>
 
   </body>
