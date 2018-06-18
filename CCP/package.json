@@ -1,0 +1,16 @@
+{
+  "name": "ccp",
+  "version": "1.0.0",
+  "description": "Creation of a Clearing House using smartcontracts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev" : "lite-server"
+  },
+  "author": "David Teixé Molins",
+  "license": "ISC",
+  "dependencies": {
+    "lite-server": "^2.3.0",
+    "web3": "github:ethereum/web3.js"
+  }
+}

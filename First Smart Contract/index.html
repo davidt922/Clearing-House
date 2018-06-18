@@ -57,7 +57,7 @@
 
          // Define the default account that we will use. Test RCP creates 10 address
          // The first account will be the account that have deployed the contract in http://remix.ethereum.org
-         web3.eth.defaultAccount = web3.eth.accounts[1];
+         web3.eth.defaultAccount = web3.eth.accounts[0];
 
          /**
          * As we have compiled the contract at http://remix.ethereum.org, get the ABI
@@ -129,7 +129,7 @@
             * As we have deployed the contract we get the contract address, so
             * So we set the contract address to the CoursetroContract object
             */
-            var Coursetro = CoursetroContract.at('0x1d099e2f4911438f642c72244967cbca9d868bd4');
+            var Coursetro = CoursetroContract.at('0x0a503d2548d047563ccf52a3c5127aca9bc922c7');
 
             // Coursetro is the smartcontract and have the functions setInstructor and getInstructor.
             console.log(Coursetro);
