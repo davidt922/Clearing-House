@@ -39,3 +39,12 @@ button
   width: 100px;
   display:none;
 }
+
+#connection
+{
+  top: 10px;
+  right: 10px;
+  width: 100px;
+  height: 100px;
+  margin-left: 20em;
+}

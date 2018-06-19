@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futures Market</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+
+    <!-- Load Web3 script to link html with blockchain -->
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  </head>
+
+  <body>
+    <div id="content">
+      <div class="main"style="background-color:red"></div>
+      <div class="side" style="background-color:blue"></div>
+      <div id="connection"></div>
+    </div>
+
+    <script>
+  //  const fs = require('fs');
+    const solc = require('solc');
+    const Web3 = require('web3');
+    /**
+    * We use Web3 to connect and interact with the blockchain using a web envoirment
+    * First we need to create a web3 instance, setting a provider `settying the ip-port where the testnet is located'
+    */
+    if (typeof web3 !== 'undefined')
+    {
+      web3 = new Web3(web3.currentProvider);
+    }
+    else
+    {
+      // Set the provider that we want from Web3.providers
+      web3 = new Web3(new Web3.providers.HttpProvider("http://192.168.2.213:8545"));
+    }
+    /**
+    * Check if the connection to the ethereum blockchin is done successfully
+    */
+    if (web3.isConnected() == true)
+    {
+      console.log("Ethereum connection successful");
+      $("#connection").css("background-color","green");
+    }
+    else
+    {
+      console.log("Ethereum connection unsuccessful");
+      $("#connection").css("background-color","red");
+    }
+
+    var stringDefaultAccount = prompt("Enter default Account");
+    var defaultAccount = parseInt(stringDefaultAccount);
+
+    //Define the default eth account to use
+    web3.eth.defaultAccount = web3.eth.accounts[defaultAccount];
+
+
+    // Compile the source code
+    const input = fs.readFileSync('Token.sol');
+    const output = solc.compile(input.toString(), 1);
+    const bytecode = output.contracts['Token'].bytecode;
+    const abi = JSON.parse(output.contracts['Token'].interface);
+
+    // Contract object
+    const contract = web3.eth.contract(abi);
+
+    // Deploy contract instance
+    const contractInstance = contract.new(
+      {
+        data: '0x' + bytecode,
+        from: web3.eth.coinbase,
+        gas: 90000*2
+      }, (err, res) =>
+      {
+        if (err)
+        {
+            console.log(err);
+            return;
+        }
+        // Log the tx, you can explore status with eth.getTransaction()
+         console.log(res.transactionHash);
+
+         // If we have an address property, the contract was deployed
+         if (res.address)
+         {
+             console.log('Contract address: ' + res.address);
+             // Let's test the deployed contract
+             testContract(res.address);
+         }
+     });
+
+
+    </script>
+  </body>
+</html>

@@ -6,7 +6,16 @@ contract future
   bytes3 currency; // ISO_4217 only 3 digits to define a currency
   uint maturityDate;
   bytes16 ISIN;
-  bool optionPosition; // Sell or buy
+  bool futurePosition; // Sell = true or buy = false
+
+  constructor(bytes16 _ISIN, bool _futurePosition, uint _maturityDate, bytes3 _currency)
+  {
+    ISIN = _ISIN;
+    futurePosition = _futurePosition;
+    maturityDate = _maturityDate;
+    currency = _currency;
+    futureId = sha256(ISIN, maturityDate, currency);
+  }
 }
 
 contract option
@@ -51,9 +60,9 @@ contract clearingMember
     memberAddress = _clearingMemberAddress;
   }
 
-  function addFuture(future _future) onlyChamber public
+  function addFuture(bytes16 _ISIN, bool _futurePosition, uint _maturityDate, bytes3 _currency) onlyChamber public
   {
-    futures.push(_future);
+    futures.push(new future(_ISIN, _futurePosition, _maturityDate, _currency));
   }
 
   function addOption(option _option) onlyChamber public
@@ -66,7 +75,7 @@ contract clearingMember
 contract compensationChamber
 {
   /* Constants */
-  uint private aDayInSeconds = 86400; // 24 h
+  uint private dayInSeconds = 86400; // 24 h
   uint private incrementOfTimeToPayTheMargin = 43200;  // 12 h
 
   /* Compensation Chamber Variables */
@@ -85,6 +94,8 @@ contract compensationChamber
   constructor() public
   {
     owner = msg.sender;
+    nextRevisionTime = now + dayInSeconds;
+    nextPaymentTime = nextRevisionTime + incrementOfTimeToPayTheMargin;
   }
 
   modifier onlyChamber
@@ -124,7 +135,5 @@ contract compensationChamber
   {
       return nextPaymentTime;
   }
-
-
 
 }
