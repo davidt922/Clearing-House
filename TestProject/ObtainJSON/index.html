@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+
+    <!-- Javascript -->
+    <script type="text/javascript">
+    $(document).ready(function (){
+        $("#btn382").click(function(){
+            /* set no cache */
+            $.ajaxSetup({ cache: false });
+
+            $.getJSON("https://api.iextrading.com/1.0/stock/aapl/chart/5y", function(data){
+                var html = [];
+
+                /* loop through array */
+                $.each(data, function(index, d){
+                    html.push("Open : ", d.open, "<br>");
+                });
+
+
+                $("#div381").html(html.join('')).css("background-color", "orange");
+            }).error(function(jqXHR, textStatus, errorThrown){ /* assign handler */
+                /* alert(jqXHR.responseText) */
+                alert("error occurred!");
+            });
+        });
+    });
+    </script>
+
+    <!-- HTML -->
+    <a name="#ajax-getjson-example"></a>
+    <div id="example-section38">
+        <div>Car sale report</div>
+        <div id="div381"></div>
+        <button id="btn382" type="button">Click to load car sale report (json type)</button>
+        &nbsp;<a href="/backend/data/car-sale.json" target="_blank">Original car sale report</a>
+    </div>
+  </body>
+</html>
