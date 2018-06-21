@@ -1,15 +1,13 @@
 pragma solidity ^0.4.18;
 
-/*
-* Add oraclize api used for call a function every 24h and to obtain data from external sources
-* For example, obtain data from marker
-*
-*/
+/**
+ * Add oraclize API
+ */
 import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+
 /**
  * Allow Slice strings
  */
-
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 contract MarketData is usingOraclize
@@ -19,13 +17,10 @@ contract MarketData is usingOraclize
      */
     using strings for *;
 
-    string price;
     event LogConstructorInitiated(string nextStep);
-    event LogPriceUpdated(string price);
     event LogNewOraclizeQuery(string description);
     event returnCurrencyExchange(string currExchange);
     event returnETHPrice(string ethPrice);
-    event returnClosePriceArray(uint8[] closePrice);
 
     mapping(bytes32 => uint) queryIdToFunctionNumber;
 
@@ -61,29 +56,13 @@ contract MarketData is usingOraclize
       queryIdToFunctionNumber[queryID] = 1;
     }
   }
+
   /**
-  function uintToString(uint v) private constant returns (string str) {
-        uint maxlength = 100;
-        bytes memory reversed = new bytes(maxlength);
-        uint i = 0;
-        while (v != 0) {
-            uint remainder = v % 10;
-            v = v / 10;
-            reversed[i++] = byte(48 + remainder);
-        }
-        bytes memory s = new bytes(i + 1);
-        for (uint j = 0; j <= i; j++) {
-            s[j] = reversed[i - j];
-        }
-        str = string(s);
-    }
-    */
-
-
-    /**
-     * Get 5 years historical closing price for an instrument
-     * Function number 2
-     */
+   * Get 6 month historical closing price for an instrument
+   * For historical var calculation we need 5 years but if we do a 5 years request
+   * The transaction fails due to an out of gas.
+   * Function number 2
+   */
   function get6mMarketData(string _stockSymbol) public  payable
   {
     if (oraclize_getPrice("URL") > this.balance)
@@ -112,10 +91,10 @@ contract MarketData is usingOraclize
    */
   function getETHPrice(string _baseCurrency) public  payable
   {
-      /**
-       * this.balance is the number of ETH stored in the contract,
-       * msg.value is the amount of ETH send to a public payable method
-       */
+    /**
+     * this.balance is the number of ETH stored in the contract,
+     * msg.value is the amount of ETH send to a public payable method
+     */
     if (oraclize_getPrice("URL") > this.balance)
     {
       LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
@@ -137,7 +116,10 @@ contract MarketData is usingOraclize
 
   function __callback(bytes32 myid, string result)
   {
-    if (msg.sender != oraclize_cbAddress()) revert();
+    if (msg.sender != oraclize_cbAddress())
+    {
+      revert();
+    }
 
     uint functionNumber = queryIdToFunctionNumber[myid];
 
@@ -147,18 +129,6 @@ contract MarketData is usingOraclize
     }
     else if(functionNumber == 2)
     {
-    /**
-     * Out of Gas
-      var stringToParse = result.toSlice();
-      var delim = ",".toSlice();
-      uint8[] memory parts = new uint8[](stringToParse.count(delim) + 1);
-
-      for (uint i = 0; i < parts.length; i++)
-      {
-        parts[i] = uint8(parseInt(stringToParse.split(delim).toString()));
-      }
-      returnClosePriceArray(parts);
-    */
       returnCurrencyExchange(result);
     }
     else if(functionNumber == 3)
