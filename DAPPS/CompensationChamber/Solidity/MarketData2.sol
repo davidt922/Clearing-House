@@ -90,14 +90,22 @@ contract MarketData is usingOraclize
 
   function getIMSwap(string _nominal, string _instrumentID) public  payable
   {
-    string probability = "0.95";
+    string memory probability = "0.95";
     if (oraclize_getPrice("URL") > this.balance)
     {
       LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
     }
     else
     {
-      string memory query = "json(https://empty-lion-93.localtunnel.me/BOE/computeVaR/"+probability+"/"+_nominal+"/"+_instrumentID+"/).*"
+      string memory URL = "json(https://empty-lion-93.localtunnel.me/BOE/computeVaR/";
+      string memory query1 = probability;
+      string memory query2_4 = "/";
+      string memory query3 = _nominal;
+      string memory query5 = _instrumentID;
+      string memory query6 = "/).*";
+
+      string memory _query = strConcat(URL, query1, query2_4, query3, query2_4);
+      string memory query = strConcat(_query, query5, query6);
       LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
       bytes32 queryID = oraclize_query("URL",query);
       queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
