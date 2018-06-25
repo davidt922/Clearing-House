@@ -109,6 +109,12 @@ contract compensationChamber
   {
       return mapEtherAccountToContractAddress[_clearingMemberAddress];
   }
+
+
+  function addVanillaSwap()
+  {
+    
+  }
 }
 
 contract clearingMember
@@ -142,4 +148,50 @@ contract clearingMember
     memberAddress = _clearingMemberAddress;
     chamberAddress = msg.sender;
   }
+
+  function addVanillaSwap(address _newSwap)
+  {
+    assets.push(_newSwap);
+  }
+}
+/**
+ *De momento, la pata fija es a la par.
+ */
+
+contract vanillaSwap()
+{
+  address marketDataAddress;
+  address floatingLegMemberAddress;
+  address fixedLegMemberAddress;
+  uint tradeDate;
+  uint settlementDate;
+  string nominal;
+
+  constructor(_marketDataAddress, _floatingLegMemberAddress, _fixedLegMemberAddress, _settlementDate, _nominal) public
+  {
+    marketDataAddress = _marketDataAddress;
+    floatingLegMemberAddress = _floatingLegMemberAddress;
+    fixedLegMemberAddress = _fixedLegMemberAddress;
+    settlementDate = _settlementDate;
+    nominal = _nominal;
+    computeIM();
+  }
+
+  modifier onlyMarket
+  {
+    require(msg.sender == marketDataAddress);
+    _;
+  }
+
+
+  function computeIM() public returns(string[])
+  {
+
+  }
+
+  function setIM(string _fixIM, string _floatIM) onlyMarket public
+  {
+
+  }
+
 }

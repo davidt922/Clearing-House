@@ -23,6 +23,7 @@ contract MarketData is usingOraclize
     event returnETHPrice(string ethPrice);
 
     mapping(bytes32 => uint) queryIdToFunctionNumber;
+    mapping(bytes32 => address) queryIdToContractAddressThatHaveCalledTheFunction;
 
   function MarketData() public payable
   {
