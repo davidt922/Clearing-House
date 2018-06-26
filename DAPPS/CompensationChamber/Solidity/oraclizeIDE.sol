@@ -121,7 +121,7 @@ contract compensationChamber
   /**
    * Products
    */
-  function addVanillaSwap(address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) onlyMarket public
+  function addVanillaSwap(address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) /*onlyMarket */public
   {
     assets.push( new vanillaSwap(marketDataAddress, _floatingLegMemberAddress, _fixedLegMemberAddress, _settlementDate, _nominal, _instrumentID));
   }
@@ -170,7 +170,7 @@ contract clearingMember
   }
 }
 /**
- *De momento, la pata fija es a la par.
+ * De momento, la pata fija es a la par.
  */
 
 contract vanillaSwap
@@ -182,7 +182,7 @@ contract vanillaSwap
   uint settlementDate;
   string nominal;
 
-  function vanillaSwap(address _marketDataAddress, address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) public
+  function vanillaSwap(address _marketDataAddress, address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) public payable
   {
     marketDataAddress = _marketDataAddress;
     floatingLegMemberAddress = _floatingLegMemberAddress;
@@ -200,10 +200,13 @@ contract vanillaSwap
     _;
   }
 
+  event showValue(string a);
+
   function setIM(string _fixIM, string _floatIM) onlyMarketData public
   {
     clearingMember floatingLeg = clearingMember(floatingLegMemberAddress);
     clearingMember fixedLeg = clearingMember(fixedLegMemberAddress);
+    showValue("_fixIM");
 
     floatingLeg.addVanillaSwap(_floatIM);
     fixedLeg.addVanillaSwap(_fixIM);
@@ -301,7 +304,7 @@ contract MarketData is usingOraclize
     }
     else
     {
-      string memory URL = "json(https://modern-insect-15.localtunnel.me/BOE/computeVaR/";
+      string memory URL = "json(https://cuddly-eel-39.localtunnel.me/BOE/computeVaR/";
       string memory query1 = probability;
       string memory query2_4 = "/";
       string memory query3 = _nominal;
@@ -342,6 +345,9 @@ contract MarketData is usingOraclize
     }
     else if(functionNumber == 4)
     {
+      vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
+
+      _vanillaSwap.setIM(result,result);
       returnETHPrice(result);
     }
   }
