@@ -3,16 +3,18 @@ pragma solidity ^0.4.18;
 /**
  * Add oraclize api used for call a function every 24h and to obtain data from external sources
  */
-import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+import "./lib/oraclizeAPI.sol";
 /**
  * We will only have one instance of this contract, that will represent the compensation compensationChamber
  * All the contracts will be created using this one
  */
+import "./MarketData.sol";
+import "./vanillaSwap.sol";
+import "./lib/strings.sol";
 
-import "github.com/Arachnid/solidity-stringutils/strings.sol";
 contract compensationChamber
 {
-    event test1(string a);
+  event inicialMargin(string a);
   /**
    * Constants
    */

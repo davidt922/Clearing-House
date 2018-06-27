@@ -3,16 +3,17 @@ pragma solidity ^0.4.18;
 /**
  * Add oraclize api used for call a function every 24h and to obtain data from external sources
  */
-import "./lib/oraclizeAPI.sol";
+import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 /**
  * We will only have one instance of this contract, that will represent the compensation compensationChamber
  * All the contracts will be created using this one
  */
 
-import "./lib/strings.sol";
+import "github.com/Arachnid/solidity-stringutils/strings.sol";
+
 contract compensationChamber
 {
-    event test1(string a);
+  event inicialMargin(string a);
   /**
    * Constants
    */
@@ -128,115 +129,9 @@ contract compensationChamber
    */
   function addVanillaSwap(address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) /*onlyMarket */payable public
   {
-    assets.push( (new vanillaSwap).value(10 ether)(marketDataAddress, _floatingLegMemberAddress, _fixedLegMemberAddress, _settlementDate, _nominal, _instrumentID));
+    assets.push( (new vanillaSwap).value(10 ether)(marketDataAddress, mapEtherAccountToContractAddress[_floatingLegMemberAddress], mapEtherAccountToContractAddress[_fixedLegMemberAddress], _settlementDate, _nominal, _instrumentID));
   }
 }
-
-contract clearingMember
-{
-  /**
-   * Clearing member address
-   * Compensation Chamber address
-   * Array of addresses corresponding to the contracts that this clearing member have
-   */
-  address private memberAddress;
-  address[] private assets;
-  address private chamberAddress;
-
-  /**
-   * Events
-   */
-   event initialMargin(string price);
-  /**
-   * Add modifiers for this contract, one for the chamber and the other for the clearing memeber
-   */
-  modifier onlyChamber
-  {
-    require(msg.sender == chamberAddress);
-    _;
-  }
-
-  modifier onlyMember
-  {
-    require(msg.sender == memberAddress);
-    _;
-  }
-
-  function clearingMember(address _clearingMemberAddress) public
-  {
-    memberAddress = _clearingMemberAddress;
-    chamberAddress = msg.sender;
-  }
-
-  function addVanillaSwap(string _InitialMargin) public
-  {
-    initialMargin(_InitialMargin);
-    assets.push(msg.sender);
-  }
-  function getAssets() public returns(address[])
-  {
-      return assets;
-  }
-}
-/**
- * De momento, la pata fija es a la par.
- */
-
-contract vanillaSwap
-{
-  using strings for *;
-
-  address marketDataAddress;
-  address floatingLegMemberAddress;
-  address fixedLegMemberAddress;
-  uint tradeDate;
-  uint settlementDate;
-  string nominal;
-
-  function vanillaSwap(address _marketDataAddress, address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) public payable
-  {
-    marketDataAddress = _marketDataAddress;
-    floatingLegMemberAddress = _floatingLegMemberAddress;
-    fixedLegMemberAddress = _fixedLegMemberAddress;
-    settlementDate = _settlementDate;
-    nominal = _nominal;
-    tradeDate = block.timestamp;
-    MarketData marketDataContract = MarketData(marketDataAddress);
-    marketDataContract.getIMSwap.value(5 ether)(_nominal, _instrumentID);
-  }
-
-  modifier onlyMarketData
-  {
-    require(msg.sender == marketDataAddress);
-    _;
-  }
-
-  event showValue(string a);
-
-  function setIM(string result) view onlyMarketData public
-  {
-
-    var stringToParse = result.toSlice();
-    stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
-    var delim = ",".toSlice();
-    var parts = new string[](stringToParse.count(delim) + 1);
-
-    for (uint i = 0; i < parts.length; i++)
-    {
-        parts[i] = stringToParse.split(delim).toString();
-    }
-
-    clearingMember floatingLeg = clearingMember(floatingLegMemberAddress);
-    clearingMember fixedLeg = clearingMember(fixedLegMemberAddress);
-
-    floatingLeg.addVanillaSwap(parts[0]);
-    fixedLeg.addVanillaSwap(parts[1]);
-  }
-
-}
-
-
-/**************************************************************/
 
 contract MarketData is usingOraclize
 {
@@ -372,4 +267,176 @@ contract MarketData is usingOraclize
     }
   }
 
+}
+
+contract asset
+{
+  using strings for *;
+
+  address marketDataAddress;
+  address compensationChamberAddress;
+  address contractAddress1; //floating leg
+  address contractAddress2; //fixed leg
+  uint tradeDate;
+  uint settlementDate;
+  string nominal;
+
+  /**
+   * Map the contractAddress1 and 2 to the value of initial margin they have to pay
+   */
+  mapping(address => string) initialMargin;
+  /**
+   * Map the contractAddress1 and 2 to the value of variation margin they have to pay
+   * these value change every day
+   */
+  mapping(address => string) variationMargin;
+
+  modifier onlyMarketData
+  {
+    require(msg.sender == marketDataAddress);
+    _;
+  }
+
+  modifier onlyChamber
+  {
+    require(msg.sender == compensationChamberAddress);
+    _;
+  }
+
+  function asset(address _marketDataAddress, address _contractAddress1, address _contractAddress2, uint _settlementDate, string _nominal) public
+  {
+    marketDataAddress = _marketDataAddress;
+    contractAddress1 = _contractAddress1; //floating leg
+    contractAddress2 = _contractAddress2; //fixed leg
+    tradeDate = block.timestamp;
+    settlementDate = _settlementDate;
+    nominal = _nominal;
+    compensationChamberAddress = msg.sender;
+    variationMargin[contractAddress1] = "0";
+    variationMargin[contractAddress2] = "0";
+  }
+
+  function getIM(address contractAddress) public returns(bytes32)
+  {
+    return stringToBytes32(initialMargin[contractAddress]);
+  }
+  // This function could only be executed by the asset holder's
+  function getIM() public returns(bytes32)
+  {
+    return stringToBytes32(initialMargin[msg.sender]);
+  }
+
+  function getClearingMemberContractAddressOfTheAsset() public onlyChamber returns(address[2])
+  {
+    return [contractAddress1, contractAddress2];
+  }
+
+  function setIM(string result) view onlyMarketData public
+  {
+    // Posible improve here
+    var stringToParse = result.toSlice();
+    stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
+    var delim = ",".toSlice();
+    var parts = new string[](stringToParse.count(delim) + 1);
+
+    for (uint i = 0; i < parts.length; i++)
+    {
+        parts[i] = stringToParse.split(delim).toString();
+    }
+    // Finish possible improve
+    clearingMember clearingMember1 = clearingMember(contractAddress1);
+    clearingMember clearingMember2 = clearingMember(contractAddress2);
+
+    initialMargin[contractAddress1] = parts[0];
+    initialMargin[contractAddress2] = parts[1];
+
+    clearingMember1.addAsset();
+    clearingMember2.addAsset();
+  }
+
+
+
+
+  function stringToBytes32(string memory source) returns (bytes32 result)
+  {
+    bytes memory tempEmptyStringTest = bytes(source);
+
+    if (tempEmptyStringTest.length == 0)
+    {
+        return 0x0;
+    }
+    assembly
+    {
+        result := mload(add(source, 32))
+    }
+  }
+}
+
+contract vanillaSwap is asset
+{
+
+  function vanillaSwap(address _marketDataAddress, address _floatingLegMemberContractAddress, address _fixedLegMemberContractAddress, uint _settlementDate, string _nominal, string _instrumentID)asset(_marketDataAddress, _floatingLegMemberContractAddress, _fixedLegMemberContractAddress, _settlementDate, _nominal) public payable
+  {
+    MarketData marketDataContract = MarketData(_marketDataAddress);
+    marketDataContract.getIMSwap.value(2 ether)(_nominal, _instrumentID);
+  }
+
+  function setVariationMargin() view onlyChamber public
+  {
+    MarketData marketDataContract = MarketData(marketDataAddress);
+    //marketDataContract.getVMSwap.value(2 ether)(_nominal, _instrumentID);
+  }
+
+}
+
+contract clearingMember
+{
+  /**
+   * Clearing member address
+   * Compensation Chamber address
+   * Array of addresses corresponding to the contracts that this clearing member have
+   */
+  address private memberAddress;
+  address[] private assets;
+  address private chamberAddress;
+
+  /**
+   * Events
+   */
+   event initialMargin(string price);
+  /**
+   * Add modifiers for this contract, one for the chamber and the other for the clearing memeber
+   */
+  modifier onlyChamber
+  {
+    require(msg.sender == chamberAddress);
+    _;
+  }
+
+  modifier onlyMember
+  {
+    require(msg.sender == memberAddress);
+    _;
+  }
+
+  function clearingMember(address _clearingMemberAddress) public
+  {
+    memberAddress = _clearingMemberAddress;
+    chamberAddress = msg.sender;
+  }
+
+  function addAsset() public
+  {
+    assets.push(msg.sender);
+  }
+  function getAssets() public returns(address[])
+  {
+      return assets;
+  }
+
+  function getInitialMargin(address assetAddress) public returns(bytes32)
+  {
+    asset _asset = asset(assetAddress);
+    return _asset.getIM();
+  }
 }
