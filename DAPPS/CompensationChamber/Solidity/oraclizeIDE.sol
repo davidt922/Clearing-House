@@ -173,6 +173,10 @@ contract clearingMember
     initialMargin(_InitialMargin);
     assets.push(msg.sender);
   }
+  function getAssets() public returns(address[])
+  {
+      return assets;
+  }
 }
 /**
  * De momento, la pata fija es a la par.
@@ -211,11 +215,12 @@ contract vanillaSwap
 
   function setIM(string result) view onlyMarketData public
   {
-/*
+
     var stringToParse = result.toSlice();
     stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
     var delim = ",".toSlice();
     var parts = new string[](stringToParse.count(delim) + 1);
+
     for (uint i = 0; i < parts.length; i++)
     {
         parts[i] = stringToParse.split(delim).toString();
@@ -225,7 +230,7 @@ contract vanillaSwap
     clearingMember fixedLeg = clearingMember(fixedLegMemberAddress);
 
     floatingLeg.addVanillaSwap(parts[0]);
-    fixedLeg.addVanillaSwap(parts[1]);*/
+    fixedLeg.addVanillaSwap(parts[1]);
   }
 
 }
@@ -320,7 +325,7 @@ contract MarketData is usingOraclize
     }
     else
     {
-      string memory URL = "json(https://honest-cow-35.localtunnel.me/BOE/computeVaR/";
+      string memory URL = "json(https://sweet-duck-35.localtunnel.me/BOE/computeVaR/";
       string memory query1 = "0.95";
       string memory query2_4 = "/";
       //string memory query3 = _nominal;
