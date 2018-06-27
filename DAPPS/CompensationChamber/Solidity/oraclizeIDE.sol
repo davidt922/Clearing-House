@@ -53,7 +53,12 @@ contract compensationChamber
     owner = msg.sender;
     nextRevisionTime = block.timestamp + dayInSeconds;
     deadlineForMarginalPayment = nextRevisionTime + timeToPayTheMargin;
-    marketDataAddress = (new MarketData).value(1 ether)();
+    marketDataAddress = (new MarketData).value(5 ether)();
+  }
+
+  function getMarketDataAddress() public payable returns(address)
+  {
+      return marketDataAddress;
   }
 
 
@@ -121,9 +126,9 @@ contract compensationChamber
   /**
    * Products
    */
-  function addVanillaSwap(address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) /*onlyMarket */public
+  function addVanillaSwap(address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) /*onlyMarket */payable public
   {
-    assets.push( new vanillaSwap(marketDataAddress, _floatingLegMemberAddress, _fixedLegMemberAddress, _settlementDate, _nominal, _instrumentID));
+    assets.push( (new vanillaSwap).value(10 ether)(marketDataAddress, _floatingLegMemberAddress, _fixedLegMemberAddress, _settlementDate, _nominal, _instrumentID));
   }
 }
 
@@ -175,6 +180,8 @@ contract clearingMember
 
 contract vanillaSwap
 {
+  using strings for *;
+
   address marketDataAddress;
   address floatingLegMemberAddress;
   address fixedLegMemberAddress;
@@ -191,7 +198,7 @@ contract vanillaSwap
     nominal = _nominal;
     tradeDate = block.timestamp;
     MarketData marketDataContract = MarketData(marketDataAddress);
-    marketDataContract.getIMSwap(_nominal, _instrumentID);
+    marketDataContract.getIMSwap.value(5 ether)(_nominal, _instrumentID);
   }
 
   modifier onlyMarketData
@@ -202,14 +209,23 @@ contract vanillaSwap
 
   event showValue(string a);
 
-  function setIM(string _fixIM, string _floatIM) onlyMarketData public
+  function setIM(string result) view onlyMarketData public
   {
+/*
+    var stringToParse = result.toSlice();
+    stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
+    var delim = ",".toSlice();
+    var parts = new string[](stringToParse.count(delim) + 1);
+    for (uint i = 0; i < parts.length; i++)
+    {
+        parts[i] = stringToParse.split(delim).toString();
+    }
+
     clearingMember floatingLeg = clearingMember(floatingLegMemberAddress);
     clearingMember fixedLeg = clearingMember(fixedLegMemberAddress);
-    showValue("_fixIM");
 
-    floatingLeg.addVanillaSwap(_floatIM);
-    fixedLeg.addVanillaSwap(_fixIM);
+    floatingLeg.addVanillaSwap(parts[0]);
+    fixedLeg.addVanillaSwap(parts[1]);*/
   }
 
 }
@@ -229,6 +245,7 @@ contract MarketData is usingOraclize
   event LogNewOraclizeQuery(string description);
   event returnCurrencyExchange(string currExchange);
   event returnETHPrice(string ethPrice);
+  event callbackRuning(string log);
 
   mapping(bytes32 => uint) queryIdToFunctionNumber;
   mapping(bytes32 => address) queryIdToContractAddressThatHaveCalledTheFunction;
@@ -243,7 +260,7 @@ contract MarketData is usingOraclize
    * _base and _secundary with ISO 4217
    * Function number 1
    */
-  function getCurrencyExchange(string _base, string _secundary) public  payable
+  function getCurrencyExchange(string _base, string _secundary) public payable
   {
     if (oraclize_getPrice("URL") > this.balance)
     {
@@ -295,25 +312,24 @@ contract MarketData is usingOraclize
     }
   }
 
-  function getIMSwap(string _nominal, string _instrumentID) public  payable
+  function getIMSwap(string _nominal, string _instrumentID) public payable
   {
-    string memory probability = "0.95";
     if (oraclize_getPrice("URL") > this.balance)
     {
       LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
     }
     else
     {
-      string memory URL = "json(https://cuddly-eel-39.localtunnel.me/BOE/computeVaR/";
-      string memory query1 = probability;
+      string memory URL = "json(https://honest-cow-35.localtunnel.me/BOE/computeVaR/";
+      string memory query1 = "0.95";
       string memory query2_4 = "/";
-      string memory query3 = _nominal;
-      string memory query5 = _instrumentID;
+      //string memory query3 = _nominal;
+      //string memory query5 = _instrumentID;
       string memory query6 = "/).*";
 
-      string memory _query = strConcat(URL, query1, query2_4, query3, query2_4);
-      string memory query = strConcat(_query, query5, query6);
-      LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
+      string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
+      string memory query = strConcat(_query, _instrumentID, query6);
+      //LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
       bytes32 queryID = oraclize_query("URL",query);
       queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
       queryIdToFunctionNumber[queryID] = 4;
@@ -327,9 +343,8 @@ contract MarketData is usingOraclize
     {
       revert();
     }
-
+    callbackRuning("The callback is runing");
     uint functionNumber = queryIdToFunctionNumber[myid];
-    address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
 
     if(functionNumber == 1)
     {
@@ -345,10 +360,10 @@ contract MarketData is usingOraclize
     }
     else if(functionNumber == 4)
     {
-      vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
 
-      _vanillaSwap.setIM(result,result);
-      returnETHPrice(result);
+     address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
+     vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
+     _vanillaSwap.setIM(result);
     }
   }
 

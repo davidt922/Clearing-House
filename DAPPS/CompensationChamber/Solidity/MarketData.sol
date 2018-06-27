@@ -12,18 +12,19 @@ import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 contract MarketData is usingOraclize
 {
-    /**
-     * To enable strings.sol library
-     */
-    using strings for *;
+  /**
+   * To enable strings.sol library
+   */
+  using strings for *;
 
-    event LogConstructorInitiated(string nextStep);
-    event LogNewOraclizeQuery(string description);
-    event returnCurrencyExchange(string currExchange);
-    event returnETHPrice(string ethPrice);
 
-    mapping(bytes32 => uint) queryIdToFunctionNumber;
-    mapping(bytes32 => address) queryIdToContractAddressThatHaveCalledTheFunction;
+  event LogConstructorInitiated(string nextStep);
+  event LogNewOraclizeQuery(string description);
+  event returnCurrencyExchange(string currExchange);
+  event returnETHPrice(string ethPrice);
+
+  mapping(bytes32 => uint) queryIdToFunctionNumber;
+  mapping(bytes32 => address) queryIdToContractAddressThatHaveCalledTheFunction;
 
   function MarketData() public payable
   {
@@ -57,34 +58,6 @@ contract MarketData is usingOraclize
       queryIdToFunctionNumber[queryID] = 1;
     }
   }
-
-  /**
-   * Get 6 month historical closing price for an instrument
-   * For historical var calculation we need 5 years but if we do a 5 years request
-   * The transaction fails due to an out of gas.
-   * Function number 2
-   */
-  function get6mMarketData(string _stockSymbol) public  payable
-  {
-    if (oraclize_getPrice("URL") > this.balance)
-    {
-      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
-    }
-    else
-    {
-        string memory URL = "json(https://api.iextrading.com/1.0/stock/";
-        string memory stockSymbol = _stockSymbol;
-        string memory fiveYearsChart = "/chart/6m";
-        string memory getClosePrice = ").[:].close";
-
-        string memory query = strConcat(URL, stockSymbol, fiveYearsChart, getClosePrice);
-
-        LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
-        bytes32 queryID = oraclize_query("URL",query);
-        queryIdToFunctionNumber[queryID] = 2;
-    }
-
-  }
   /**
    * Get the actual ETH price with respect to a currency
    * _baseCurrency ISO 4217
@@ -115,6 +88,32 @@ contract MarketData is usingOraclize
     }
   }
 
+  function getIMSwap(string _nominal, string _instrumentID) public  payable
+  {
+    string memory probability = "0.95";
+    if (oraclize_getPrice("URL") > this.balance)
+    {
+      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
+    }
+    else
+    {
+      string memory URL = "json(https://empty-lion-93.localtunnel.me/BOE/computeVaR/";
+      string memory query1 = probability;
+      string memory query2_4 = "/";
+      string memory query3 = _nominal;
+      string memory query5 = _instrumentID;
+      string memory query6 = "/).*";
+
+      string memory _query = strConcat(URL, query1, query2_4, query3, query2_4);
+      string memory query = strConcat(_query, query5, query6);
+      LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
+      bytes32 queryID = oraclize_query("URL",query);
+      queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
+      queryIdToFunctionNumber[queryID] = 4;
+    }
+
+  }
+
   function __callback(bytes32 myid, string result)
   {
     if (msg.sender != oraclize_cbAddress())
@@ -123,6 +122,7 @@ contract MarketData is usingOraclize
     }
 
     uint functionNumber = queryIdToFunctionNumber[myid];
+    address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
 
     if(functionNumber == 1)
     {
@@ -136,5 +136,10 @@ contract MarketData is usingOraclize
     {
       returnETHPrice(result);
     }
+    else if(functionNumber == 4)
+    {
+      returnETHPrice(result);
+    }
   }
+
 }
