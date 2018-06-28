@@ -3,18 +3,18 @@ pragma solidity ^0.4.18;
 /**
  * Add oraclize API
  */
-import "./lib/oraclizeAPI.sol";
+import "./oraclizeAPI.sol";
 
 /**
  * Allow Slice strings
  */
-import "./lib/strings.sol";
+import "./strings.sol";
 
 /**
  * De momento, la pata fija es a la par.
  */
 import "./clearingMember.sol";
-import "./CompensationChamber.sol";
+import "./compensationChamber.sol";
 import "./MarketData.sol";
 /**
  * De momento, la pata fija es a la par.

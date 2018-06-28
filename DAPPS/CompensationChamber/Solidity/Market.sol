@@ -3,12 +3,12 @@ pragma solidity ^0.4.18;
 /**
  * Add oraclize API
  */
-import "./lib/oraclizeAPI.sol";
+import "./oraclizeAPI.sol";
 
 /**
  * Allow Slice strings
  */
-import "./lib/strings.sol";
+import "./strings.sol";
 
 contract market
 {

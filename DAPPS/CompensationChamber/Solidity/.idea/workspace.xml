@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bc0a7896-7253-43e3-9b2d-5d1ad8c417f4" name="Default" comment="" />
+    <list default="true" id="5c5b7fc2-971b-4952-94ae-5dd8cf9fe812" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,25 +12,38 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="compensationChamber.sol" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Solidity/compensationChamber.sol">
+        <entry file="file://$PROJECT_DIR$/compensationChamber.sol">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="25">
-              <caret line="34" column="5" selection-start-line="34" selection-start-column="5" selection-end-line="34" selection-end-column="5" />
+              <caret line="20" column="8" selection-start-line="20" selection-start-column="8" selection-end-line="20" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MarketData.sol" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MarketData.sol">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="125">
+              <caret line="74" column="14" selection-start-line="74" selection-start-column="14" selection-end-line="74" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="vanillaSwap.sol" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vanillaSwap.sol">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="400">
+              <caret line="16" column="35" selection-start-line="16" selection-start-column="35" selection-end-line="16" selection-end-column="35" />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
   </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>CompensationChamber</find>
-    </findStrings>
-  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Solidity/compensationChamber.sol" />
+        <option value="$PROJECT_DIR$/compensationChamber.sol" />
       </list>
     </option>
   </component>
@@ -40,15 +53,10 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="NodeModulesDirectoryManager">
-    <handled-path value="$PROJECT_DIR$/Web/node_modules" />
-  </component>
   <component name="NodePackageJsonFileManager">
-    <packageJsonPaths>
-      <path value="$PROJECT_DIR$/Web/package.json" />
-    </packageJsonPaths>
+    <packageJsonPaths />
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="-10" />
     <option name="y" value="-10" />
     <option name="width" value="1295" />
@@ -59,37 +67,32 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
-              <item name="CompensationChamber" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CompensationChamber" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CompensationChamber" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CompensationChamber" type="462c0819:PsiDirectoryNode" />
+              <item name="Solidity" type="b2602c69:ProjectViewProjectNode" />
               <item name="Solidity" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="AndroidView" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/Solidity" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/compensationChamber.sol" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="settings.editor.selected.configurable" value="preferences.Solidity" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -123,10 +126,11 @@
       </option>
       <patterns />
     </configuration>
-    <configuration name="compensationChamber" type="SolidityConfigurationType" factoryName="Solidity" temporary="true" show_console_on_std_err="false" show_console_on_std_out="false">
+    <configuration name="compensationChamber.getMarketDataAddress" type="SolidityConfigurationType" factoryName="Solidity" temporary="true" show_console_on_std_err="false" show_console_on_std_out="false">
+      <module name="Solidity" />
       <option name="VMParameters" value="" />
-      <option name="alternativeJrePath" />
-      <option name="alternativeJrePathEnabled" value="false" />
+      <option name="alternativeJrePath" value="1.8" />
+      <option name="alternativeJrePathEnabled" value="true" />
       <option name="envs">
         <map />
       </option>
@@ -134,7 +138,7 @@
       <option name="programParameters" value="" />
       <option name="workingDirectory" value="" />
       <option name="contractName" value="compensationChamber" />
-      <option name="contractFile" value="$PROJECT_DIR$/Solidity/compensationChamber.sol" />
+      <option name="contractFile" value="$PROJECT_DIR$/compensationChamber.sol" />
       <option name="functionName" value="" />
       <option name="vmParameters" value="" />
       <option name="programParameters" value="" />
@@ -142,9 +146,8 @@
       <option name="envs">
         <map />
       </option>
-      <option name="ajreEnabled" value="false" />
-      <option name="ajre" />
-      <module name="" />
+      <option name="ajreEnabled" value="true" />
+      <option name="ajre" value="1.8" />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -170,7 +173,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Solidity.compensationChamber" />
+        <item itemvalue="Solidity.compensationChamber.getMarketDataAddress" />
       </list>
     </recent_temporary>
   </component>
@@ -179,52 +182,51 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="bc0a7896-7253-43e3-9b2d-5d1ad8c417f4" name="Default" comment="" />
-      <created>1530004759827</created>
+      <changelist id="5c5b7fc2-971b-4952-94ae-5dd8cf9fe812" name="Default" comment="" />
+      <created>1530182996025</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1530004759827</updated>
-      <workItem from="1530004764740" duration="671000" />
-      <workItem from="1530182027829" duration="1565000" />
-      <workItem from="1530189116704" duration="56000" />
-      <workItem from="1530189203742" duration="45000" />
+      <updated>1530182996025</updated>
+      <workItem from="1530182997597" duration="1980000" />
+      <workItem from="1530189246786" duration="616000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2337000" />
+    <option name="totallyTimeSpent" value="2596000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="7" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
-      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.32965517" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16601562" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16341145" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="2" />
       <window_info anchor="right" id="Theme Preview" order="3" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Messages" order="7" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Messages" order="7" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -234,31 +236,52 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Solidity/compensationChamber.sol">
+    <entry file="file://$PROJECT_DIR$/compensationChamber.sol">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="850">
-          <caret line="34" column="5" selection-start-line="34" selection-start-column="5" selection-end-line="34" selection-end-column="5" />
+        <state relative-caret-position="500">
+          <caret line="20" column="8" selection-start-line="20" selection-start-column="8" selection-end-line="20" selection-end-column="8" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Solidity/compensationChamber.sol">
+    <entry file="file://$PROJECT_DIR$/vanillaSwap.sol">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="850">
-          <caret line="34" column="5" selection-start-line="34" selection-start-column="5" selection-end-line="34" selection-end-column="5" />
+        <state relative-caret-position="400">
+          <caret line="16" column="35" selection-start-line="16" selection-start-column="35" selection-end-line="16" selection-end-column="35" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Solidity/compensationChamber.sol">
+    <entry file="file://$PROJECT_DIR$/MarketData.sol">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="7" column="34" selection-start-line="7" selection-start-column="34" selection-end-line="7" selection-end-column="34" />
+        <state relative-caret-position="1850">
+          <caret line="74" column="14" selection-start-line="74" selection-start-column="14" selection-end-line="74" selection-end-column="14" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Solidity/compensationChamber.sol">
+    <entry file="file://$PROJECT_DIR$/vanillaSwap.sol">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="16" column="35" selection-start-line="16" selection-start-column="35" selection-end-line="16" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/oraclizeAPI.sol">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="233">
+          <caret line="349" column="13" selection-start-line="349" selection-start-column="13" selection-end-line="349" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MarketData.sol">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="74" column="14" selection-start-line="74" selection-start-column="14" selection-end-line="74" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/compensationChamber.sol">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="25">
-          <caret line="34" column="5" selection-start-line="34" selection-start-column="5" selection-end-line="34" selection-end-column="5" />
+          <caret line="20" column="8" selection-start-line="20" selection-start-column="8" selection-end-line="20" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -314,7 +337,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>CompensationChamber</last-edited>
+          <last-edited>Solidity</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

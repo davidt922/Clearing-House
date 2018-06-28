@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
-import "./lib/strings.sol";
-import "./lib/conversions.sol";
+import "./strings.sol";
+import "./conversions.sol";
 
 contract asset is conversions
 {
