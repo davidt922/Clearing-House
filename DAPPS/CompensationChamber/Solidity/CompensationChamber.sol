@@ -13,6 +13,7 @@ import "./conversions.sol";
  */
 import "./MarketData.sol";
 import "./vanillaSwap.sol";
+import "./clearingMember.sol";
 
 contract compensationChamber is conversions
 {
