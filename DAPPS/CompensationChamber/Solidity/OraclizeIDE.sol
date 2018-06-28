@@ -4,6 +4,11 @@ pragma solidity ^0.4.18;
 import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
+
+/******************************************************************************/
+/******************************* CONVERSIONS **********************************/
+/******************************************************************************/
+
 contract conversions
 {
   using strings for *;
@@ -43,7 +48,7 @@ contract conversions
     }
 }
   // convert string of this type: [aa, bb, cc] to an array of bytes32 ["aa","bb","cc"]
-  function stringToBytes32Array(string result) internal pure returns (bytes32[2] memory)
+  function stringToBytes32Array2(string result) internal pure returns (bytes32[2] memory)
   {
     // Posible improve here
     var stringToParse = result.toSlice();
@@ -94,11 +99,15 @@ contract conversions
 
 }
 
+/******************************************************************************/
+/**************************** COMPENSATION CHAMBER ****************************/
+/******************************************************************************/
+
 contract compensationChamber is conversions
 {
   using strings for *;
 
-  event inicialMargin(string a);
+  event inicialMargin(address a, string b);
   /**
    * Constants
    */
@@ -208,12 +217,11 @@ contract compensationChamber is conversions
       return mapEtherAccountToContractAddress[_clearingMemberAddress];
   }
 
-  function sendInitialMarginInformation(bytes32 _initialMargin, address _clearingMemberAddress)
+  function sendInitialMarginInformation(bytes32 _initialMargin) public
   {
     string memory initialMarginStr = bytes32ToString(_initialMargin);
-    string memory clearingMemberAddressStr = addressToString(_clearingMemberAddress);
-    string memory logInfo = strConcat(clearingMemberAddressStr,": ",clearingMemberAddressStr);
-    inicialMargin(logInfo);
+
+    inicialMargin(msg.sender, initialMarginStr);
   }
 
 
@@ -225,6 +233,12 @@ contract compensationChamber is conversions
     assets.push( (new vanillaSwap).value(10 ether)(marketDataAddress, mapEtherAccountToContractAddress[_floatingLegMemberAddress], mapEtherAccountToContractAddress[_fixedLegMemberAddress], _settlementDate, _nominal, _instrumentID));
   }
 }
+
+
+/******************************************************************************/
+/************************************ ASSETS **********************************/
+/******************************************************************************/
+
 
 contract asset is conversions
 {
@@ -288,21 +302,27 @@ contract asset is conversions
     return [contractAddress1, contractAddress2];
   }
 
-  function setIM(string result) view onlyMarketData public
+  function setIM(string result) onlyMarketData public
   {
 
-    bytes32[2] memory parts = stringToBytes32Array(result);
+    bytes32[2] memory parts = stringToBytes32Array2(result);
 
     clearingMember clearingMember1 = clearingMember(contractAddress1);
     clearingMember clearingMember2 = clearingMember(contractAddress2);
+    _compensationChamber.sendInitialMarginInformation(parts[0]);
 
     initialMargin[contractAddress1] = parts[0];
     initialMargin[contractAddress2] = parts[1];
 
-    clearingMember1.addAsset();
-    clearingMember2.addAsset();
+    clearingMember1.addAsset(initialMargin[contractAddress1]);
+    clearingMember2.addAsset(initialMargin[contractAddress2]);
   }
 }
+
+
+/******************************************************************************/
+/******************************* CLEARING MEMBER ******************************/
+/******************************************************************************/
 
 contract clearingMember
 {
@@ -340,8 +360,10 @@ contract clearingMember
     chamberAddress = msg.sender;
   }
 
-  function addAsset() public
+  function addAsset(bytes32 _initialMargin) public
   {
+    compensationChamber _compensationChamber = compensationChamber(chamberAddress);
+    _compensationChamber.sendInitialMarginInformation(_initialMargin);
     assets.push(msg.sender);
   }
   function getAssets() public returns(address[])
@@ -349,12 +371,18 @@ contract clearingMember
       return assets;
   }
 
-  function getInitialMargin(address assetAddress) public returns(bytes32)
+  function getInitialMargin(address assetAddress) public view returns(bytes32)
   {
     asset _asset = asset(assetAddress);
     return _asset.getIM();
   }
 }
+
+
+/******************************************************************************/
+/********************************* MARKET DATA ********************************/
+/******************************************************************************/
+
 
 contract MarketData is usingOraclize
 {
@@ -491,6 +519,10 @@ contract MarketData is usingOraclize
   }
 
 }
+
+/******************************************************************************/
+/********************************* VANILLA SWAP *******************************/
+/******************************************************************************/
 
 contract vanillaSwap is asset
 {
