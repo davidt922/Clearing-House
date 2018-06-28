@@ -9,7 +9,7 @@ contract conversions
   using strings for *;
 
   // Convert from bytes32 to String
-  function bytes32ToString(bytes32 _bytes32) public constant returns (string)
+  function bytes32ToString(bytes32 _bytes32) internal pure returns (string)
   {
     bytes memory bytesArray = new bytes(32);
     for (uint256 i; i < 32; i++)
@@ -19,7 +19,7 @@ contract conversions
     return string(bytesArray);
   }
   // Convert addressToString
-  function addressToString(address x) returns (string)
+  function addressToString(address x) internal pure returns (string)
   {
     bytes memory b = new bytes(20);
 
@@ -30,7 +30,7 @@ contract conversions
     return string(b);
   }
   // Convert string to bytes32
-  function stringToBytes32(string memory source) public returns (bytes32 result)
+  function stringToBytes32(string memory source) internal pure returns (bytes32 result)
   {
     bytes memory tempEmptyStringTest = bytes(source);
     if (tempEmptyStringTest.length == 0)
@@ -43,14 +43,14 @@ contract conversions
     }
 }
   // convert string of this type: [aa, bb, cc] to an array of bytes32 ["aa","bb","cc"]
-  function stringToBytes32Array(string result) public payable returns (bytes32[])
+  function stringToBytes32Array(string result) internal pure returns (bytes32[2] memory)
   {
     // Posible improve here
     var stringToParse = result.toSlice();
     stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
     var delim = ",".toSlice();
     //var parts = new string[](stringToParse.count(delim) + 1);
-    bytes32[] parts;
+    bytes32[2] memory parts;
     for (uint i = 0; i < parts.length; i++)
     {
         parts[i] = stringToBytes32(stringToParse.split(delim).toString());
@@ -291,8 +291,7 @@ contract asset is conversions
   function setIM(string result) view onlyMarketData public
   {
 
-     /*
-    bytes32[] memory parts = stringToBytes32Array(result);
+    bytes32[2] memory parts = stringToBytes32Array(result);
 
     clearingMember clearingMember1 = clearingMember(contractAddress1);
     clearingMember clearingMember2 = clearingMember(contractAddress2);
@@ -301,7 +300,7 @@ contract asset is conversions
     initialMargin[contractAddress2] = parts[1];
 
     clearingMember1.addAsset();
-    clearingMember2.addAsset();*/
+    clearingMember2.addAsset();
   }
 }
 
