@@ -1,8 +1,9 @@
 pragma solidity ^0.4.18;
 
 import "./lib/strings.sol";
+import "./lib/conversions.sol";
 
-contract asset
+contract asset is conversions
 {
   using strings for *;
 
@@ -17,12 +18,12 @@ contract asset
   /**
    * Map the contractAddress1 and 2 to the value of initial margin they have to pay
    */
-  mapping(address => string) initialMargin;
+  mapping(address => bytes32) initialMargin;
   /**
    * Map the contractAddress1 and 2 to the value of variation margin they have to pay
    * these value change every day
    */
-  mapping(address => string) variationMargin;
+  mapping(address => bytes32) variationMargin;
 
   modifier onlyMarketData
   {
@@ -45,18 +46,18 @@ contract asset
     settlementDate = _settlementDate;
     nominal = _nominal;
     compensationChamberAddress = msg.sender;
-    variationMargin[contractAddress1] = "0";
-    variationMargin[contractAddress2] = "0";
+    variationMargin[contractAddress1] = "0x0";
+    variationMargin[contractAddress2] = "0x0";
   }
 
   function getIM(address contractAddress) public returns(bytes32)
   {
-    return stringToBytes32(initialMargin[contractAddress]);
+    return initialMargin[contractAddress];
   }
   // This function could only be executed by the asset holder's
   function getIM() public returns(bytes32)
   {
-    return stringToBytes32(initialMargin[msg.sender]);
+    return initialMargin[msg.sender];
   }
 
   function getClearingMemberContractAddressOfTheAsset() public onlyChamber returns(address[2])
@@ -66,17 +67,10 @@ contract asset
 
   function setIM(string result) view onlyMarketData public
   {
-    // Posible improve here
-    var stringToParse = result.toSlice();
-    stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
-    var delim = ",".toSlice();
-    var parts = new string[](stringToParse.count(delim) + 1);
 
-    for (uint i = 0; i < parts.length; i++)
-    {
-        parts[i] = stringToParse.split(delim).toString();
-    }
-    // Finish possible improve
+     /*
+    bytes32[] memory parts = stringToBytes32Array(result);
+
     clearingMember clearingMember1 = clearingMember(contractAddress1);
     clearingMember clearingMember2 = clearingMember(contractAddress2);
 
@@ -84,23 +78,6 @@ contract asset
     initialMargin[contractAddress2] = parts[1];
 
     clearingMember1.addAsset();
-    clearingMember2.addAsset();
-  }
-
-
-
-
-  function stringToBytes32(string memory source) returns (bytes32 result)
-  {
-    bytes memory tempEmptyStringTest = bytes(source);
-
-    if (tempEmptyStringTest.length == 0)
-    {
-        return 0x0;
-    }
-    assembly
-    {
-        result := mload(add(source, 32))
-    }
+    clearingMember2.addAsset();*/
   }
 }

@@ -4,16 +4,20 @@ pragma solidity ^0.4.18;
  * Add oraclize api used for call a function every 24h and to obtain data from external sources
  */
 import "./lib/oraclizeAPI.sol";
+
+import "./lib/strings.sol";
+import "./lib/conversions.sol";
 /**
  * We will only have one instance of this contract, that will represent the compensation compensationChamber
  * All the contracts will be created using this one
  */
 import "./MarketData.sol";
 import "./vanillaSwap.sol";
-import "./lib/strings.sol";
 
-contract compensationChamber
+contract compensationChamber is conversions
 {
+  using strings for *;
+
   event inicialMargin(string a);
   /**
    * Constants
@@ -122,6 +126,14 @@ contract compensationChamber
   function getContractForAGivenAddress(address _clearingMemberAddress) public payable returns(address)
   {
       return mapEtherAccountToContractAddress[_clearingMemberAddress];
+  }
+
+  function sendInitialMarginInformation(bytes32 _initialMargin, address _clearingMemberAddress)
+  {
+    string memory initialMarginStr = bytes32ToString(_initialMargin);
+    string memory clearingMemberAddressStr = addressToString(_clearingMemberAddress);
+    string memory logInfo = strConcat(clearingMemberAddressStr,": ",clearingMemberAddressStr);
+    inicialMargin(logInfo);
   }
 
 

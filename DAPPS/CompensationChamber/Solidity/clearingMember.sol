@@ -11,6 +11,8 @@ import "./lib/oraclizeAPI.sol";
 
 import "./lib/strings.sol";
 
+import "./Asset.sol";
+
 contract clearingMember
 {
   /**
@@ -56,7 +58,7 @@ contract clearingMember
       return assets;
   }
 
-  function getInitialMargin(address assetAddress) public returns(string)
+  function getInitialMargin(address assetAddress) public returns(bytes32)
   {
     asset _asset = asset(assetAddress);
     return _asset.getIM();
