@@ -21,7 +21,12 @@ contract conversions
     {
         bytesArray[i] = _bytes32[i];
     }
-    return string(bytesArray);
+    var stringToParse = string(bytesArray).toSlice();
+    strings.slice memory part;
+
+    // remove all \u0000 after the word
+    stringToParse.split("\u0000".toSlice(), part);
+    return part.toString();
   }
   // Convert addressToString
   function addressToString(address x) internal pure returns (string)
@@ -46,7 +51,7 @@ contract conversions
     {
         result := mload(add(source, 32))
     }
-}
+  }
   // convert string of this type: [aa, bb, cc] to an array of bytes32 ["aa","bb","cc"]
   function stringToBytes32Array2(string result) internal pure returns (bytes32[2] memory)
   {
@@ -108,6 +113,7 @@ contract compensationChamber is conversions
   using strings for *;
 
   event inicialMargin(address a, string b);
+  event logString(string a);
   /**
    * Constants
    */
@@ -224,6 +230,11 @@ contract compensationChamber is conversions
     inicialMargin(msg.sender, initialMarginStr);
   }
 
+  function log(string a) public
+  {
+      logString(a);
+  }
+
 
   /**
    * Products
@@ -309,8 +320,8 @@ contract asset is conversions
 
     clearingMember clearingMember1 = clearingMember(contractAddress1);
     clearingMember clearingMember2 = clearingMember(contractAddress2);
-    _compensationChamber.sendInitialMarginInformation(parts[0]);
 
+    compensationChamber _compensationChamber = compensationChamber(compensationChamberAddress);
     initialMargin[contractAddress1] = parts[0];
     initialMargin[contractAddress2] = parts[1];
 

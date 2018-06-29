@@ -227,10 +227,11 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
  * Bank of England Official Statistics
  *
  * The 3 month Euribor Instrument ID is IUDERB3
+ * 3 month forward GBP/USD
  */
  app.get("/BOE/computeVaR/:probability/:nominal/:instrumentID/", function(req, res)
  {
-   var portfolio = req.params.portfolio;
+   //var portfolio = req.params.portfolio;
    var nominal = parseFloat(req.params.nominal);
    var instrumentID = req.params.instrumentID;
 
