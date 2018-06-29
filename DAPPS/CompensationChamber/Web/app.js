@@ -273,3 +273,47 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
      res.json({"fixLeg" : VaR1, "variableLeg" : VaR2}); // Revisar
    }, 7000);
  });
+/**
+ app.get("/BOE/computeVM/:nominal/:instrumentID/", function(req, res)
+ {
+   //var portfolio = req.params.portfolio;
+   var nominal = parseFloat(req.params.nominal);
+   var instrumentID = req.params.instrumentID;
+
+   var intRate = new InterestRate(instrumentID, nominal);
+
+   var startDate = getDate(5,0,0);
+
+   var k = 0;
+
+   var url = "https://www.quandl.com/api/v3/datasets/BOE/"+intRate.getInstrumentID()+".json?api_key=aFBPpVBg4L5fMsc9BWHs&start_date="+startDate;
+   request(url, function (error, response, body)
+   {
+       var myJSON = JSON.parse(body);
+
+       var data = myJSON.dataset.data;
+
+       intRate.setActualInterestRate(parseFloat(data[0][1]));
+
+       var lastValue = parseFloat(data[data.length-1][1]);
+       var actualValue = 0;
+
+       var _historicalInterestRateChange = 0;
+
+       for(var j = data.length - 2; j > 0; j--)
+       {
+         actualValue = parseFloat(data[j][1]);
+         _historicalInterestRateChange = (actualValue - lastValue) / lastValue;
+         intRate.setHistoricalInterestRateChange(_historicalInterestRateChange);
+         lastValue = actualValue;
+       }
+       k = 1;
+   });
+   setTimeout(function()
+   {
+     var VaR1 = Math.abs(intRate.computeVaR(parseFloat(probability)));
+     var VaR2 = Math.abs(intRate.computeVaR(parseFloat(1 - probability)));
+     res.json({"fixLeg" : VaR1, "variableLeg" : VaR2}); // Revisar
+   }, 7000);
+ });
+*/
