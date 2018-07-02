@@ -7,8 +7,8 @@ var app = express();
 /******************************************************************************/
 const PORT = 3002;
 https.createServer({
-    key: fs.readFileSync('/certs/myserver.key'),
-    cert: fs.readFileSync('/certs/myserver.crt')
+    key: fs.readFileSync('./certs/myserver.key'),
+    cert: fs.readFileSync('./certs/myserver.crt')
 }, app).listen(PORT, function()
 {
   console.log("app.js listening on port "+PORT+"!")
