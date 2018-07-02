@@ -52,6 +52,23 @@ contract conversions
         result := mload(add(source, 32))
     }
   }
+
+  // Convert string to uint
+  function stringToUint(string s) constant returns (uint result)
+  {
+       bytes memory b = bytes(s);
+       uint i;
+       result = 0;
+       for (i = 0; i < b.length; i++)
+       {
+           uint c = uint(b[i]);
+           if (c >= 48 && c <= 57)
+           {
+               result = result * 10 + (c - 48);
+           }
+       }
+   }
+
   // convert string of this type: [aa, bb, cc] to an array of bytes32 ["aa","bb","cc"]
   function stringToBytes32Array2(string result) internal pure returns (bytes32[2] memory)
   {
@@ -64,6 +81,23 @@ contract conversions
     for (uint i = 0; i < parts.length; i++)
     {
         parts[i] = stringToBytes32(stringToParse.split(delim).toString());
+    }
+    // Finish possible improve
+    return parts;
+  }
+
+  // convert string of this type: [aa, bb, cc] to an array of uint ["aa","bb","cc"]
+  function stringToUIntArray2(string result) internal returns (uint[2] memory)
+  {
+    // Posible improve here
+    var stringToParse = result.toSlice();
+    stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
+    var delim = ",".toSlice();
+    //var parts = new string[](stringToParse.count(delim) + 1);
+    uint[2] memory parts;
+    for (uint i = 0; i < parts.length; i++)
+    {
+        parts[i] = stringToUint(stringToParse.split(delim).toString());
     }
     // Finish possible improve
     return parts;
@@ -101,7 +135,21 @@ contract conversions
   {
       return strConcat(_a, _b, "", "", "");
   }
+/*
+  function remove(uint[] arrauint index)  returns(uint[])
+  {
+    if (index >= array.length) return;
 
+    for (uint i = index; i<array.length-1; i++)
+    {
+        array[i] = array[i+1];
+    }
+
+    delete array[array.length-1];
+    array.length--;
+    return array;
+  }
+*/
 }
 
 /******************************************************************************/
@@ -134,7 +182,7 @@ contract compensationChamber is conversions
 
   /**
    * Timestamp in seconds since epox indicating the date and time when the chamber will do the
-   * next asset valuation and will infrom of the daily marginal that the counterparts have to give to the chamber.
+   * next future valuation and will infrom of the daily marginal that the counterparts have to give to the chamber.
    * Or to liquidate the operation if the contract has reached the maturity date.
    */
   uint private nextRevisionTime;
@@ -145,9 +193,10 @@ contract compensationChamber is conversions
    * Map an Ethereum account address with the corresponding clearing member contract address
    */
   mapping (address => address) mapEtherAccountToContractAddress;
+  mapping (address => address) mapContractAddressToEtherAccount;
   address[] clearingMembersAddresses;
   address[] clearingMemberContractAddresses;
-  address[] assets;
+  address[] futures;
 
   function compensationChamber() public payable
   {
@@ -200,6 +249,7 @@ contract compensationChamber is conversions
     if(contractAddress == 0)
     {
       mapEtherAccountToContractAddress[_clearingMemberAddress] = new clearingMember(_clearingMemberAddress);
+      mapContractAddressToEtherAccount[mapEtherAccountToContractAddress[_clearingMemberAddress]] = _clearingMemberAddress;
       clearingMembersAddresses.push(_clearingMemberAddress);
       clearingMemberContractAddresses.push(mapEtherAccountToContractAddress[_clearingMemberAddress]);
     }
@@ -227,7 +277,7 @@ contract compensationChamber is conversions
   {
     string memory initialMarginStr = bytes32ToString(_initialMargin);
 
-    inicialMargin(msg.sender, initialMarginStr);
+    inicialMargin(mapContractAddressToEtherAccount[msg.sender], initialMarginStr);
   }
 
   function log(string a) public
@@ -235,43 +285,52 @@ contract compensationChamber is conversions
       logString(a);
   }
 
+  function computeVariationMargin() public payable
+  {
+
+  }
+
+  function sendVariationMarginInformation() public
+  {
+    future _future = future(msg.sender);
+    _future;
+  }
+
 
   /**
    * Products
    */
-  function addVanillaSwap(address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) /*onlyMarket */payable public
-  {
-    assets.push( (new vanillaSwap).value(10 ether)(marketDataAddress, mapEtherAccountToContractAddress[_floatingLegMemberAddress], mapEtherAccountToContractAddress[_fixedLegMemberAddress], _settlementDate, _nominal, _instrumentID));
-  }
+//  function addVanillaSwap(address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) /*onlyMarket */payable public
+ // {
+ //   futures.push( (new vanillaSwap).value(10 ether)(marketDataAddress, mapEtherAccountToContractAddress[_floatingLegMemberAddress], mapEtherAccountToContractAddress[_fixedLegMemberAddress], _settlementDate, _nominal, _instrumentID));
+ // }
 }
 
-
 /******************************************************************************/
-/************************************ ASSETS **********************************/
+/********************************* DERIVATES **********************************/
 /******************************************************************************/
 
-
-contract asset is conversions
+contract derivate is conversions
 {
   using strings for *;
 
+  string instrumentID;
+
   address marketDataAddress;
   address compensationChamberAddress;
-  address contractAddress1; //floating leg
-  address contractAddress2; //fixed leg
-  uint tradeDate;
-  uint settlementDate;
-  string nominal;
+
+  uint tradeTimestamp;
+  uint settlementTimestamp;
 
   /**
-   * Map the contractAddress1 and 2 to the value of initial margin they have to pay
+   * Map the contractAddresses to the value of initial margin they have to pay
    */
-  mapping(address => bytes32) initialMargin;
+  mapping(address => uint) initialMargin;
   /**
-   * Map the contractAddress1 and 2 to the value of variation margin they have to pay
+   * Map the contractAddresses to the value of variation margin they have to pay
    * these value change every day
    */
-  mapping(address => bytes32) variationMargin;
+  mapping(address => uint) variationMargin;
 
   modifier onlyMarketData
   {
@@ -285,57 +344,199 @@ contract asset is conversions
     _;
   }
 
-  function asset(address _marketDataAddress, address _contractAddress1, address _contractAddress2, uint _settlementDate, string _nominal) public
+  function derivate(string _instrumentID, uint _settlementTimestamp, address _marketDataAddress) public
   {
+    instrumentID = _instrumentID;
+
     marketDataAddress = _marketDataAddress;
-    contractAddress1 = _contractAddress1; //floating leg
-    contractAddress2 = _contractAddress2; //fixed leg
-    tradeDate = block.timestamp;
-    settlementDate = _settlementDate;
-    nominal = _nominal;
     compensationChamberAddress = msg.sender;
-    variationMargin[contractAddress1] = "0x0";
-    variationMargin[contractAddress2] = "0x0";
+
+    settlementTimestamp = _settlementTimestamp;
+    tradeTimestamp = block.timestamp;
   }
 
-  function getIM(address contractAddress) public returns(bytes32)
+  function getIM() public returns(uint)
   {
-    return initialMargin[contractAddress];
+      return initialMargin[msg.sender];
   }
-  // This function could only be executed by the asset holder's
-  function getIM() public returns(bytes32)
+  function getIM(address _contractAddress) public returns(uint)
   {
-    return initialMargin[msg.sender];
+    return initialMargin[_contractAddress];
   }
 
-  function getClearingMemberContractAddressOfTheAsset() public onlyChamber returns(address[2])
+  function getVM() public returns(uint)
   {
-    return [contractAddress1, contractAddress2];
+    return variationMargin[msg.sender];
+  }
+  function getVM(address _contractAddress) public returns(uint)
+  {
+    return variationMargin[_contractAddress];
+  }
+
+  function getSettlementTimestamp() public returns(uint)
+  {
+    return settlementTimestamp;
+  }
+  function getTradeTimestamp() public returns(uint)
+  {
+    return tradeTimestamp;
+  }
+
+  function getTheContractCounterparts() public returns(address[2]);
+
+  function payIM() public payable
+  {
+
+  }
+
+  function payVM() public payable
+  {
+
+  }
+}
+
+
+
+
+
+/******************************************************************************/
+/*********************************** FUTURES **********************************/
+/******************************************************************************/
+
+
+contract future is derivate
+{
+  address longMemberAddress; // The one who will have to buy the asset (subyacente) in the settlementTimestamp at the sett
+  address shortMemberAddress; // The one who will have to sell the asset (subyacente) in the settlementTimestamp
+  string amount; // Ammount of the subyacent asset that they have to trade at settlementTimestamp
+
+  function future(address _longMemberAddress, address _shortMemberAddress, string _instrumentID, string _amount, uint _settlementTimestamp, address _marketDataAddress,string  market) derivate(_instrumentID, _settlementTimestamp, _marketDataAddress) public payable
+  {
+    longMemberAddress = _longMemberAddress; //floating leg
+    shortMemberAddress = _shortMemberAddress; //fixed leg
+
+    amount = _amount;
+
+    variationMargin[_longMemberAddress] = 0;
+    variationMargin[_shortMemberAddress] = 0;
+
+    initialMargin[_longMemberAddress] = 0;
+    initialMargin[_shortMemberAddress] = 0;
+
+    computeIM(market);
+  }
+
+  function getClearingMemberContractAddressOfTheFuture() public onlyChamber returns(address[2])
+  {
+    return [longMemberAddress, shortMemberAddress];
+  }
+
+  function computeIM(string _market) public
+  {
+    MarketData marketDataContract = MarketData(marketDataAddress);
+
+   // if(equals( _market, "BOE") ) // Bank of england
+  //  {
+      //marketDataContract.getIMFutureBOE.value(2 ether)(_nominal, _instrumentID);
+  //  }
+   // else if( _market == "EUREX" ) // https://www.quandl.com/data/EUREX-EUREX-Futures-Data
+  //  {
+      //marketDataContract.getIMFutureEUREX.value(2 ether)(_nominal, _instrumentID);
+  //  }
+  //  else if( _market == "CME" )// Chicago Mercantile Exchanges // https://www.quandl.com/data/CME-Chicago-Mercantile-Exchange-Futures-Data
+  //  {
+      //marketDataContract.getIMFutureCME.value(2 ether)(_nominal, _instrumentID);
+   // }
+
   }
 
   function setIM(string result) onlyMarketData public
   {
 
-    bytes32[2] memory parts = stringToBytes32Array2(result);
+    uint[2] memory parts = stringToUIntArray2(result); // first value = longMemberAddress, second value = shortMemberAddress
 
-    clearingMember clearingMember1 = clearingMember(contractAddress1);
-    clearingMember clearingMember2 = clearingMember(contractAddress2);
+    initialMargin[longMemberAddress] = parts[0];
+    initialMargin[shortMemberAddress] = parts[1];
+
+
+    clearingMember clearingMember1 = clearingMember(longMemberAddress);
+    clearingMember clearingMember2 = clearingMember(shortMemberAddress);
+
+    clearingMember1.addDerivate();
+    clearingMember2.addDerivate();
+
+    compensationChamber _compensationChamber = compensationChamber(compensationChamberAddress);
+
+    /*
 
     compensationChamber _compensationChamber = compensationChamber(compensationChamberAddress);
     initialMargin[contractAddress1] = parts[0];
     initialMargin[contractAddress2] = parts[1];
 
-    clearingMember1.addAsset(initialMargin[contractAddress1]);
-    clearingMember2.addAsset(initialMargin[contractAddress2]);
+    clearingMember1.addFuture(initialMargin[contractAddress1]);
+    clearingMember2.addFuture(initialMargin[contractAddress2]);*/
+  }
+
+  function setVM()
+  {
+
+  }
+
+  function getTheContractCounterparts() public returns(address[2])
+  {
+    return [longMemberAddress, shortMemberAddress];
   }
 }
 
+/******************************************************************************/
+/************************************* SWAP ***********************************/
+/******************************************************************************/
+
+contract swap is derivate
+{
+  address fixedLegMemberAddress; // The one who will have to buy the asset (subyacente) in the settlementTimestamp at the sett
+  address floatingLegMemberAddress; // The one who will have to sell the asset (subyacente) in the settlementTimestamp
+
+}
+
+/******************************************************************************/
+/*********************************** FORWARD **********************************/
+/******************************************************************************/
+
+contract forward is derivate
+{
+
+}
+
+
+
+/******************************************************************************/
+/********************************* VANILLA SWAP *******************************/
+/******************************************************************************/
+
+/*
+contract vanillaSwap is swap
+{
+
+  function vanillaSwap(address _marketDataAddress, address _floatingLegMemberContractAddress, address _fixedLegMemberContractAddress, uint _settlementDate, string _nominal, string _instrumentID)swap(_marketDataAddress, _floatingLegMemberContractAddress, _fixedLegMemberContractAddress, _settlementDate, _nominal) public payable
+  {
+    MarketData marketDataContract = MarketData(_marketDataAddress);
+    marketDataContract.getIMSwap.value(2 ether)(_nominal, _instrumentID);
+  }
+
+  function setVariationMargin() view onlyChamber public
+  {
+    MarketData marketDataContract = MarketData(marketDataAddress);
+    //marketDataContract.getVMSwap.value(2 ether)(_nominal, _instrumentID);
+  }
+
+}*/
 
 /******************************************************************************/
 /******************************* CLEARING MEMBER ******************************/
 /******************************************************************************/
 
-contract clearingMember
+contract clearingMember is conversions
 {
   /**
    * Clearing member address
@@ -343,13 +544,13 @@ contract clearingMember
    * Array of addresses corresponding to the contracts that this clearing member have
    */
   address private memberAddress;
-  address[] private assets;
+  address[] private derivates;
   address private chamberAddress;
 
   /**
    * Events
    */
-   event initialMargin(string price);
+  event initialMargin(string price);
   /**
    * Add modifiers for this contract, one for the chamber and the other for the clearing memeber
    */
@@ -371,21 +572,26 @@ contract clearingMember
     chamberAddress = msg.sender;
   }
 
-  function addAsset(bytes32 _initialMargin) public
+  function addDerivate() public
   {
-    compensationChamber _compensationChamber = compensationChamber(chamberAddress);
-    _compensationChamber.sendInitialMarginInformation(_initialMargin);
-    assets.push(msg.sender);
-  }
-  function getAssets() public returns(address[])
-  {
-      return assets;
+    derivates.push(msg.sender);
+    derivate _newDerivate = derivate(msg.sender);
   }
 
-  function getInitialMargin(address assetAddress) public view returns(bytes32)
+  function payIM(address derivateAddress) public /*onlyMember*/ payable
   {
-    asset _asset = asset(assetAddress);
-    return _asset.getIM();
+    derivate _newDerivate = derivate(msg.sender);
+    _newDerivate.payIM.value(msg.value)();
+  }
+  function getDerivates() public returns(address[])
+  {
+      return derivates;
+  }
+
+  function getInitialMargin(address futureAddress) public view returns(uint)
+  {
+    future _future = future(futureAddress);
+    return _future.getIM();
   }
 }
 
@@ -523,31 +729,10 @@ contract MarketData is usingOraclize
     else if(functionNumber == 4)
     {
 
-     address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
+     /*address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
      vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
-     _vanillaSwap.setIM(result);
+     _vanillaSwap.setIM(result);*/
     }
-  }
-
-}
-
-/******************************************************************************/
-/********************************* VANILLA SWAP *******************************/
-/******************************************************************************/
-
-contract vanillaSwap is asset
-{
-
-  function vanillaSwap(address _marketDataAddress, address _floatingLegMemberContractAddress, address _fixedLegMemberContractAddress, uint _settlementDate, string _nominal, string _instrumentID)asset(_marketDataAddress, _floatingLegMemberContractAddress, _fixedLegMemberContractAddress, _settlementDate, _nominal) public payable
-  {
-    MarketData marketDataContract = MarketData(_marketDataAddress);
-    marketDataContract.getIMSwap.value(2 ether)(_nominal, _instrumentID);
-  }
-
-  function setVariationMargin() view onlyChamber public
-  {
-    MarketData marketDataContract = MarketData(marketDataAddress);
-    //marketDataContract.getVMSwap.value(2 ether)(_nominal, _instrumentID);
   }
 
 }

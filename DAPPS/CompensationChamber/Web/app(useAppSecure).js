@@ -271,7 +271,7 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
    {
      var VaR1 = Math.abs(intRate.computeVaR(parseFloat(probability)));
      var VaR2 = Math.abs(intRate.computeVaR(parseFloat(1 - probability)));
-     res.json({"fixLeg" : VaR1, "variableLeg" : VaR2}); // Revisar
+     res.json({"fixLeg" : VaR1, "variableLeg" : VaR2}); // Revisar // Return this in wei
    }, 7000);
  });
 /**
