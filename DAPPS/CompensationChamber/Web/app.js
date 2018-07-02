@@ -4,9 +4,10 @@ var app = express();
 
 /******************************************************************************/
 
-app.listen(3001, function()
+const PORT = 3001;
+app.listen(PORT, function()
 {
-  console.log("app.js listening on port 3000!")
+  console.log("app.js listening on port "+PORT+"!")
 });
 /**
  * The Portfolio class will contain the portfolio of a Member
