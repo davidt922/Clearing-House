@@ -482,7 +482,7 @@ contract MarketData is usingOraclize
     }
     else
     {
-      string memory URL = "json(http://83.231.14.17:3001/BOE/computeVaR/";
+      string memory URL = "json(https://83.231.14.17:3002/BOE/computeVaR/";
       string memory query1 = "0.95";
       string memory query2_4 = "/";
       //string memory query3 = _nominal;
