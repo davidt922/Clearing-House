@@ -19,7 +19,8 @@ contract compensationChamber is conversions
 {
   using strings for *;
 
-  event inicialMargin(string a);
+  event inicialMargin(address a, string b);
+  event logString(string a);
   /**
    * Constants
    */
@@ -129,12 +130,16 @@ contract compensationChamber is conversions
       return mapEtherAccountToContractAddress[_clearingMemberAddress];
   }
 
-  function sendInitialMarginInformation(bytes32 _initialMargin, address _clearingMemberAddress)
+  function sendInitialMarginInformation(bytes32 _initialMargin) public
   {
     string memory initialMarginStr = bytes32ToString(_initialMargin);
-    string memory clearingMemberAddressStr = addressToString(_clearingMemberAddress);
-    string memory logInfo = strConcat(clearingMemberAddressStr,": ",clearingMemberAddressStr);
-    inicialMargin(logInfo);
+
+    inicialMargin(msg.sender, initialMarginStr);
+  }
+
+  function log(string a) public
+  {
+      logString(a);
   }
 
 

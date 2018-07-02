@@ -49,8 +49,10 @@ contract clearingMember
     chamberAddress = msg.sender;
   }
 
-  function addAsset() public
+  function addAsset(bytes32 _initialMargin) public
   {
+    compensationChamber _compensationChamber = compensationChamber(chamberAddress);
+    _compensationChamber.sendInitialMarginInformation(_initialMargin);
     assets.push(msg.sender);
   }
   function getAssets() public returns(address[])
@@ -58,7 +60,7 @@ contract clearingMember
       return assets;
   }
 
-  function getInitialMargin(address assetAddress) public returns(bytes32)
+  function getInitialMargin(address assetAddress) public view returns(bytes32)
   {
     asset _asset = asset(assetAddress);
     return _asset.getIM();

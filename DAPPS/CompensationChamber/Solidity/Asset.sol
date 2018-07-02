@@ -65,19 +65,19 @@ contract asset is conversions
     return [contractAddress1, contractAddress2];
   }
 
-  function setIM(string result) view onlyMarketData public
+  function setIM(string result) onlyMarketData public
   {
 
-     /*
-    bytes32[] memory parts = stringToBytes32Array(result);
+    bytes32[2] memory parts = stringToBytes32Array2(result);
 
     clearingMember clearingMember1 = clearingMember(contractAddress1);
     clearingMember clearingMember2 = clearingMember(contractAddress2);
 
+    compensationChamber _compensationChamber = compensationChamber(compensationChamberAddress);
     initialMargin[contractAddress1] = parts[0];
     initialMargin[contractAddress2] = parts[1];
 
-    clearingMember1.addAsset();
-    clearingMember2.addAsset();*/
+    clearingMember1.addAsset(initialMargin[contractAddress1]);
+    clearingMember2.addAsset(initialMargin[contractAddress2]);
   }
 }
