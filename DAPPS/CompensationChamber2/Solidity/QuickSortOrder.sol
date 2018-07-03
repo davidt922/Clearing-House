@@ -1,7 +1,7 @@
 pragma experimental ABIEncoderV2;
 contract QuickSortOrder
 {
-  event sortDone(string a);
+    event sortDone(string a);
   struct order
   {
     address ownerAddress;
@@ -19,25 +19,25 @@ contract QuickSortOrder
             return;
         }
 
-         uint pivot = arr[left + (right - left) / 2].price;
+         uint pivot = arr[uint(left + (right - left) / 2)].price;
 
          while (i <= j)
          {
-            while (arr[i].price < pivot)
+            while (arr[uint(i)].price < pivot)
             {
                 i++;
             }
 
-            while (pivot < arr[j].price)
+            while (pivot < arr[uint(j)].price)
             {
                j--;
             }
 
            if (i <= j)
            {
-               (arr[i].price, arr[j].price) = (arr[j].price, arr[i].price);
-               (arr[i].quantity, arr[j].quantity) = (arr[j].quantity, arr[i].quantity);
-               (arr[i].ownerAddress, arr[j].ownerAddress) = (arr[j].ownerAddress, arr[i].ownerAddress);
+               (arr[uint(i)].price, arr[uint(j)].price) = (arr[uint(j)].price, arr[uint(i)].price);
+               (arr[uint(i)].quantity, arr[uint(j)].quantity) = (arr[uint(j)].quantity, arr[uint(i)].quantity);
+               (arr[uint(i)].ownerAddress, arr[uint(j)].ownerAddress) = (arr[uint(j)].ownerAddress, arr[uint(i)].ownerAddress);
                i++;
                j--;
            }
@@ -56,42 +56,19 @@ contract QuickSortOrder
 
     function quickSortDecreasing(order[] storage arr, uint left, uint right) internal
     {
-        uint i = left;
-        uint j = right;
+        quickSortIncreasing(arr, left,right);
 
-        uint pivot = arr[left + (right - left) / 2].price;
+       // uint i = 0;
+       // uint j = arr.length;
 
-        while (i <= j)
+       /* while(i < j)
         {
-            while (arr[i].price > pivot)
-            {
-                i++;
-            }
-
-            while (pivot > arr[j].price)
-            {
+               (arr[i].price, arr[j].price) = (arr[j].price, arr[i].price);
+               (arr[i].quantity, arr[j].quantity) = (arr[j].quantity, arr[i].quantity);
+               (arr[i].ownerAddress, arr[j].ownerAddress) = (arr[j].ownerAddress, arr[i].ownerAddress);
+               i++;
                j--;
-            }
-
-            if (i <= j)
-            {
-                (arr[i].price, arr[j].price) = (arr[j].price, arr[i].price);
-                (arr[i].quantity, arr[j].quantity) = (arr[j].quantity, arr[i].quantity);
-                (arr[i].ownerAddress, arr[j].ownerAddress) = (arr[j].ownerAddress, arr[i].ownerAddress);
-                i++;
-                j--;
-            }
-        }
-
-        if (left < j)
-        {
-            quickSortDecreasing(arr, left, j);
-        }
-
-        if (i < right)
-        {
-            quickSortDecreasing(arr, i, right);
-        }
+        }*/
     }
 
 }
