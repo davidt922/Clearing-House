@@ -496,7 +496,6 @@ contract swap is derivate
 {
   address fixedLegMemberAddress; // The one who will have to buy the asset (subyacente) in the settlementTimestamp at the sett
   address floatingLegMemberAddress; // The one who will have to sell the asset (subyacente) in the settlementTimestamp
-
 }
 
 /******************************************************************************/
