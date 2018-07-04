@@ -40,16 +40,15 @@ contract Future is Derivative
     function setIM(string result) onlyMarketData public
     {
         uint[2] memory value = stringToUintArray2(result); // first value = longMemberContractAddress, second value = shortMemberContractAddress
-
-        //initialMargin[longMemberContractAddress] = new Payment(value[0], longMemberContractAddress, 0);
-        //initialMargin[shortMemberContractAddress] = new Payment(value[1], shortMemberContractAddress, 0);
+        paymentRequest(value[0], longMemberContractAddress, paymentType.initialMargin);
+        paymentRequest(value[1], shortMemberContractAddress, paymentType.initialMargin);
     }
 
     function setVM(string result) onlyMarketData public
     {
         uint[2] memory value = stringToUintArray2(result); // first value = longMemberContractAddress, second value = shortMemberContractAddress
 
-        //variationMargin[longMemberContractAddress].push(new Payment(value[0], longMemberContractAddress, 1));
-        //variationMargin[shortMemberContractAddress].push(new Payment(value[1], shortMemberContractAddress, 1));
+        paymentRequest(value[0], longMemberContractAddress, paymentType.variationMargin);
+        paymentRequest(value[1], shortMemberContractAddress, paymentType.variationMargin);
     }
 }

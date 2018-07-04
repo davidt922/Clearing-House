@@ -6,7 +6,7 @@ import "github.com/Arachnid/solidity-stringutils/strings.sol";
 import "Utils.sol";
 import "CompensationChamber.sol";
 import "PaymentRequest.sol";
-
+import "OrderBook.sol";
 
 contract Market is OrderBookUtils
 {
@@ -18,6 +18,8 @@ contract Market is OrderBookUtils
 
   address compensationChamberAddress;
   order[] orders;
+
+  mapping(string => address) mapInstrumentIdToOrderBookAddress;
 
   modifier onlyCCP()
   {
@@ -62,15 +64,37 @@ contract Market is OrderBookUtils
       }
   }
 
-
- /* function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, uint _settlementTimestamp, address _marketDataAddress, string  _market) public payable
+  // type equals buy or sell
+  function addOrder(string _instrumentID, uint _quantity, uint _price, string _type)
   {
+      address _orderBookAddress = mapInstrumentIdToOrderBookAddress[_instrumentID];
 
+      if (_orderBookAddress != 0)
+      {
+          OrderBook _orderBook = OrderBook(_orderBookAddress);
+
+          if (compareStrings(_type, "BUY"))
+          {
+              _orderBook.addBuyOrder(msg.sender, _quantity, _price);
+          }
+          else if (compareStrings(_type, "SELL"))
+          {
+              _orderBook.addSellOrder(msg.sender, _quantity, _price);
+          }
+      }
   }
 
-  function addSwapToCCP(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, uint _settlementTimestamp, address _marketDataAddress, string _market) public payable
-  {
 
-  }*/
+  function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, uint _settlementTimestamp, string  _market) public payable
+  {
+    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    _compensationChamber.futureNovation(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _settlementTimestamp, _market);
+  }
+
+  function addSwapToCCP(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, uint _settlementTimestamp, string _market) public payable
+  {
+    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+     _compensationChamber.swapNovation(_fixedLegClearingMemberAddress, _floatingLegClearingMemberAddress, _instrumentID, _nominal, _settlementTimestamp, _market);
+  }
 
 }
