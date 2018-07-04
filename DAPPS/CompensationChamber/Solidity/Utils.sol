@@ -163,6 +163,17 @@ contract Utils
     delete array[array.length-1];
     return array;
   }
+
+  function compareStrings (string a, string b) view returns (bool)
+  {
+       return keccak256(a) == keccak256(b);
+  }
+
+  enum paymentType
+  {
+      initialMargin,
+      variationMargin
+  }
 }
 
 

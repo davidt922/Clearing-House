@@ -1,114 +1,108 @@
 pragma solidity ^0.4.18;
 
-/**
- * Add oraclize api used for call a function every 24h and to obtain data from external sources
- */
-import "./oraclizeAPI.sol";
+import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
-import "./strings.sol";
-import "./conversions.sol";
-/**
- * We will only have one instance of this contract, that will represent the compensation compensationChamber
- * All the contracts will be created using this one
- */
-import "./MarketData.sol";
-import "./vanillaSwap.sol";
-import "./clearingMember.sol";
+import "Utils.sol";
+import "MarketData.sol";
+import "Market.sol";
+import "ClearingMember.sol";
+import "PaymentRequest.sol";
 
-contract compensationChamber is conversions
+contract CompensationChamber is Utils
 {
-  using strings for *;
-
-  event inicialMargin(address a, string b);
-  event logString(string a);
   /**
    * Constants
    */
-  uint private dayInSeconds = 86400; // Number of seconds in 24 h
+
+ /**
+  * Number os seconds in 24 h
+  */
+  uint private dayInSeconds = 86400;
 
   /**
-   * From the moment that the CCP indicates the daily collateral that both counterparts
-   * Have to send to the chamber, they have 12 hours to pay it.
+   * Time that the clearing members have to pay the margin after the chamber send
+   * the margin (12 h)
    */
   uint private timeToPayTheMargin = 43200;
 
   /**
-   * Address of the compensation chamber and the market
+   * Addres of the owner of the CCP, and the address of the
+   * market and market data smartcontracts and the settlement
+   * The settlement is the place were the assets will be registred
    */
-  address private owner;
   address private marketAddress;
   address private marketDataAddress;
+  address private settlementAddress;
 
   /**
-   * Timestamp in seconds since epox indicating the date and time when the chamber will do the
-   * next asset valuation and will infrom of the daily marginal that the counterparts have to give to the chamber.
-   * Or to liquidate the operation if the contract has reached the maturity date.
-   */
-  uint private nextRevisionTime;
-  uint private deadlineForMarginalPayment;
-  bool private marketAddressChange = true;
+  * Modifiers
+  */
 
-  /**
-   * Map an Ethereum account address with the corresponding clearing member contract address
-   */
-  mapping (address => address) mapEtherAccountToContractAddress;
-  address[] clearingMembersAddresses;
-  address[] clearingMemberContractAddresses;
-  address[] assets;
-
-  function compensationChamber() public payable
-  {
-    owner = msg.sender;
-    nextRevisionTime = block.timestamp + dayInSeconds;
-    deadlineForMarginalPayment = nextRevisionTime + timeToPayTheMargin;
-    marketDataAddress = (new MarketData).value(5 ether)();
-  }
-
-  function getMarketDataAddress() public payable returns(address)
-  {
-      return marketDataAddress;
-  }
-
-
-  /**
-   * Create the modifiers, this is a pattern that restricts the execution of some functions, read the content of modify the contract
-   * also allows to perfom timed transactions
-   */
-  modifier onlyChamber
-  {
-    require(msg.sender == owner);
-    _;
-  }
   modifier onlyMarket
   {
     require(msg.sender == marketAddress);
     _;
   }
 
-  /**
-   * Add functions of the smartcontract
-   */
-  function setMarketAddress(address _marketAddress) onlyChamber public payable
+  modifier onlySettlement
   {
-    require(marketAddressChange);
-    marketAddressChange = false;
-    marketAddress = _marketAddress;
+    require(msg.sender == settlementAddress);
+    _;
   }
 
-  function addClearingMember(address _clearingMemberAddress) onlyChamber public payable
+  modifier onlyMarketData
   {
-    address contractAddress = mapEtherAccountToContractAddress[_clearingMemberAddress];
+    require(msg.sender == marketDataAddress);
+    _;
+  }
 
-    /**
-     * if the contract address is 0, means that he address conrresponds to a new clearing member
-     * so a new clearingMember contract have to be created.
-     * if the contract exist, revert the changes and send an error message
-     */
+  modifier onlyClearingMemberContracts
+  {
+    bool isClearingMemberContract = false;
+    for (uint i = 0; i < clearingMemberContractAddresses.length; i++)
+    {
+        if (clearingMemberContractAddresses[i] == msg.sender)
+        {
+            isClearingMemberContract = true;
+        }
+    }
+    require(isClearingMemberContract);
+    _;
+  }
+
+  /**
+   * Map of the clearing member address with her smartcontract address
+   */
+  mapping (address => address) mapClearingMemberAddressToClearingMemberContractAddress;
+  mapping (address => address) mapClearingMemberContractAddressToClearingMemberAddress;
+  address[] clearingMembersAddresses;
+  address[] clearingMemberContractAddresses;
+
+  /**
+   * Array of addresses of all the derivatives that the compensation chamber hold
+   */
+  address[] derivatives;
+
+  // FUTURE FIX: Compensation chamber have to be created by market contract
+  function compensationChamber(uint timestampUntilNextVMRevision) public payable
+  {
+    marketAddress = msg.sender;
+    marketDataAddress = (new MarketData).value(5 ether)();
+   // settlementAddress = (new Settlement).value(5 ether)();
+
+  }
+
+  function addClearingMember(address _clearingMemberAddress)
+  {
+    address contractAddress = mapClearingMemberAddressToClearingMemberContractAddress[_clearingMemberAddress];
+
     if(contractAddress == 0)
     {
-      mapEtherAccountToContractAddress[_clearingMemberAddress] = new clearingMember(_clearingMemberAddress);
+      mapClearingMemberAddressToClearingMemberContractAddress[_clearingMemberAddress] = new ClearingMember(_clearingMemberAddress);
+      mapClearingMemberContractAddressToClearingMemberAddress[mapClearingMemberAddressToClearingMemberContractAddress[_clearingMemberAddress]] = _clearingMemberAddress;
       clearingMembersAddresses.push(_clearingMemberAddress);
-      clearingMemberContractAddresses.push(mapEtherAccountToContractAddress[_clearingMemberAddress]);
+      clearingMemberContractAddresses.push(mapClearingMemberAddressToClearingMemberContractAddress[_clearingMemberAddress]);
     }
     else
     {
@@ -116,38 +110,67 @@ contract compensationChamber is conversions
     }
   }
 
-  function getDeadlineForMarginalPayment() public payable returns(uint)
+  /**
+   * Getters
+   */
+
+  function getMarketDataAddress() public returns(address)
   {
-    return deadlineForMarginalPayment;
+    return marketDataAddress;
   }
 
-  function getClearingMemberAddresses() public payable returns(address[])
+  function getMarketAddress() public returns(address)
   {
-      return clearingMembersAddresses;
-  }
-  function getContractForAGivenAddress(address _clearingMemberAddress) public payable returns(address)
-  {
-      return mapEtherAccountToContractAddress[_clearingMemberAddress];
+    return marketAddress;
   }
 
-  function sendInitialMarginInformation(bytes32 _initialMargin) public
+  function getSettlementAddress() public returns(address)
   {
-    string memory initialMarginStr = bytes32ToString(_initialMargin);
-
-    inicialMargin(msg.sender, initialMarginStr);
+    return settlementAddress;
   }
 
-  function log(string a) public
+  function getClearingMemberContractAddress(address _clearingMemberAddress) private returns(address clearingMemberContractAddresses)
   {
-      logString(a);
-  }
+    address _contractAddress = mapClearingMemberAddressToClearingMemberContractAddress[_clearingMemberAddress];
 
+    if( _contractAddress == 0)
+    {
+      revert("There is a contract of a liquidator member linked to this address");
+    }
+    else
+    {
+      return _contractAddress;
+    }
+  }
 
   /**
    * Products
    */
-  function addVanillaSwap(address _floatingLegMemberAddress, address _fixedLegMemberAddress, uint _settlementDate, string _nominal, string _instrumentID) /*onlyMarket */payable public
+
+  // onlyMarket modifier
+  function futureNovation(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, uint _settlementTimestamp, address _marketDataAddress, string  _market) public payable
   {
-    assets.push( (new vanillaSwap).value(10 ether)(marketDataAddress, mapEtherAccountToContractAddress[_floatingLegMemberAddress], mapEtherAccountToContractAddress[_fixedLegMemberAddress], _settlementDate, _nominal, _instrumentID));
+    address _longClearingMemberContractAddress = getClearingMemberContractAddress(_longClearingMemberAddress);
+    address _shortClearingMemberContractAddress = getClearingMemberContractAddress(_shortClearingMemberAddress);
+
+    //derivatives.push((new Future).value(1 ether)(_longClearingMemberContractAddress, _shortClearingMemberContractAddress, _instrumentID, _amount, _settlementTimestamp, _marketDataAddress, _market));
   }
+
+  function swapNovation(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, uint _settlementTimestamp, address _marketDataAddress, string _market) public payable
+  {
+    address _fixedLegClearingMemberContractAddress = getClearingMemberContractAddress(_fixedLegClearingMemberAddress);
+    address _floatingLegClearingMemberContractAddress = getClearingMemberContractAddress(_floatingLegClearingMemberAddress);
+
+    //derivatives.push((new Swap).value(1 ether)(_fixedLegClearingMemberContractAddress, _floatingLegClearingMemberContractAddress, _instrumentID, _nominal, _settlementTimestamp, _marketDataAddress, _market));
+  }
+
+  //function forwardNovation()
+
+  //function optionNovation()
+  function sendPaymentRequestToMarket(address _paymentRequest) public onlyClearingMemberContracts
+  {
+      Market _market = Market(marketAddress);
+      _market.paymentRequest(mapClearingMemberContractAddressToClearingMemberAddress[msg.sender], _paymentRequest);
+  }
+
 }

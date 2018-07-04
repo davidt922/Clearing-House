@@ -3,17 +3,18 @@ pragma solidity ^0.4.18;
 /**
  * Add oraclize api used for call a function every 24h and to obtain data from external sources
  */
-import "./oraclizeAPI.sol";
+import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 /**
  * We will only have one instance of this contract, that will represent the compensation compensationChamber
  * All the contracts will be created using this one
  */
 
-import "./strings.sol";
+import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
-import "./Asset.sol";
+import "Derivative.sol";
+import "CompensationChamber.sol";
 
-contract clearingMember
+contract ClearingMember
 {
   /**
    * Clearing member address
@@ -21,13 +22,10 @@ contract clearingMember
    * Array of addresses corresponding to the contracts that this clearing member have
    */
   address private memberAddress;
-  address[] private assets;
+  address[] private derivatives;
   address private chamberAddress;
+  address[] private payments;
 
-  /**
-   * Events
-   */
-   event initialMargin(string price);
   /**
    * Add modifiers for this contract, one for the chamber and the other for the clearing memeber
    */
@@ -43,26 +41,39 @@ contract clearingMember
     _;
   }
 
-  function clearingMember(address _clearingMemberAddress) public
+  modifier onlyDerivatives
+  {
+    bool ownedDerivative = false;
+    for (uint i = 0; i < derivatives.length; i++)
+    {
+        if (derivatives[i] == msg.sender)
+        {
+            ownedDerivative = true;
+        }
+    }
+    require(ownedDerivative);
+    _;
+  }
+
+  function ClearingMember(address _clearingMemberAddress) public
   {
     memberAddress = _clearingMemberAddress;
     chamberAddress = msg.sender;
   }
 
-  function addAsset(bytes32 _initialMargin) public
+  function addDerivative(address _derivativeAddress) public onlyChamber
   {
-    compensationChamber _compensationChamber = compensationChamber(chamberAddress);
-    _compensationChamber.sendInitialMarginInformation(_initialMargin);
-    assets.push(msg.sender);
-  }
-  function getAssets() public returns(address[])
-  {
-      return assets;
+    derivatives.push(_derivativeAddress);
   }
 
-  function getInitialMargin(address assetAddress) public view returns(bytes32)
+  function getDerivatives() public returns(address[])
   {
-    asset _asset = asset(assetAddress);
-    return _asset.getIM();
+      return derivatives;
+  }
+
+  function paymentRequest(address _paymentAddress) public onlyDerivatives
+  {
+      payments.push(_paymentAddress);
+      CompensationChamber _compensationChamber = CompensationChamber(chamberAddress);
   }
 }

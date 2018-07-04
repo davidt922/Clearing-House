@@ -3,14 +3,14 @@ pragma solidity ^0.4.18;
 /**
  * Add oraclize API
  */
-import "./oraclizeAPI.sol";
+ import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 
 /**
  * Allow Slice strings
  */
-import "./strings.sol";
+import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
-import "./vanillaSwap.sol";
+//import "VanillaSwap.sol";
 
 contract MarketData is usingOraclize
 {
@@ -91,6 +91,76 @@ contract MarketData is usingOraclize
     }
   }
 
+  function getIMFutureBOE(string _nominal, string _instrumentID) public payable
+  {
+    if (oraclize_getPrice("URL") > this.balance)
+    {
+      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
+    }
+    else
+    {
+      string memory URL = "json(https://83.231.14.17:3002/BOE/computeVaR/";
+      string memory query1 = "0.95";
+      string memory query2_4 = "/";
+      //string memory query3 = _nominal;
+      //string memory query5 = _instrumentID;
+      string memory query6 = "/).*";
+
+      string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
+      string memory query = strConcat(_query, _instrumentID, query6);
+      bytes32 queryID = oraclize_query("URL",query);
+      queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
+      queryIdToFunctionNumber[queryID] = 4;
+    }
+  }
+
+  function getIMFutureEUREX(string _nominal, string _instrumentID) public payable
+  {
+    if (oraclize_getPrice("URL") > this.balance)
+    {
+      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
+    }
+    else
+    {
+      string memory URL = "json(https://83.231.14.17:3002/EUREX/computeVaR/";
+      string memory query1 = "0.95";
+      string memory query2_4 = "/";
+      //string memory query3 = _nominal;
+      //string memory query5 = _instrumentID;
+      string memory query6 = "/).*";
+
+      string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
+      string memory query = strConcat(_query, _instrumentID, query6);
+      bytes32 queryID = oraclize_query("URL",query);
+      queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
+      queryIdToFunctionNumber[queryID] = 4;
+    }
+  }
+
+  function getIMFutureCME(string _nominal, string _instrumentID) public payable
+  {
+    if (oraclize_getPrice("URL") > this.balance)
+    {
+      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
+    }
+    else
+    {
+      string memory URL = "json(https://83.231.14.17:3002/CME/computeVaR/";
+      string memory query1 = "0.95";
+      string memory query2_4 = "/";
+      //string memory query3 = _nominal;
+      //string memory query5 = _instrumentID;
+      string memory query6 = "/).*";
+
+      string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
+      string memory query = strConcat(_query, _instrumentID, query6);
+      bytes32 queryID = oraclize_query("URL",query);
+      queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
+      queryIdToFunctionNumber[queryID] = 4;
+    }
+  }
+
+
   function getIMSwap(string _nominal, string _instrumentID) public payable
   {
     if (oraclize_getPrice("URL") > this.balance)
@@ -99,7 +169,7 @@ contract MarketData is usingOraclize
     }
     else
     {
-      string memory URL = "json(http://83.231.14.17:3001/BOE/computeVaR/";
+      string memory URL = "json(https://83.231.14.17:3002/BOE/computeVaR/";
       string memory query1 = "0.95";
       string memory query2_4 = "/";
       //string memory query3 = _nominal;
@@ -141,8 +211,8 @@ contract MarketData is usingOraclize
     {
 
      address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
-     vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
-     _vanillaSwap.setIM(result);
+     //vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
+     //_vanillaSwap.setIM(result);
     }
   }
 
