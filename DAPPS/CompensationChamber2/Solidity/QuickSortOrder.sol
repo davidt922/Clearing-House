@@ -1,74 +1,56 @@
 pragma experimental ABIEncoderV2;
-contract QuickSortOrder
+
+//import "Payments.sol";
+
+contract Payment
 {
-    event sortDone(string a);
-  struct order
+  uint value; // value in wei
+  uint timestamp;
+  bool payed;
+
+  address derivativeAddress;
+  address clearingMemberContractAddress;
+  //address paymentsAddress;
+
+  paymentType payType;
+
+  enum paymentType
   {
-    address ownerAddress;
-    uint quantity;
-    uint price; // the las 3 numbers of the integer represents the decimals, so 3000 equals to 3.
+    initialMargin,
+    variationMargin
   }
 
-  function quickSortIncreasing(order[] storage arr, uint left, uint right) internal
+  function Payment(uint _value, address _clearingMemberContractAddress, uint _type) public
   {
-         uint i = left;
-         uint j = right;
+    value = _value;
+    timestamp = block.timestamp;
+    derivativeAddress = msg.sender;
+    payed = false;
+    //paymentsAddress = msg.sender;
 
-        if(i==j)
-        {
-            return;
-        }
+    clearingMemberContractAddress = _clearingMemberContractAddress;
 
-         uint pivot = arr[uint(left + (right - left) / 2)].price;
-
-         while (i <= j)
-         {
-            while (arr[uint(i)].price < pivot)
-            {
-                i++;
-            }
-
-            while (pivot < arr[uint(j)].price)
-            {
-               j--;
-            }
-
-           if (i <= j)
-           {
-               (arr[uint(i)].price, arr[uint(j)].price) = (arr[uint(j)].price, arr[uint(i)].price);
-               (arr[uint(i)].quantity, arr[uint(j)].quantity) = (arr[uint(j)].quantity, arr[uint(i)].quantity);
-               (arr[uint(i)].ownerAddress, arr[uint(j)].ownerAddress) = (arr[uint(j)].ownerAddress, arr[uint(i)].ownerAddress);
-               i++;
-               j--;
-           }
-         }
-
-         if (left < j)
-         {
-            quickSortIncreasing(arr, left, j);
-         }
-
-         if (i < right)
-         {
-            quickSortIncreasing(arr, i, right);
-         }
-    }
-
-    function quickSortDecreasing(order[] storage arr, uint left, uint right) internal
+    if (_type == 0)
     {
-        quickSortIncreasing(arr, left,right);
-
-       // uint i = 0;
-       // uint j = arr.length;
-
-       /* while(i < j)
-        {
-               (arr[i].price, arr[j].price) = (arr[j].price, arr[i].price);
-               (arr[i].quantity, arr[j].quantity) = (arr[j].quantity, arr[i].quantity);
-               (arr[i].ownerAddress, arr[j].ownerAddress) = (arr[j].ownerAddress, arr[i].ownerAddress);
-               i++;
-               j--;
-        }*/
+      payType = paymentType.initialMargin;
     }
+    else if (_type == 1)
+    {
+      payType = paymentType.variationMargin;
+    }
+  //  CompensationChamber _compensationChamber = CompensationChamber();
 
+  }
+
+  function pay() payable
+  {
+    require(msg.value == value);
+    payed = true;
+   // Payments _payments = Payments(paymentsAddress);
+   // _payments.payed();
+  }
+  function getValue() public returns(uint)
+  {
+    return value;
+  }
 }

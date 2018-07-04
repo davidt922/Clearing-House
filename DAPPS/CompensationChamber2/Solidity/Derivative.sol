@@ -3,6 +3,9 @@ pragma solidity ^0.4.18;
 import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
+import "Utils.sol";
+import "Payment.sol";
+
 /**
  * Derivative is an abstract contract: Contracts are marked as abstract when at
  * least one of their functions lacks an implementation as in the following
@@ -18,6 +21,9 @@ contract Derivative is Utils
 
   uint tradeTimestamp;
   uint settlementTimestamp;
+
+  mapping(address => address) initialMargin;
+  mapping(address => address[]) variationMargin;
 
   /**
    * Modifiers
@@ -62,7 +68,7 @@ contract Derivative is Utils
   */
   function setIM(address _clearingMemberAddress, uint _value)
   {
-    initialMargin[_clearingMemberAddress] = Payment(_value, block.timestamp, false);
+    initialMargin[_clearingMemberAddress] = new Payment(_value, _clearingMemberAddress, 1);
   }
 
   /**
@@ -70,7 +76,7 @@ contract Derivative is Utils
   */
   function setVM(address _clearingMemberAddress, uint _value)
   {
-    variationMargin[_clearingMemberAddress].push(Payment(_value, block.timestamp, false));
+    variationMargin[_clearingMemberAddress].push(new Payment(_value, _clearingMemberAddress, 1));
   }
 
   /**
@@ -78,27 +84,35 @@ contract Derivative is Utils
   */
   function getIM() public returns(uint)
   {
-      return initialMargin[msg.sender].value;
+      Payment _IMPayment = Payment(msg.sender);
+      return _IMPayment.getValue();
   }
 
   function getIM(address _contractAddress) public returns(uint)
   {
-    return initialMargin[_contractAddress].value;
+      Payment _IMPayment = Payment(_contractAddress);
+      return _IMPayment.getValue();
   }
 
   function getVM() public returns(uint)
   {
-    Payment[] memory _pay = variationMargin[msg.sender];
-    return _pay[_pay.length - 1].value;
+    address[] _paymentAddressArray = variationMargin[msg.sender];
+    address _lastVMPaymentAddress = _paymentAddressArray[_paymentAddressArray.length - 1];
+
+    Payment _lastVMPayment = Payment(_lastVMPaymentAddress);
+    return _lastVMPayment.getValue();
   }
 
   function getVM(address _contractAddress) public returns(uint)
   {
-    Payment[] memory _pay = variationMargin[_contractAddress];
-    return _pay[_pay.length - 1].value;
+    address[] _paymentAddressArray = variationMargin[_contractAddress];
+    address _lastVMPaymentAddress = _paymentAddressArray[_paymentAddressArray.length - 1];
+
+    Payment _lastVMPayment = Payment(_lastVMPaymentAddress);
+    return _lastVMPayment.getValue();
   }
 
-  function getUnpayedVM() public returns(uint)
+  function getUnpayedVM() public returns(uint);
 
   function getSettlementTimestamp() public returns(uint)
   {

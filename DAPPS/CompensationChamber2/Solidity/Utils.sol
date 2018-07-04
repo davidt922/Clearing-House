@@ -151,7 +151,7 @@ contract Utils
     return array;
   }
 
-  function removeAddress(address[] array, uint index)  returns(address[])
+  function removeAddress(address[] array, uint index) internal pure returns(address[])
   {
     if (index >= array.length) return;
 
@@ -163,5 +163,72 @@ contract Utils
     delete array[array.length-1];
     return array;
   }
+}
 
+
+// import "github.com/Arachnid/solidity-stringutils/strings.sol";
+contract OrderBookUtils is Utils
+{
+  using strings for *;
+  struct order
+  {
+    address ownerAddress;
+    uint quantity;
+    uint timestamp;
+    uint price; // the las 3 numbers of the integer represents the decimals, so 3000 equals to 3.
+  }
+    // Convert Uint to bytes32
+    function uintToBytes(uint v) constant returns (bytes32 ret)
+    {
+      if (v == 0)
+      {
+          ret = '0';
+      }
+      else
+      {
+          while (v > 0)
+          {
+              ret = bytes32(uint(ret) / (2 ** 8));
+              ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+              v /= 10;
+          }
+      }
+      return ret;
+    }
+
+    // convert 123332 to 123.321
+    function uintPriceToString(uint price) internal returns(string)
+    {
+      uint _int = uint(price/1000);
+      uint _v = _int * 1000;
+      uint _dec = price - _v;
+
+      bytes32 _intBytes32 = uintToBytes(_int);
+      bytes32 _decBytes32 = uintToBytes(_dec);
+      string memory _intString = bytes32ToString(_intBytes32);
+      string memory _decString = bytes32ToString(_decBytes32);
+
+      return strConcat(_intString,".",_decString);
+    }
+
+    function uintToString(uint value) internal returns(string)
+    {
+
+      bytes32 _value = uintToBytes(value);
+      string memory _valueString = bytes32ToString(_value);
+
+      return _valueString;
+    }
+
+    function removeOrder(order[] storage array, uint index) internal
+    {
+      if (index >= array.length) return;
+
+      for (uint i = index; i<array.length-1; i++)
+      {
+          array[i] = array[i+1];
+      }
+
+      delete array[array.length-1];
+    }
 }

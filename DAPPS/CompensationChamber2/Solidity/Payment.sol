@@ -1,5 +1,6 @@
+pragma experimental ABIEncoderV2;
 
-
+//import "Payments.sol";
 
 contract Payment
 {
@@ -9,7 +10,7 @@ contract Payment
 
   address derivativeAddress;
   address clearingMemberContractAddress;
-  address paymentsAddress;
+  //address paymentsAddress;
 
   paymentType payType;
 
@@ -19,25 +20,25 @@ contract Payment
     variationMargin
   }
 
-  function Payment(uint _value, address _derivativeAddress, address _clearingMemberContractAddress, uint _type) public
+  function Payment(uint _value, address _clearingMemberContractAddress, uint _type) public
   {
     value = _value;
     timestamp = block.timestamp;
-    derivativeAddress = _derivativeAddress;
+    derivativeAddress = msg.sender;
     payed = false;
-    paymentsAddress = msg.sender;
+    //paymentsAddress = msg.sender;
 
     clearingMemberContractAddress = _clearingMemberContractAddress;
 
-    if (type == 0)
+    if (_type == 0)
     {
       payType = paymentType.initialMargin;
     }
-    else if(type == 1)
+    else if (_type == 1)
     {
       payType = paymentType.variationMargin;
     }
-    CompensationChamber _compensationChamber = CompensationChamber()
+  //  CompensationChamber _compensationChamber = CompensationChamber();
 
   }
 
@@ -45,8 +46,8 @@ contract Payment
   {
     require(msg.value == value);
     payed = true;
-    Payments _payments = Payments(paymentsAddress);
-    _payments.payed();
+   // Payments _payments = Payments(paymentsAddress);
+   // _payments.payed();
   }
   function getValue() public returns(uint)
   {

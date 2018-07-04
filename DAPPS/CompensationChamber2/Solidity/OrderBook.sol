@@ -1,42 +1,143 @@
 pragma experimental ABIEncoderV2;
+
+import "QuickSortOrder.sol";
+import "Market.sol";
+
 contract OrderBook is QuickSortOrder
 {
-  bytes32 instrumentID;
-  bytes32 market;
+
+  enum instrumentType
+   {
+     future,
+     swap
+   }
+
+  instrumentType instType;
+  string instrumentID;
+  string market;
+
+  address marketAddress;
 
   order[] askOrders;
   order[] bidOrders;
+ // BID are buy orders
+ // ASK are buy orders
 
-    function addBid(address _ownerAddress, uint _quantity, uint _price)
+     modifier onlyMarket()
+     {
+         require(marketAddress == msg.sender);
+         _;
+     }
+
+     function OrderBook (string _instrumentID, string _market, instrumentType _instrumentType) public
+     {
+       instrumentID = _instrumentID;
+       market = _market;
+       instType = _instrumentType;
+       marketAddress = msg.sender;
+     }
+    // FIX ADD INS TYPE
+    function addBuyOrder(address _ownerAddress, uint _quantity, uint _price) public onlyMarket
     {
-        bidOrders.push(order(_ownerAddress, _quantity, _price));
-        sortDecreasing(bidOrders);
+        uint i = 0;
+        Market _market = Market(marketAddress);
+
+        while(_price <= askOrders[i].price && _quantity > 0)
+        {
+            if(_quantity >= askOrders[i].quantity)
+            {
+              if (instType == instrumentType.future)
+              {
+                //_market.addFutureToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+                _quantity = _quantity - askOrders[i].quantity;
+                removeOrder(askOrders, i);
+                i--;
+              }
+              else if (instType == instrumentType.swap)
+              {
+                //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+              }
+            }
+            else
+            {
+              if (instType == instrumentType.future)
+              {
+               // _market.addFutureToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(_quantity), uintPriceToString(askOrders[i].price));
+                askOrders[i].quantity = askOrders[i].quantity - _quantity;
+                _quantity = 0;
+              }
+              else if (instType == instrumentType.swap)
+              {
+                //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+              }
+            }
+            i++;
+        }
+
+        if(_quantity > 0)
+        {
+          addBidToOrderBook(_ownerAddress, _quantity, _price);
+        }
     }
 
-    function addAsk(address _ownerAddress, uint _quantity, uint _price)
+    function addSellOrder(address _ownerAddress, uint _quantity, uint _price) public onlyMarket
     {
-        askOrders.push(order(_ownerAddress, _quantity, _price));
-        sortIncreasing(askOrders);
+      uint i = 0;
+      Market _market = Market(marketAddress);
+
+      while(_price >= bidOrders[i].price && _quantity > 0)
+      {
+          if(_quantity >= bidOrders[i].quantity)
+          {
+            if (instType == instrumentType.future)
+            {
+              //_market.addFutureToCCP(_ownerAddress, bidOrders[i].ownerAddress, instrumentID, uintToString(bidOrders[i].quantity), uintPriceToString(bidOrders[i].price));
+              _quantity = _quantity - bidOrders[i].quantity;
+              removeOrder(bidOrders, i);
+              i--;
+            }
+            else if (instType == instrumentType.swap)
+            {
+              //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+            }
+          }
+          else
+          {
+            if (instType == instrumentType.future)
+            {
+             // _market.addFutureToCCP(_ownerAddress, bidOrders[i].ownerAddress, instrumentID, uintToString(_quantity), uintPriceToString(bidOrders[i].price));
+              bidOrders[i].quantity = bidOrders[i].quantity - _quantity;
+              _quantity = 0;
+            }
+            else if (instType == instrumentType.swap)
+            {
+              //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+            }
+          }
+          i++;
+      }
+
+      if(_quantity > 0)
+      {
+        addAskToOrderBook(_ownerAddress, _quantity, _price);
+      }
     }
 
-  function sortIncreasing(order[] storage array) private
-  {
-      if(array.length > 1)
-      {
-        quickSortIncreasing(array, 0, array.length - 1);
-      }
-  }
+    function addBidToOrderBook(address _ownerAddress, uint _quantity, uint _price) internal
+    {
+      bidOrders.push(order(_ownerAddress, _quantity, block.timestamp,  _price));
+      orderDecreasing(bidOrders);
 
-  function sortDecreasing(order[] storage array) private
-  {
-      if(array.length > 1)
-      {
-        quickSortDecreasing(array, 0, array.length - 1);
-      }
-  }
+      Market _market = Market(marketAddress);
+      // _market.bidOrderAddedToOrderBook();
+    }
 
-  function getArray(uint i) view returns(uint)
-  {
-      return askOrders[i].price;
-  }
+    function addAskToOrderBook(address _ownerAddress, uint _quantity, uint _price) internal
+    {
+      askOrders.push(order(_ownerAddress, _quantity, block.timestamp,  _price));
+      orderDecreasing(bidOrders);
+
+      Market _market = Market(marketAddress);
+      // _market.bidOrderAddedToOrderBook();
+    }
 }
