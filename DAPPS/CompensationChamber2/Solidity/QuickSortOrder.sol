@@ -1,56 +1,145 @@
 pragma experimental ABIEncoderV2;
 
-//import "Payments.sol";
+import "Utils.sol";
 
-contract Payment
+contract QuickSortOrder is OrderBookUtils
 {
-  uint value; // value in wei
-  uint timestamp;
-  bool payed;
+    event sortDone(string a);
 
-  address derivativeAddress;
-  address clearingMemberContractAddress;
-  //address paymentsAddress;
-
-  paymentType payType;
-
-  enum paymentType
+  function orderIncreasing(order[] storage arr) internal
   {
-    initialMargin,
-    variationMargin
-  }
+      if(arr.length <= 1)
+      {
+          return;
+      }
+      else if(arr.length == 2)
+      {
+          if(arr[0].price > arr[1].price)
+          {
+            (arr[uint(0)].price, arr[uint(1)].price) = (arr[uint(1)].price, arr[uint(0)].price);
+            (arr[uint(0)].quantity, arr[uint(1)].quantity) = (arr[uint(1)].quantity, arr[uint(0)].quantity);
+            (arr[uint(0)].ownerAddress, arr[uint(1)].ownerAddress) = (arr[uint(1)].ownerAddress, arr[uint(0)].ownerAddress);
+            (arr[uint(0)].timestamp, arr[uint(1)].timestamp) = (arr[uint(1)].timestamp, arr[uint(0)].timestamp);
+          }
+      }
+      else
+      {
+        quickSortIncreasing(arr, 0, arr.length - 1);
+      }
 
-  function Payment(uint _value, address _clearingMemberContractAddress, uint _type) public
-  {
-    value = _value;
-    timestamp = block.timestamp;
-    derivativeAddress = msg.sender;
-    payed = false;
-    //paymentsAddress = msg.sender;
-
-    clearingMemberContractAddress = _clearingMemberContractAddress;
-
-    if (_type == 0)
+    for (uint i = 0; i < arr.length - 1; i++)
     {
-      payType = paymentType.initialMargin;
+        if (arr[i].price == arr[i+1].price)
+        {
+            if (arr[i].timestamp > arr[i+1].timestamp)
+            {
+                (arr[uint(i)].price, arr[uint(i+1)].price) = (arr[uint(i+1)].price, arr[uint(i)].price);
+                (arr[uint(i)].quantity, arr[uint(i+1)].quantity) = (arr[uint(i+1)].quantity, arr[uint(i)].quantity);
+                (arr[uint(i)].ownerAddress, arr[uint(i+1)].ownerAddress) = (arr[uint(i+1)].ownerAddress, arr[uint(i)].ownerAddress);
+                (arr[uint(i)].timestamp, arr[uint(i+1)].timestamp) = (arr[uint(i+1)].timestamp, arr[uint(i)].timestamp);
+            }
+        }
     }
-    else if (_type == 1)
+  }
+
+  function orderDecreasing(order[] storage arr) internal
+  {
+      if(arr.length <= 1)
+      {
+          return;
+      }
+      else if(arr.length == 2)
+      {
+          if(arr[0].price < arr[1].price)
+          {
+            (arr[uint(0)].price, arr[uint(1)].price) = (arr[uint(1)].price, arr[uint(0)].price);
+            (arr[uint(0)].quantity, arr[uint(1)].quantity) = (arr[uint(1)].quantity, arr[uint(0)].quantity);
+            (arr[uint(0)].ownerAddress, arr[uint(1)].ownerAddress) = (arr[uint(1)].ownerAddress, arr[uint(0)].ownerAddress);
+            (arr[uint(0)].timestamp, arr[uint(1)].timestamp) = (arr[uint(1)].timestamp, arr[uint(0)].timestamp);
+          }
+      }
+      else
+      {
+        quickSortDecreasing(arr, 0, arr.length - 1);
+      }
+
+    for (uint i = 0; i < arr.length - 1; i++)
     {
-      payType = paymentType.variationMargin;
+        if (arr[i].price == arr[i+1].price)
+        {
+            if (arr[i].timestamp < arr[i+1].timestamp)
+            {
+                (arr[uint(i)].price, arr[uint(i+1)].price) = (arr[uint(i+1)].price, arr[uint(i)].price);
+                (arr[uint(i)].quantity, arr[uint(i+1)].quantity) = (arr[uint(i+1)].quantity, arr[uint(i)].quantity);
+                (arr[uint(i)].ownerAddress, arr[uint(i+1)].ownerAddress) = (arr[uint(i+1)].ownerAddress, arr[uint(i)].ownerAddress);
+                (arr[uint(i)].timestamp, arr[uint(i+1)].timestamp) = (arr[uint(i+1)].timestamp, arr[uint(i)].timestamp);
+            }
+        }
     }
-  //  CompensationChamber _compensationChamber = CompensationChamber();
-
   }
 
-  function pay() payable
+  function quickSortIncreasing(order[] storage arr, uint left, uint right) internal
   {
-    require(msg.value == value);
-    payed = true;
-   // Payments _payments = Payments(paymentsAddress);
-   // _payments.payed();
-  }
-  function getValue() public returns(uint)
-  {
-    return value;
-  }
+         uint i = left;
+         uint j = right;
+
+        if(i==j)
+        {
+            return;
+        }
+
+         uint pivot = arr[uint(left + (right - left) / 2)].price;
+
+         while (i <= j)
+         {
+            while (arr[uint(i)].price < pivot)
+            {
+                i++;
+            }
+
+            while (pivot < arr[uint(j)].price)
+            {
+               j--;
+            }
+
+           if (i <= j)
+           {
+               (arr[uint(i)].price, arr[uint(j)].price) = (arr[uint(j)].price, arr[uint(i)].price);
+               (arr[uint(i)].quantity, arr[uint(j)].quantity) = (arr[uint(j)].quantity, arr[uint(i)].quantity);
+               (arr[uint(i)].ownerAddress, arr[uint(j)].ownerAddress) = (arr[uint(j)].ownerAddress, arr[uint(i)].ownerAddress);
+               (arr[uint(i)].timestamp, arr[uint(j)].timestamp) = (arr[uint(j)].timestamp, arr[uint(i)].timestamp);
+               i++;
+               j--;
+           }
+         }
+
+         if (left < j)
+         {
+            quickSortIncreasing(arr, left, j);
+         }
+
+         if (i < right)
+         {
+            quickSortIncreasing(arr, i, right);
+         }
+    }
+
+    function quickSortDecreasing(order[] storage arr, uint left, uint right) internal
+    {
+        quickSortIncreasing(arr, left,right);
+
+        uint i = 0;
+        uint j = arr.length - 1;
+
+        while(i <= j)
+        {
+               (arr[uint(i)].price, arr[uint(j)].price) = (arr[uint(j)].price, arr[uint(i)].price);
+               (arr[uint(i)].quantity, arr[uint(j)].quantity) = (arr[uint(j)].quantity, arr[uint(i)].quantity);
+               (arr[uint(i)].ownerAddress, arr[uint(j)].ownerAddress) = (arr[uint(j)].ownerAddress, arr[uint(i)].ownerAddress);
+               (arr[uint(i)].timestamp, arr[uint(j)].timestamp) = (arr[uint(j)].timestamp, arr[uint(i)].timestamp);
+               i++;
+               j--;
+        }
+    }
+
 }
