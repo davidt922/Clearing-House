@@ -29,9 +29,9 @@ contract Market is OrderBookUtils
 
   mapping (bytes32 => address) mapInstrumentToOrderBookAddress;
 
-  function Market() public
+  function Market(uint timestampUntilNextVMRevision) public payable
   {
-    compensationChamberAddress = new CompensationChamber();
+    compensationChamberAddress = (new CompensationChamber).value(msg.value)(timestampUntilNextVMRevision);
   }
 
   event payRequest(address _memberAddress, address _paymentAddress, uint _weiValue);

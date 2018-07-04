@@ -138,7 +138,7 @@ contract Utils
       return strConcat(_a, _b, "", "", "");
   }
 
-  function removeUint(uint[] array, uint index)  returns(uint[])
+  function removeUint(uint[] array, uint index)  internal returns(uint[])
   {
     if (index >= array.length) return;
 
@@ -164,7 +164,7 @@ contract Utils
     return array;
   }
 
-  function compareStrings (string a, string b) view returns (bool)
+  function compareStrings (string a, string b) internal returns (bool)
   {
        return keccak256(a) == keccak256(b);
   }
@@ -189,7 +189,7 @@ contract OrderBookUtils is Utils
     uint price; // the las 3 numbers of the integer represents the decimals, so 3000 equals to 3.
   }
     // Convert Uint to bytes32
-    function uintToBytes(uint v) constant returns (bytes32 ret)
+    function uintToBytes(uint v) internal constant returns (bytes32 ret)
     {
       if (v == 0)
       {

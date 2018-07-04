@@ -85,7 +85,7 @@ contract CompensationChamber is Utils
   address[] derivatives;
 
   // FUTURE FIX: Compensation chamber have to be created by market contract
-  function compensationChamber(uint timestampUntilNextVMRevision) public payable
+  function CompensationChamber(uint timestampUntilNextVMRevision) public payable
   {
     marketAddress = msg.sender;
     marketDataAddress = (new MarketData).value(5 ether)();
