@@ -77,35 +77,35 @@ contract Derivative is Utils
   /**
   * Getters
   */
-  /*function getIM() public returns(uint)
+  function getIM() public returns(uint)
   {
       PaymentRequest _IMPayment = PaymentRequest(msg.sender);
       return _IMPayment.getValue();
-  }*/
+  }
 
-/*  function getIM(address _contractAddress) public returns(uint)
+  function getIM(address _contractAddress) public returns(uint)
   {
-      Payment _IMPayment = Payment(_contractAddress);
+      PaymentRequest _IMPayment = PaymentRequest(_contractAddress);
       return _IMPayment.getValue();
-  }*/
+  }
 
-  /*function getVM() public returns(uint)
+  function getVM() public returns(uint)
   {
     address[] _paymentAddressArray = variationMargin[msg.sender];
     address _lastVMPaymentAddress = _paymentAddressArray[_paymentAddressArray.length - 1];
 
-    Payment _lastVMPayment = Payment(_lastVMPaymentAddress);
+    PaymentRequest _lastVMPayment = PaymentRequest(_lastVMPaymentAddress);
     return _lastVMPayment.getValue();
-  }*/
+  }
 
-  /*function getVM(address _contractAddress) public returns(uint)
+  function getVM(address _contractAddress) public returns(uint)
   {
     address[] _paymentAddressArray = variationMargin[_contractAddress];
     address _lastVMPaymentAddress = _paymentAddressArray[_paymentAddressArray.length - 1];
 
-    Payment _lastVMPayment = Payment(_lastVMPaymentAddress);
+    PaymentRequest _lastVMPayment = PaymentRequest(_lastVMPaymentAddress);
     return _lastVMPayment.getValue();
-  }*/
+  }
 
   //function getUnpayedVM() public returns(uint);
 
