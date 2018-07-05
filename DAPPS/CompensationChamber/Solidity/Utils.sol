@@ -188,6 +188,13 @@ contract OrderBookUtils is Utils
     uint timestamp;
     uint price; // the las 3 numbers of the integer represents the decimals, so 3000 equals to 3.
   }
+
+  enum instrumentType
+  {
+    future,
+    swap
+  }
+
     // Convert Uint to bytes32
     function uintToBytes(uint v) internal constant returns (bytes32 ret)
     {

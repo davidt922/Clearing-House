@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.20;
 
 /**
  * Add oraclize api used for call a function every 24h and to obtain data from external sources

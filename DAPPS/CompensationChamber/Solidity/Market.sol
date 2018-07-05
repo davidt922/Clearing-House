@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.20;
 
 import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
@@ -10,13 +10,8 @@ import "OrderBook.sol";
 
 contract Market is OrderBookUtils
 {
- enum instrumentType
-  {
-    future,
-    swap
-  }
-
   address compensationChamberAddress;
+  address owner;
   order[] orders;
 
   mapping(string => address) mapInstrumentIdToOrderBookAddress;
@@ -26,12 +21,18 @@ contract Market is OrderBookUtils
       require(msg.sender == compensationChamberAddress);
       _;
   }
+  modifier onlyOwner()
+  {
+      require (msg.sender == owner);
+      _;
+  }
 
   mapping (bytes32 => address) mapInstrumentToOrderBookAddress;
 
   function Market(uint timestampUntilNextVMRevision) public payable
   {
     compensationChamberAddress = (new CompensationChamber).value(msg.value)(timestampUntilNextVMRevision);
+    owner = msg.sender;
   }
 
   event payRequest(address _memberAddress, address _paymentAddress, uint _weiValue);
@@ -65,7 +66,7 @@ contract Market is OrderBookUtils
   }
 
   // type equals buy or sell
-  function addOrder(string _instrumentID, uint _quantity, uint _price, string _type)
+  function addOrder(string _instrumentID, uint _quantity, uint _price, string _type) public
   {
       address _orderBookAddress = mapInstrumentIdToOrderBookAddress[_instrumentID];
 
@@ -75,23 +76,39 @@ contract Market is OrderBookUtils
 
           if (compareStrings(_type, "BUY"))
           {
+              log("WORKS BUY");
               _orderBook.addBuyOrder(msg.sender, _quantity, _price);
           }
           else if (compareStrings(_type, "SELL"))
           {
+             log("WORKS SELL");
               _orderBook.addSellOrder(msg.sender, _quantity, _price);
           }
       }
   }
 
-
-  function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, uint _settlementTimestamp, string  _market) public payable
+  function addNewDerivative (string _instrumentID, string _market, instrumentType _instrumentType, uint _settlementTimestamp) public onlyOwner
   {
-    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-    _compensationChamber.futureNovation(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _settlementTimestamp, _market);
+      mapInstrumentIdToOrderBookAddress[_instrumentID] = new OrderBook(_instrumentID, _market, _instrumentType, _settlementTimestamp);
+      OrderBook _new = OrderBook(mapInstrumentIdToOrderBookAddress[_instrumentID]);
   }
 
-  function addSwapToCCP(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, uint _settlementTimestamp, string _market) public payable
+  function getCCPAddress() returns(address)
+  {
+      return compensationChamberAddress;
+  }
+
+    event log(string);
+    event log(string, address, address, string, string, uint, string);
+
+  function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string  _market) public payable
+  {
+    log("It Works ", _longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _settlementTimestamp, _market);
+    //CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    //_compensationChamber.futureNovation(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _settlementTimestamp, _market);
+  }
+
+  function addSwapToCCP(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, string _fixInterestrate, uint _settlementTimestamp, string _market) public payable
   {
     CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
      _compensationChamber.swapNovation(_fixedLegClearingMemberAddress, _floatingLegClearingMemberAddress, _instrumentID, _nominal, _settlementTimestamp, _market);

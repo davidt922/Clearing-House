@@ -1,4 +1,4 @@
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.4.20;
 
 import "QuickSortOrder.sol";
 import "Market.sol";
@@ -6,15 +6,10 @@ import "Market.sol";
 contract OrderBook is QuickSortOrder
 {
 
-  enum instrumentType
-   {
-     future,
-     swap
-   }
-
   instrumentType instType;
   string instrumentID;
   string market;
+  uint settlementTimestamp;
 
   address marketAddress;
 
@@ -29,49 +24,54 @@ contract OrderBook is QuickSortOrder
          _;
      }
 
-     function OrderBook (string _instrumentID, string _market, instrumentType _instrumentType) public
+     function OrderBook (string _instrumentID, string _market, instrumentType _instrumentType, uint _settlementTimestamp) public
      {
        instrumentID = _instrumentID;
        market = _market;
        instType = _instrumentType;
        marketAddress = msg.sender;
+       settlementTimestamp = _settlementTimestamp;
      }
     // FIX ADD INS TYPE
-    function addBuyOrder(address _ownerAddress, uint _quantity, uint _price) public onlyMarket
+    function addBuyOrder(address _ownerAddress, uint _quantity, uint _price) public /*onlyMarket*/
     {
-        uint i = 0;
-        Market _market = Market(marketAddress);
 
-        while(_price <= askOrders[i].price && _quantity > 0)
+        if (askOrders.length != 0)
         {
-            if(_quantity >= askOrders[i].quantity)
+            uint i = 0;
+            Market _market = Market(marketAddress);
+
+            while(_price <= askOrders[i].price || _quantity > 0)
             {
-              if (instType == instrumentType.future)
-              {
-                //_market.addFutureToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
-                _quantity = _quantity - askOrders[i].quantity;
-                removeOrder(askOrders, i);
-                i--;
-              }
-              else if (instType == instrumentType.swap)
-              {
-                //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
-              }
+                if(_quantity >= askOrders[i].quantity)
+                {
+                  if (instType == instrumentType.future)
+                  {
+                    _market.addFutureToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price), 10000, market);
+                    _quantity = _quantity - askOrders[i].quantity;
+                    removeOrder(askOrders, i);
+                    i--;
+                  }
+                  else if (instType == instrumentType.swap)
+                  {
+                    //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+                  }
+                }
+                else
+                {
+                  if (instType == instrumentType.future)
+                  {
+                    _market.addFutureToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price), 10000, market);
+                    askOrders[i].quantity = askOrders[i].quantity - _quantity;
+                    _quantity = 0;
+                  }
+                  else if (instType == instrumentType.swap)
+                  {
+                    //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+                  }
+                }
+                i++;
             }
-            else
-            {
-              if (instType == instrumentType.future)
-              {
-               // _market.addFutureToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(_quantity), uintPriceToString(askOrders[i].price));
-                askOrders[i].quantity = askOrders[i].quantity - _quantity;
-                _quantity = 0;
-              }
-              else if (instType == instrumentType.swap)
-              {
-                //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
-              }
-            }
-            i++;
         }
 
         if(_quantity > 0)
@@ -80,42 +80,48 @@ contract OrderBook is QuickSortOrder
         }
     }
 
-    function addSellOrder(address _ownerAddress, uint _quantity, uint _price) public onlyMarket
+    event matches(string);
+    function addSellOrder(address _ownerAddress, uint _quantity, uint _price) public /*onlyMarket*/
     {
-      uint i = 0;
-      Market _market = Market(marketAddress);
+        if (bidOrders.length != 0)
+        {
+            uint i = 0;
+            Market _market = Market(marketAddress);
 
-      while(_price >= bidOrders[i].price && _quantity > 0)
-      {
-          if(_quantity >= bidOrders[i].quantity)
-          {
-            if (instType == instrumentType.future)
-            {
-              //_market.addFutureToCCP(_ownerAddress, bidOrders[i].ownerAddress, instrumentID, uintToString(bidOrders[i].quantity), uintPriceToString(bidOrders[i].price));
-              _quantity = _quantity - bidOrders[i].quantity;
-              removeOrder(bidOrders, i);
-              i--;
-            }
-            else if (instType == instrumentType.swap)
-            {
-              //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
-            }
-          }
-          else
-          {
-            if (instType == instrumentType.future)
-            {
-             // _market.addFutureToCCP(_ownerAddress, bidOrders[i].ownerAddress, instrumentID, uintToString(_quantity), uintPriceToString(bidOrders[i].price));
-              bidOrders[i].quantity = bidOrders[i].quantity - _quantity;
-              _quantity = 0;
-            }
-            else if (instType == instrumentType.swap)
-            {
-              //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
-            }
-          }
-          i++;
-      }
+              while(_price >= bidOrders[i].price && _quantity > 0)
+              {
+                  if(_quantity >= bidOrders[i].quantity)
+                  {
+                    if (instType == instrumentType.future)
+                    {
+                      _market.addFutureToCCP(bidOrders[i].ownerAddress, _ownerAddress, instrumentID, uintToString(bidOrders[i].quantity), uintPriceToString(bidOrders[i].price), 10000, market);
+                      _quantity = _quantity - bidOrders[i].quantity;
+                      matches("We have a match 1");
+                      removeOrder(bidOrders, i);
+                      i--;
+                    }
+                    else if (instType == instrumentType.swap)
+                    {
+                      //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+                    }
+                  }
+                  else
+                  {
+                    if (instType == instrumentType.future)
+                    {
+                        matches("We have a match 2");
+                      _market.addFutureToCCP(bidOrders[i].ownerAddress, _ownerAddress, instrumentID, uintToString(bidOrders[i].quantity), uintPriceToString(bidOrders[i].price), 10000, market);
+                      bidOrders[i].quantity = bidOrders[i].quantity - _quantity;
+                      _quantity = 0;
+                    }
+                    else if (instType == instrumentType.swap)
+                    {
+                      //_market.addSwapToCCP(_ownerAddress, askOrders[i].ownerAddress, instrumentID, uintToString(askOrders[i].quantity), uintPriceToString(askOrders[i].price));
+                    }
+                  }
+                  i++;
+              }
+        }
 
       if(_quantity > 0)
       {
@@ -128,8 +134,8 @@ contract OrderBook is QuickSortOrder
       bidOrders.push(order(_ownerAddress, _quantity, block.timestamp,  _price));
       orderDecreasing(bidOrders);
 
-      Market _market = Market(marketAddress);
-      // _market.bidOrderAddedToOrderBook();
+      //Market _market = Market(marketAddress);
+       //_market.bidOrderAddedToOrderBook();
     }
 
     function addAskToOrderBook(address _ownerAddress, uint _quantity, uint _price) internal
@@ -137,7 +143,7 @@ contract OrderBook is QuickSortOrder
       askOrders.push(order(_ownerAddress, _quantity, block.timestamp,  _price));
       orderDecreasing(bidOrders);
 
-      Market _market = Market(marketAddress);
-      // _market.bidOrderAddedToOrderBook();
+     // Market _market = Market(marketAddress);
+       //_market.bidOrderAddedToOrderBook();
     }
 }

@@ -1,9 +1,10 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.20;
 
 import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 import "Utils.sol";
+import "Future.sol";
 import "MarketData.sol";
 import "Market.sol";
 import "ClearingMember.sol";
@@ -84,7 +85,6 @@ contract CompensationChamber is Utils
    */
   address[] derivatives;
 
-  // FUTURE FIX: Compensation chamber have to be created by market contract
   function CompensationChamber(uint timestampUntilNextVMRevision) public payable
   {
     marketAddress = msg.sender;
@@ -135,7 +135,7 @@ contract CompensationChamber is Utils
 
     if( _contractAddress == 0)
     {
-      revert("There is a contract of a liquidator member linked to this address");
+      //revert("There is a contract of a liquidator member linked to this address");
     }
     else
     {
@@ -153,7 +153,7 @@ contract CompensationChamber is Utils
     address _longClearingMemberContractAddress = getClearingMemberContractAddress(_longClearingMemberAddress);
     address _shortClearingMemberContractAddress = getClearingMemberContractAddress(_shortClearingMemberAddress);
 
-    //derivatives.push((new Future).value(1 ether)(_longClearingMemberContractAddress, _shortClearingMemberContractAddress, _instrumentID, _amount, _settlementTimestamp, _marketDataAddress, _market));
+    derivatives.push(new Future(_longClearingMemberContractAddress, _shortClearingMemberContractAddress, _instrumentID, _amount, _settlementTimestamp, marketDataAddress, _market));
   }
 
   function swapNovation(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, uint _settlementTimestamp, string _market) public payable
@@ -161,12 +161,13 @@ contract CompensationChamber is Utils
     address _fixedLegClearingMemberContractAddress = getClearingMemberContractAddress(_fixedLegClearingMemberAddress);
     address _floatingLegClearingMemberContractAddress = getClearingMemberContractAddress(_floatingLegClearingMemberAddress);
 
-    //derivatives.push((new Swap).value(1 ether)(_fixedLegClearingMemberContractAddress, _floatingLegClearingMemberContractAddress, _instrumentID, _nominal, _settlementTimestamp, _marketDataAddress, _market));
+   // derivatives.push((new Swap).value(1 ether)(_fixedLegClearingMemberContractAddress, _floatingLegClearingMemberContractAddress, _instrumentID, _nominal, _settlementTimestamp, _marketDataAddress, _market));
   }
 
   //function forwardNovation()
 
   //function optionNovation()
+
   function sendPaymentRequestToMarket(address _paymentRequest) public onlyClearingMemberContracts
   {
       Market _market = Market(marketAddress);

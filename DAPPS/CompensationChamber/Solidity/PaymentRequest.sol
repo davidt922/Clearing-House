@@ -36,6 +36,7 @@ contract PaymentRequest is Utils
 
     return payed;
   }
+
   function getValue() public returns(uint)
   {
     return value;

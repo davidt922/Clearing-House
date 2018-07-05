@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.20;
 
 import "Derivative.sol";
 import "MarketData.sol";
@@ -9,14 +9,15 @@ contract Future is Derivative
     address shortMemberContractAddress; // The one who will have to sell the asset (subyacente) in the settlementTimestamp
     string amount; // Amount of the subyacent asset that they have to trade at settlementTimestamp
 
-    function Future(address _longMemberContractAddress, address _shortMemberContractAddress, string _instrumentID, string _amount, uint _settlementTimestamp, address _marketDataAddress, string _market) Derivative(_instrumentID, _settlementTimestamp, _marketDataAddress, _market) public payable
+    function Future(address _longMemberContractAddress, address _shortMemberContractAddress, string _instrumentID, string _amount, uint _settlementTimestamp, address _marketDataAddress, string _market) Derivative(_instrumentID, _settlementTimestamp, _marketDataAddress, _market) public
     {
-        longMemberContractAddress = _longMemberContractAddress;
-        shortMemberContractAddress = _shortMemberContractAddress;
+      //  longMemberContractAddress = _longMemberContractAddress;
+       // shortMemberContractAddress = _shortMemberContractAddress;
 
-        amount = _amount;
+       // amount = _amount;
 
-        computeIM();
+      //  computeIM();
+      uint a = 3;
     }
 
     function computeIM() internal
@@ -50,5 +51,10 @@ contract Future is Derivative
 
         paymentRequest(value[0], longMemberContractAddress, paymentType.variationMargin);
         paymentRequest(value[1], shortMemberContractAddress, paymentType.variationMargin);
+    }
+
+    function getTheContractCounterparts() public returns(address[2])
+    {
+        return [longMemberContractAddress, shortMemberContractAddress];
     }
 }
