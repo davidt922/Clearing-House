@@ -9,32 +9,32 @@ contract Future is Derivative
     address shortMemberContractAddress; // The one who will have to sell the asset (subyacente) in the settlementTimestamp
     string amount; // Amount of the subyacent asset that they have to trade at settlementTimestamp
 
-    function Future(address _longMemberContractAddress, address _shortMemberContractAddress, string _instrumentID, string _amount, uint _settlementTimestamp, address _marketDataAddress, string _market) Derivative(_instrumentID, _settlementTimestamp, _marketDataAddress, _market) public
+    function Future(address _longMemberContractAddress, address _shortMemberContractAddress, string _instrumentID, string _amount, uint _settlementTimestamp, address _marketDataAddress, string _market) Derivative(_instrumentID, _settlementTimestamp, _marketDataAddress, _market) public payable
     {
-      //  longMemberContractAddress = _longMemberContractAddress;
-       // shortMemberContractAddress = _shortMemberContractAddress;
+        require(msg.value == 100);
+        longMemberContractAddress = _longMemberContractAddress;
+        shortMemberContractAddress = _shortMemberContractAddress;
 
-       // amount = _amount;
+        amount = _amount;
 
-      //  computeIM();
-      uint a = 3;
+        computeIM();
     }
 
-    function computeIM() internal
+    function computeIM() private
     {
         MarketData marketDataContract = MarketData(marketDataAddress);
 
         if (compareStrings( market, "BOE")) // Bank of england
         {
-          marketDataContract.getIMFutureBOE.value(2 ether)(amount, instrumentID);
+          marketDataContract.getIMFutureBOE.value(100 wei)(amount, instrumentID);
         }
         else if (compareStrings(market, "EUREX")) // https://www.quandl.com/data/EUREX-EUREX-Futures-Data
         {
-          marketDataContract.getIMFutureEUREX.value(2 ether)(amount, instrumentID);
+          marketDataContract.getIMFutureEUREX.value(100 wei)(amount, instrumentID);
         }
         else if (compareStrings(market, "CME"))// Chicago Mercantile Exchanges // https://www.quandl.com/data/CME-Chicago-Mercantile-Exchange-Futures-Data
         {
-          marketDataContract.getIMFutureCME.value(2 ether)(amount, instrumentID);
+          marketDataContract.getIMFutureCME.value(100 wei)(amount, instrumentID);
         }
     }
 
