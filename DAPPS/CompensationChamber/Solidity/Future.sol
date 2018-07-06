@@ -3,6 +3,8 @@ pragma solidity ^0.4.20;
 import "Derivative.sol";
 import "MarketData.sol";
 
+import "CompensationChamber.sol";
+
 contract Future is Derivative
 {
     address longMemberContractAddress; // The one who will have to buy the asset (subyacente) in the settlementTimestamp
@@ -40,10 +42,15 @@ contract Future is Derivative
 
     function setIM(string result) onlyMarketData public
     {
-        uint[2] memory value = stringToUintArray2(result); // first value = longMemberContractAddress, second value = shortMemberContractAddress
+        //uint[2] memory value = stringToUintArray2(result); // first value = longMemberContractAddress, second value = shortMemberContractAddress
         // FOR TEST Change value[0], value[1] for an integer
-        paymentRequest(1000, longMemberContractAddress, paymentType.initialMargin);
-        paymentRequest(1000, shortMemberContractAddress, paymentType.initialMargin);
+        //paymentRequest(1000, longMemberContractAddress, paymentType.initialMargin);
+        //paymentRequest(1000, shortMemberContractAddress, paymentType.initialMargin);
+
+        // START TEST
+        CompensationChamber _comp = CompensationChamber(compensationChamberAddress);
+        _comp.sendStringToMarket("WORKS");
+        // END TEST
     }
 
     function setVM(string result) onlyMarketData public

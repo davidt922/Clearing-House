@@ -119,7 +119,7 @@ contract Derivative is Utils
     return tradeTimestamp;
   }
 
-  function paymentRequest(uint _value, address _clearingMemberContractAddress, paymentType _type) internal returns(address)
+  function paymentRequest(uint _value, address _clearingMemberContractAddress, paymentType _type) internal
   {
       address paymentAddress = new PaymentRequest(_value, _clearingMemberContractAddress, _type);
 
