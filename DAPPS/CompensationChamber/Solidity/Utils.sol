@@ -13,6 +13,25 @@ contract Utils
 {
   using strings for *;
 
+  // Logs
+  event stringLog(string);
+  function logString(string a) public
+  {
+      stringLog(a);
+  }
+
+  event addressLog(address);
+  function logAddress(address a) public
+  {
+      addressLog(a);
+  }
+
+  event integerLog(uint);
+  function logInt(uint a) public
+  {
+      integerLog(a);
+  }
+
   // Convert from bytes32 to String
   function bytes32ToString(bytes32 _bytes32) internal pure returns (string)
   {

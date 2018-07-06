@@ -31,8 +31,14 @@ contract Market is OrderBookUtils
 
   function Market(uint timestampUntilNextVMRevision) public payable
   {
-    compensationChamberAddress = (new CompensationChamber).value(msg.value)(timestampUntilNextVMRevision);
+    require(msg.value >= 20 ether);
+    compensationChamberAddress = (new CompensationChamber).value(15 ether)(timestampUntilNextVMRevision);
     owner = msg.sender;
+    // Start for test
+    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    _compensationChamber.addClearingMember(0x14723a09acff6d2a60dcdf7aa4aff308fddc160c);
+    _compensationChamber.addClearingMember(0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db);
+    // End for test
   }
 
   event payRequest(address _memberAddress, address _paymentAddress, uint _weiValue);
@@ -42,6 +48,7 @@ contract Market is OrderBookUtils
       PaymentRequest _payRequest = PaymentRequest(_paymentRequestAddress);
       uint weiValue = _payRequest.getValue();
       payRequest(_memberAddress, _paymentRequestAddress, weiValue);
+      stringLog("It works");
   }
 
   event paymentError(string);
@@ -66,8 +73,9 @@ contract Market is OrderBookUtils
   }
 
   // type equals buy or sell
-  function addOrder(string _instrumentID, uint _quantity, uint _price, string _type) public
+  function addOrder(string _instrumentID, uint _quantity, uint _price, string _type) public payable
   {
+      require(this.balance >= 1 ether);
       address _orderBookAddress = mapInstrumentIdToOrderBookAddress[_instrumentID];
 
       if (_orderBookAddress != 0)
@@ -76,12 +84,12 @@ contract Market is OrderBookUtils
 
           if (compareStrings(_type, "BUY"))
           {
-              log("WORKS BUY");
+              stringLog("WORKS BUY");
               _orderBook.addBuyOrder(msg.sender, _quantity, _price);
           }
           else if (compareStrings(_type, "SELL"))
           {
-             log("WORKS SELL");
+             stringLog("WORKS SELL");
               _orderBook.addSellOrder(msg.sender, _quantity, _price);
           }
       }
@@ -97,15 +105,13 @@ contract Market is OrderBookUtils
   {
       return compensationChamberAddress;
   }
-
-    event log(string);
     event log(string, address, address, string, string, uint, string);
 
-  function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string  _market) public payable
+  function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string  _market) public
   {
     log("It Works ", _longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _settlementTimestamp, _market);
-    //CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-    //_compensationChamber.futureNovation(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _settlementTimestamp, _market);
+    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    _compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _settlementTimestamp, _market);
   }
 
   function addSwapToCCP(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, string _fixInterestrate, uint _settlementTimestamp, string _market) public payable

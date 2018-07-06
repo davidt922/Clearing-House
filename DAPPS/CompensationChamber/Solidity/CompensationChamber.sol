@@ -150,14 +150,20 @@ contract CompensationChamber is Utils
   // onlyMarket modifier
   function futureNovation(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, uint _settlementTimestamp, string  _market) public payable
   {
+    require(msg.value >= 1 ether);
     address _longClearingMemberContractAddress = getClearingMemberContractAddress(_longClearingMemberAddress);
     address _shortClearingMemberContractAddress = getClearingMemberContractAddress(_shortClearingMemberAddress);
 
-    derivatives.push(new Future(_longClearingMemberContractAddress, _shortClearingMemberContractAddress, _instrumentID, _amount, _settlementTimestamp, marketDataAddress, _market));
+      Market _marketObject = Market(marketAddress);
+    _marketObject.logAddress(_longClearingMemberContractAddress);
+    _marketObject.logAddress(_longClearingMemberContractAddress);
+    _marketObject.logInt(msg.value);
+    derivatives.push((new Future).value(msg.value)(_longClearingMemberContractAddress, _shortClearingMemberContractAddress, _instrumentID, _amount, _settlementTimestamp, marketDataAddress, _market));
   }
 
   function swapNovation(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, uint _settlementTimestamp, string _market) public payable
   {
+     require(msg.value >= 1 ether);
     address _fixedLegClearingMemberContractAddress = getClearingMemberContractAddress(_fixedLegClearingMemberAddress);
     address _floatingLegClearingMemberContractAddress = getClearingMemberContractAddress(_floatingLegClearingMemberAddress);
 

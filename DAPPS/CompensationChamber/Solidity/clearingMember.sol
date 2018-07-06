@@ -1,7 +1,7 @@
 pragma solidity ^0.4.20;
 
 /**
- * Add oraclize api used for call a function every 24h and to obtain data from external sources
+ * Add oraclize API used for call a function every 24h and to obtain data from external sources
  */
 import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 /**
@@ -75,5 +75,6 @@ contract ClearingMember
   {
       payments.push(_paymentAddress);
       CompensationChamber _compensationChamber = CompensationChamber(chamberAddress);
+      _compensationChamber.sendPaymentRequestToMarket(_paymentAddress);
   }
 }
