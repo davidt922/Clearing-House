@@ -161,12 +161,6 @@ contract CompensationChamber is Utils
     derivatives.push((new Future).value(msg.value)(_longClearingMemberContractAddress, _shortClearingMemberContractAddress, _instrumentID, _amount, _settlementTimestamp, marketDataAddress, _market));
   }
 
-  function sendStringToMarket(string str) public
-  {
-    Market _market = Market(marketAddress);
-    _market.logString(str);
-  }
-
   function swapNovation(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, uint _settlementTimestamp, string _market) public payable
   {
      require(msg.value >= 1 ether);
@@ -183,8 +177,6 @@ contract CompensationChamber is Utils
   function sendPaymentRequestToMarket(address _paymentRequest) public onlyClearingMemberContracts
   {
       Market _market = Market(marketAddress);
-    _market.logString("Send payment Request to Market");
-    _market.logInt(666999);
       _market.paymentRequest(mapClearingMemberContractAddressToClearingMemberAddress[msg.sender], _paymentRequest);
   }
 

@@ -100,8 +100,8 @@ contract MarketData is usingOraclize
     }
     else
     {
-      //string memory URL = "json(https://83.231.14.17:3002/BOE/computeVaR/";
-      string memory URL = "json(https://tidy-jellyfish-22.localtunnel.me/BOE/computeVaR/";
+      string memory URL = "json(https://83.231.14.17:3002/BOE/computeVaR/";
+      //string memory URL = "json(https://tidy-jellyfish-22.localtunnel.me/BOE/computeVaR/";
       string memory query1 = "0.95";
       string memory query2_4 = "/";
       //string memory query3 = _nominal;
@@ -214,7 +214,6 @@ contract MarketData is usingOraclize
 
      address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
      Derivative _derivative = Derivative(contractAddress);
-     _derivative.setIM(result);
      //vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
      //_vanillaSwap.setIM(result);
     }
