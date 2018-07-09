@@ -26,8 +26,15 @@ contract Derivative is Utils
   uint tradeTimestamp;
   uint settlementTimestamp;
 
+// initial margin will store PaymentRequest address
   mapping(address => address) initialMargin;
-  mapping(address => address[]) variationMargin;
+
+
+  // variationMargin will store variationMarginStruct structs
+
+
+  mapping(address => uint) lastVariationMargin;
+  mapping(address => uint) accumulatedVariationMargin;
 
   /**
    * Modifiers
@@ -73,9 +80,9 @@ contract Derivative is Utils
   function setIM(string result) onlyMarketData public;
 
   /**
-  * Set initialMargin
+  * Set variationMargin
   */
-  function setVM(string result) onlyMarketData public;
+  function setVM(string result) private;
 
   /**
   * Getters
@@ -94,20 +101,20 @@ contract Derivative is Utils
 
   function getVM() public returns(uint)
   {
-    address[] _paymentAddressArray = variationMargin[msg.sender];
+   /* address[] _paymentAddressArray = variationMargin[msg.sender];
     address _lastVMPaymentAddress = _paymentAddressArray[_paymentAddressArray.length - 1];
 
     PaymentRequest _lastVMPayment = PaymentRequest(_lastVMPaymentAddress);
-    return _lastVMPayment.getValue();
+    return _lastVMPayment.getValue();*/
   }
 
   function getVM(address _contractAddress) public returns(uint)
   {
-    address[] _paymentAddressArray = variationMargin[_contractAddress];
+ /*   address[] _paymentAddressArray = variationMargin[_contractAddress];
     address _lastVMPaymentAddress = _paymentAddressArray[_paymentAddressArray.length - 1];
 
     PaymentRequest _lastVMPayment = PaymentRequest(_lastVMPaymentAddress);
-    return _lastVMPayment.getValue();
+    return _lastVMPayment.getValue();*/
   }
 
   //function getUnpayedVM() public returns(uint);
@@ -128,23 +135,24 @@ contract Derivative is Utils
 
       ClearingMember _clearingMember = ClearingMember(_clearingMemberContractAddress);
 
-      if(_type == paymentType.initialMargin)
-      {
+      //if(_type == paymentType.initialMargin)
+      //{
           //paymentAddress = new Test();
-          paymentAddress = new PaymentRequest(_value, _clearingMemberContractAddress, 0);
+          paymentAddress = new PaymentRequest(_value, _clearingMemberContractAddress, _type);
           initialMargin[_clearingMemberContractAddress] = paymentAddress;
 
-          //_clearingMember.paymentRequest(paymentAddress);
-      }
-      else
-      {
-           paymentAddress = new Test();
-          //paymentAddress = new PaymentRequest(_value, _clearingMemberContractAddress, 1);
-          variationMargin[_clearingMemberContractAddress].push(paymentAddress);
+          _clearingMember.paymentRequest(paymentAddress);
+     // }
+     // else
+     // {
+          //paymentAddress = new PaymentRequest(_value, _clearingMemberContractAddress, _type);
+         // variationMargin[_clearingMemberContractAddress].push(paymentAddress);
 
          // _clearingMember.paymentRequest(paymentAddress);
-      }
+     // }
   }
 
   function getTheContractCounterparts() public returns(address[2]);
+
+  function computeVM() onlyChamber public;
 }

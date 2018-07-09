@@ -1,40 +1,59 @@
 pragma solidity ^0.4.20;
 
 import "Utils.sol";
+//import "CompensationChamber.sol";
 
-contract PaymentRequest //is Enums//is Utils// is Utils hi ha algo que no li agrada
+contract PaymentRequest is Enums//is Utils// is Utils hi ha algo que no li agrada
 {
 
   uint value; // value in wei
- // uint timestamp;
+  uint timestamp;
   bool payed;
 
-  //address derivativeAddress;
-  //address clearingMemberContractAddress;
+  address owner;
+  address clearingMemberContractAddress;
+  address compensationChamberAddress;
 
-//  paymentType payType;
+  paymentType payType;
 
-  function PaymentRequest(uint _value, address _clearingMemberContractAddress, uint _type) public
+  function PaymentRequest(uint _value, address _clearingMemberContractAddress, paymentType _type) public
   {
     value = _value;
-    //timestamp = block.timestamp;
-    //derivativeAddress = msg.sender;
-    //payed = false;
+    timestamp = block.timestamp;
+    owner = msg.sender;
+    payed = false;
 
-    //clearingMemberContractAddress = _clearingMemberContractAddress;
+    clearingMemberContractAddress = _clearingMemberContractAddress;
+    payType = _type;
 
-   /* if (_type == 0)
+    if (_type == paymentType.initialMargin)
     {
-        payType = paymentType.initialMargin;
+
     }
-    else if (_type == 1)
+    else if (_type == paymentType.variationMargin)
     {
-        payType = paymentType.variationMargin;
-    }*/
+
+        //CompensationChamber _compensationChamber = CompensationChamber(owner);
+        // _compensationChamber.sendPaymentRequestToMarketParamContractAddress(clearingMemberContractAddress);
+    }
     //ClearingMember _clearingMember = ClearingMember(clearingMemberContractAddress);
     //_clearingMember.paymentRequest();
   }
+/*
+  function PaymentRequest(uint _value, address _clearingMemberContractAddress) public
+  {
+    value = _value;
+    timestamp = block.timestamp;
+    compensationChamberAddress = msg.sender;
+    payed = false;
 
+    clearingMemberContractAddress = _clearingMemberContractAddress;
+    payType = paymentType.variationMargin;
+
+    //CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+   // _compensationChamber.sendPaymentRequestToMarketParamContractAddress(clearingMemberContractAddress);
+  }
+*/
   function pay() public payable returns(bool)
   {
     require(msg.value == value);
@@ -47,13 +66,4 @@ contract PaymentRequest //is Enums//is Utils// is Utils hi ha algo que no li agr
   {
     return value;
   }
-}
-
-contract Test
-{
-    address owner;
-    function Test() public
-    {
-        owner = msg.sender;
-    }
 }

@@ -8,6 +8,7 @@ import "MarketData.sol";
 import "Market.sol";
 import "ClearingMember.sol";
 import "PaymentRequest.sol";
+//import "Derivative.sol";
 import "Future.sol";
 
 contract CompensationChamber is Utils
@@ -89,6 +90,7 @@ contract CompensationChamber is Utils
   {
     marketAddress = msg.sender;
     marketDataAddress = (new MarketData).value(5 ether)();
+    uint timeUntilFirstVMRevisionInSeconds = timestampUntilNextVMRevision - block.timestamp;
    // settlementAddress = (new Settlement).value(5 ether)();
 
   }
@@ -180,12 +182,82 @@ contract CompensationChamber is Utils
       _market.paymentRequest(mapClearingMemberContractAddressToClearingMemberAddress[msg.sender], _paymentRequest);
   }
 
+  function sendPaymentRequestToMarketParamContractAddress(address _clearingMemberContractAddress) public onlyClearingMemberContracts
+  {
+      Market _market = Market(marketAddress);
+      _market.paymentRequest(mapClearingMemberContractAddressToClearingMemberAddress[_clearingMemberContractAddress], msg.sender);
+  }
+
+
   // Logs
 
   function logIntToMarket(uint a)
   {
       Market _marketObject = Market(marketAddress);
       _marketObject.logInt(a);
+  }
+
+  // Compute
+  uint counter;
+  mapping (address => uint) mapAddressToTotalVM;
+
+  function computeVariationMargin() public
+  {
+      address[2] memory _contractCounterparts;
+
+      counter = derivatives.length * 2;
+
+      for (uint i = 0; i < derivatives.length; i++)
+      {
+          Derivative _derivative = Derivative(derivatives[i]);
+          _contractCounterparts = _derivative.getTheContractCounterparts();
+
+      }
+  }
+
+  mapping (address => uint) mapAddressToVMValue;
+
+  function variationMargin(address _contractAddress, uint _VM)
+  {
+      counter = counter - 1;
+
+      if (counter != 0)
+      {
+
+      }
+      else
+      {
+          sendPaymentRequestOrSendPayment();
+          removeMapAddressToVMValue();
+      }
+  }
+
+  function sendPaymentRequestOrSendPayment()
+  {
+      uint value;
+      address clearingMemberContractAddress;
+      for (uint i = 0; i < clearingMemberContractAddresses.length; i++)
+      {
+          clearingMemberContractAddress = clearingMemberContractAddresses[i];
+          value = mapAddressToVMValue[clearingMemberContractAddress];
+
+          if (value > 0)
+          {
+              new PaymentRequest(value, clearingMemberContractAddress, paymentType.variationMargin);
+          }
+          else if (value < 0)
+          {
+              mapClearingMemberContractAddressToClearingMemberAddress[clearingMemberContractAddress].send(value);
+          }
+      }
+  }
+
+  function removeMapAddressToVMValue() private
+  {
+      for (uint i = 0; i < clearingMemberContractAddresses.length; i++)
+      {
+          mapAddressToVMValue[clearingMemberContractAddresses[i]] = 0;
+      }
   }
 
 }

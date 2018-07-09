@@ -48,7 +48,6 @@ contract Market is OrderBookUtils
       PaymentRequest _payRequest = PaymentRequest(_paymentRequestAddress);
       uint weiValue = _payRequest.getValue();
       payRequest(_memberAddress, _paymentRequestAddress, weiValue);
-      stringLog("It works");
   }
 
   event paymentError(string);
