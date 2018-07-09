@@ -215,7 +215,7 @@ contract MarketData is usingOraclize
      address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
      Derivative _derivative = Derivative(contractAddress);
      //vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
-     //_vanillaSwap.setIM(result);
+     _derivative.setIM(result);
     }
   }
 

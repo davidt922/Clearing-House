@@ -6,6 +6,9 @@ import "github.com/Arachnid/solidity-stringutils/strings.sol";
 import "Utils.sol";
 
 import "PaymentRequest.sol";
+import "ClearingMember.sol";
+
+
 
 /**
  * Derivative is an abstract contract: Contracts are marked as abstract when at
@@ -119,20 +122,28 @@ contract Derivative is Utils
     return tradeTimestamp;
   }
 
-  function paymentRequest(uint _value, address _clearingMemberContractAddress, paymentType _type) internal returns(address)
+  function paymentRequest(uint _value, address _clearingMemberContractAddress, paymentType _type) /*internal*/
   {
-      address paymentAddress = new PaymentRequest(_value, _clearingMemberContractAddress, _type);
+      address paymentAddress;
+
+      ClearingMember _clearingMember = ClearingMember(_clearingMemberContractAddress);
 
       if(_type == paymentType.initialMargin)
       {
+          //paymentAddress = new Test();
+          paymentAddress = new PaymentRequest(_value, _clearingMemberContractAddress, 0);
           initialMargin[_clearingMemberContractAddress] = paymentAddress;
+
+          //_clearingMember.paymentRequest(paymentAddress);
       }
       else
       {
+           paymentAddress = new Test();
+          //paymentAddress = new PaymentRequest(_value, _clearingMemberContractAddress, 1);
           variationMargin[_clearingMemberContractAddress].push(paymentAddress);
+
+         // _clearingMember.paymentRequest(paymentAddress);
       }
-      ClearingMember _clearingMember = ClearingMember(_clearingMemberContractAddress);
-      _clearingMember.paymentRequest(paymentAddress);
   }
 
   function getTheContractCounterparts() public returns(address[2]);

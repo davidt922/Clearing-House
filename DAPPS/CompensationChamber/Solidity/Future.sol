@@ -2,6 +2,7 @@ pragma solidity ^0.4.20;
 
 import "Derivative.sol";
 import "MarketData.sol";
+import "CompensationChamber.sol";
 
 contract Future is Derivative
 {
@@ -18,6 +19,14 @@ contract Future is Derivative
         amount = _amount;
 
         computeIM();
+        //test();
+    }
+
+    function test()
+    {
+        paymentRequest(1000, longMemberContractAddress, paymentType.initialMargin);
+                CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+        _compensationChamber.logIntToMarket(2);
     }
 
     function computeIM() private
@@ -36,14 +45,21 @@ contract Future is Derivative
         {
           marketDataContract.getIMFutureCME.value(1 ether)(amount, instrumentID);
         }
+        CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+        _compensationChamber.logIntToMarket(1);
     }
 
     function setIM(string result) onlyMarketData public
     {
-        uint[2] memory value = stringToUintArray2(result); // first value = longMemberContractAddress, second value = shortMemberContractAddress
+        CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+        _compensationChamber.logIntToMarket(2);
+
+        //uint[2] memory value = stringToUintArray2(result); // first value = longMemberContractAddress, second value = shortMemberContractAddress
         // FOR TEST Change value[0], value[1] for an integer
         paymentRequest(1000, longMemberContractAddress, paymentType.initialMargin);
-        paymentRequest(1000, shortMemberContractAddress, paymentType.initialMargin);
+        //paymentRequest(1000, shortMemberContractAddress, paymentType.initialMargin);
+
+        _compensationChamber.logIntToMarket(3);
     }
 
     function setVM(string result) onlyMarketData public

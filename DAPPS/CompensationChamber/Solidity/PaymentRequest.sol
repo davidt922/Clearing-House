@@ -1,35 +1,41 @@
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.4.20;
 
-import "ClearingMember.sol";
 import "Utils.sol";
 
-contract PaymentRequest is Utils
+contract PaymentRequest //is Enums//is Utils// is Utils hi ha algo que no li agrada
 {
+
   uint value; // value in wei
-  uint timestamp;
+ // uint timestamp;
   bool payed;
 
-  address derivativeAddress;
-  address clearingMemberContractAddress;
-  //address paymentsAddress;
+  //address derivativeAddress;
+  //address clearingMemberContractAddress;
 
-  paymentType payType;
+//  paymentType payType;
 
-  function PaymentRequest(uint _value, address _clearingMemberContractAddress, paymentType _type) public
+  function PaymentRequest(uint _value, address _clearingMemberContractAddress, uint _type) public
   {
     value = _value;
-    timestamp = block.timestamp;
-    derivativeAddress = msg.sender;
-    payed = false;
+    //timestamp = block.timestamp;
+    //derivativeAddress = msg.sender;
+    //payed = false;
 
-    clearingMemberContractAddress = _clearingMemberContractAddress;
+    //clearingMemberContractAddress = _clearingMemberContractAddress;
 
-    payType = _type;
+   /* if (_type == 0)
+    {
+        payType = paymentType.initialMargin;
+    }
+    else if (_type == 1)
+    {
+        payType = paymentType.variationMargin;
+    }*/
     //ClearingMember _clearingMember = ClearingMember(clearingMemberContractAddress);
     //_clearingMember.paymentRequest();
   }
 
-  function pay() payable returns(bool)
+  function pay() public payable returns(bool)
   {
     require(msg.value == value);
     payed = true;
@@ -37,8 +43,17 @@ contract PaymentRequest is Utils
     return payed;
   }
 
-  function getValue() public returns(uint)
+  function getValue() view public returns(uint)
   {
     return value;
   }
+}
+
+contract Test
+{
+    address owner;
+    function Test() public
+    {
+        owner = msg.sender;
+    }
 }

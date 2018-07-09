@@ -71,7 +71,7 @@ contract ClearingMember
       return derivatives;
   }
 
-  function paymentRequest(address _paymentAddress) public onlyDerivatives
+  function paymentRequest(address _paymentAddress) public
   {
       payments.push(_paymentAddress);
       CompensationChamber _compensationChamber = CompensationChamber(chamberAddress);

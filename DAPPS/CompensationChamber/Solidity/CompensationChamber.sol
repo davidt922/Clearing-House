@@ -4,11 +4,11 @@ import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 import "Utils.sol";
-import "Future.sol";
 import "MarketData.sol";
 import "Market.sol";
 import "ClearingMember.sol";
 import "PaymentRequest.sol";
+import "Future.sol";
 
 contract CompensationChamber is Utils
 {
@@ -178,6 +178,14 @@ contract CompensationChamber is Utils
   {
       Market _market = Market(marketAddress);
       _market.paymentRequest(mapClearingMemberContractAddressToClearingMemberAddress[msg.sender], _paymentRequest);
+  }
+
+  // Logs
+
+  function logIntToMarket(uint a)
+  {
+      Market _marketObject = Market(marketAddress);
+      _marketObject.logInt(a);
   }
 
 }

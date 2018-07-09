@@ -9,7 +9,17 @@ import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 
 // Pensar en la posibilidad de hacer una libreria
-contract Utils
+
+contract Enums
+{
+  enum paymentType
+  {
+      initialMargin,
+      variationMargin
+  }
+}
+
+contract Utils is Enums
 {
   using strings for *;
 
@@ -186,12 +196,6 @@ contract Utils
   function compareStrings (string a, string b) internal returns (bool)
   {
        return keccak256(a) == keccak256(b);
-  }
-
-  enum paymentType
-  {
-      initialMargin,
-      variationMargin
   }
 }
 

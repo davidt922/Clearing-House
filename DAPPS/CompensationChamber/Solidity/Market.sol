@@ -95,7 +95,7 @@ contract Market is OrderBookUtils
       }
   }
 
-  function addNewDerivative (string _instrumentID, string _market, instrumentType _instrumentType, uint _settlementTimestamp) public onlyOwner
+  function addNewDerivative (string _instrumentID, string _market, instrumentType _instrumentType, uint _settlementTimestamp) public onlyOwner payable
   {
       mapInstrumentIdToOrderBookAddress[_instrumentID] = new OrderBook(_instrumentID, _market, _instrumentType, _settlementTimestamp);
       OrderBook _new = OrderBook(mapInstrumentIdToOrderBookAddress[_instrumentID]);
