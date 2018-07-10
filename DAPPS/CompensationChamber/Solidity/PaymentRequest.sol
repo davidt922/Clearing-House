@@ -26,11 +26,11 @@ contract PaymentRequest is Enums//is Utils// is Utils hi ha algo que no li agrad
     clearingMemberContractAddress = _clearingMemberContractAddress;
     payType = _type;
 
-    if (_type == paymentType.initialMargin)
+    if (payType == paymentType.initialMargin)
     {
 
     }
-    else if (_type == paymentType.variationMargin)
+    else if (payType == paymentType.variationMargin)
     {
 
         //CompensationChamber _compensationChamber = CompensationChamber(owner);
@@ -65,5 +65,10 @@ contract PaymentRequest is Enums//is Utils// is Utils hi ha algo que no li agrad
   function getValue() view public returns(uint)
   {
     return value;
+  }
+
+  function getClearingMember() view public returns(address)
+  {
+      return clearingMemberContractAddress;
   }
 }

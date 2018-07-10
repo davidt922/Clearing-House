@@ -82,7 +82,8 @@ contract Derivative is Utils
   /**
   * Set variationMargin
   */
-  function setVM(string result) private;
+  function setVM(string result) private
+  {}
 
   /**
   * Getters
@@ -154,5 +155,5 @@ contract Derivative is Utils
 
   function getTheContractCounterparts() public returns(address[2]);
 
-  function computeVM() onlyChamber public;
+  function computeVM() public onlyChamber returns (variationMarginChange[2]);
 }

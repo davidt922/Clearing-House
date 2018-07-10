@@ -55,7 +55,7 @@ contract Future is Derivative
 
     function setVM(string result) private
     {
-        lastVariationMargin[addresss] = 100;
+        //lastVariationMargin[addresss] = 100;
 
 
         //uint[2] memory value = stringToUintArray2(result); // first value = longMemberContractAddress, second value = shortMemberContractAddress
@@ -70,8 +70,11 @@ contract Future is Derivative
         return [longMemberContractAddress, shortMemberContractAddress];
     }
 
-    function computeVM() public onlyChamber
+    function computeVM() public onlyChamber returns (variationMarginChange[2])
     {
-
+        variationMarginChange[2] ret;
+        ret[0] = variationMarginChange(0xca35b7d915458ef540ade6068dfe2f44e8fa733c, 10);
+        ret[1] = variationMarginChange(0xca35b7d915458ef540ade6068dfe2f44e8fa733c, 10);
+        return ret;
     }
 }

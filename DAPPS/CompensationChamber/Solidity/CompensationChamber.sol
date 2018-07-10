@@ -1,4 +1,4 @@
-pragma solidity ^0.4.20;
+pragma experimental ABIEncoderV2;
 
 import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
@@ -10,6 +10,9 @@ import "ClearingMember.sol";
 import "PaymentRequest.sol";
 //import "Derivative.sol";
 import "Future.sol";
+import "VariationMargin.sol";
+
+import "SafeMath.sol";
 
 contract CompensationChamber is Utils
 {
@@ -91,6 +94,7 @@ contract CompensationChamber is Utils
     marketAddress = msg.sender;
     marketDataAddress = (new MarketData).value(5 ether)();
     uint timeUntilFirstVMRevisionInSeconds = timestampUntilNextVMRevision - block.timestamp;
+    new VariationMargin(timeUntilFirstVMRevisionInSeconds);
    // settlementAddress = (new Settlement).value(5 ether)();
 
   }
@@ -179,7 +183,8 @@ contract CompensationChamber is Utils
   function sendPaymentRequestToMarket(address _paymentRequest) public onlyClearingMemberContracts
   {
       Market _market = Market(marketAddress);
-      _market.paymentRequest(mapClearingMemberContractAddressToClearingMemberAddress[msg.sender], _paymentRequest);
+      PaymentRequest _paymentRequestObject = PaymentRequest(_paymentRequest);
+      _market.paymentRequest(mapClearingMemberContractAddressToClearingMemberAddress[_paymentRequestObject.getClearingMember()], _paymentRequest);
   }
 
   function sendPaymentRequestToMarketParamContractAddress(address _clearingMemberContractAddress) public onlyClearingMemberContracts
@@ -201,31 +206,35 @@ contract CompensationChamber is Utils
   uint counter;
   mapping (address => uint) mapAddressToTotalVM;
 
+
+
   function computeVariationMargin() public
   {
-      address[2] memory _contractCounterparts;
 
       counter = derivatives.length * 2;
+
+      variationMarginChange[2] memory varMarginChangeArray;
 
       for (uint i = 0; i < derivatives.length; i++)
       {
           Derivative _derivative = Derivative(derivatives[i]);
-          _contractCounterparts = _derivative.getTheContractCounterparts();
+          varMarginChangeArray = _derivative.computeVM();
+
+          variationMargin(varMarginChangeArray[0]);
+          variationMargin(varMarginChangeArray[1]);
 
       }
   }
 
-  mapping (address => uint) mapAddressToVMValue;
+  mapping (address => int) mapAddressToVMValue;
 
-  function variationMargin(address _contractAddress, uint _VM)
+  function variationMargin(variationMarginChange _VMStruct)
   {
       counter = counter - 1;
 
-      if (counter != 0)
-      {
+        mapAddressToVMValue[_VMStruct.clearingMemberContractAddress] = mapAddressToVMValue[_VMStruct.clearingMemberContractAddress] + _VMStruct.value;
 
-      }
-      else
+      if (counter == 0)
       {
           sendPaymentRequestOrSendPayment();
           removeMapAddressToVMValue();
@@ -234,8 +243,11 @@ contract CompensationChamber is Utils
 
   function sendPaymentRequestOrSendPayment()
   {
-      uint value;
+      int value;
       address clearingMemberContractAddress;
+
+      address paymentRequest;
+
       for (uint i = 0; i < clearingMemberContractAddresses.length; i++)
       {
           clearingMemberContractAddress = clearingMemberContractAddresses[i];
@@ -243,11 +255,12 @@ contract CompensationChamber is Utils
 
           if (value > 0)
           {
-              new PaymentRequest(value, clearingMemberContractAddress, paymentType.variationMargin);
+              paymentRequest = new PaymentRequest( uint(value), clearingMemberContractAddress, paymentType.variationMargin);
+              sendPaymentRequestToMarket(paymentRequest);
           }
           else if (value < 0)
           {
-              mapClearingMemberContractAddressToClearingMemberAddress[clearingMemberContractAddress].send(value);
+              mapClearingMemberContractAddressToClearingMemberAddress[clearingMemberContractAddress].send( uint(value/-1));
           }
       }
   }

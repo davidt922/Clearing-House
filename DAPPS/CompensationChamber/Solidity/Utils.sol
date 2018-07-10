@@ -197,6 +197,12 @@ contract Utils is Enums
   {
        return keccak256(a) == keccak256(b);
   }
+
+    struct variationMarginChange
+    {
+        address clearingMemberContractAddress;
+        int value;
+    }
 }
 
 
