@@ -15,7 +15,7 @@ contract PaymentRequest
 
     Utils.paymentType payType;
 
-    function PaymentRequest(uint _value, address _clearingMemberAddress, Utils.paymentType _payType) public
+    function PaymentRequest(uint _value, address _clearingMemberAddress, address _compensationChamberAddress, Utils.paymentType _payType) public
     {
         value = _value;
         timestamp = block.timestamp;
@@ -23,6 +23,7 @@ contract PaymentRequest
         payed = false;
 
         clearingMemberAddress = _clearingMemberAddress;
+        compensationChamberAddress = _compensationChamberAddress;
 
         payType = _payType;
 
@@ -36,6 +37,7 @@ contract PaymentRequest
         payed = true;
         return payed;
     }
+
     function getValue() view public returns(uint)
     {
         return value;
@@ -44,5 +46,10 @@ contract PaymentRequest
     function getClearingMember() view public returns(address)
     {
         return clearingMemberAddress;
+    }
+
+    function getOwner() view public returns(address)
+    {
+        return owner;
     }
 }

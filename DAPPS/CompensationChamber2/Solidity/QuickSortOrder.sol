@@ -18,7 +18,7 @@ contract QuickSortOrder
           {
             (arr[uint(0)].price, arr[uint(1)].price) = (arr[uint(1)].price, arr[uint(0)].price);
             (arr[uint(0)].quantity, arr[uint(1)].quantity) = (arr[uint(1)].quantity, arr[uint(0)].quantity);
-            (arr[uint(0)].ownerAddress, arr[uint(1)].ownerAddress) = (arr[uint(1)].ownerAddress, arr[uint(0)].ownerAddress);
+            (arr[uint(0)].clearingMemberAddress, arr[uint(1)].clearingMemberAddress) = (arr[uint(1)].clearingMemberAddress, arr[uint(0)].clearingMemberAddress);
             (arr[uint(0)].timestamp, arr[uint(1)].timestamp) = (arr[uint(1)].timestamp, arr[uint(0)].timestamp);
           }
       }
@@ -35,7 +35,7 @@ contract QuickSortOrder
             {
                 (arr[uint(i)].price, arr[uint(i+1)].price) = (arr[uint(i+1)].price, arr[uint(i)].price);
                 (arr[uint(i)].quantity, arr[uint(i+1)].quantity) = (arr[uint(i+1)].quantity, arr[uint(i)].quantity);
-                (arr[uint(i)].ownerAddress, arr[uint(i+1)].ownerAddress) = (arr[uint(i+1)].ownerAddress, arr[uint(i)].ownerAddress);
+                (arr[uint(i)].clearingMemberAddress, arr[uint(i+1)].clearingMemberAddress) = (arr[uint(i+1)].clearingMemberAddress, arr[uint(i)].clearingMemberAddress);
                 (arr[uint(i)].timestamp, arr[uint(i+1)].timestamp) = (arr[uint(i+1)].timestamp, arr[uint(i)].timestamp);
             }
         }
@@ -54,7 +54,7 @@ contract QuickSortOrder
           {
             (arr[uint(0)].price, arr[uint(1)].price) = (arr[uint(1)].price, arr[uint(0)].price);
             (arr[uint(0)].quantity, arr[uint(1)].quantity) = (arr[uint(1)].quantity, arr[uint(0)].quantity);
-            (arr[uint(0)].ownerAddress, arr[uint(1)].ownerAddress) = (arr[uint(1)].ownerAddress, arr[uint(0)].ownerAddress);
+            (arr[uint(0)].clearingMemberAddress, arr[uint(1)].clearingMemberAddress) = (arr[uint(1)].clearingMemberAddress, arr[uint(0)].clearingMemberAddress);
             (arr[uint(0)].timestamp, arr[uint(1)].timestamp) = (arr[uint(1)].timestamp, arr[uint(0)].timestamp);
           }
       }
@@ -71,7 +71,7 @@ contract QuickSortOrder
             {
                 (arr[uint(i)].price, arr[uint(i+1)].price) = (arr[uint(i+1)].price, arr[uint(i)].price);
                 (arr[uint(i)].quantity, arr[uint(i+1)].quantity) = (arr[uint(i+1)].quantity, arr[uint(i)].quantity);
-                (arr[uint(i)].ownerAddress, arr[uint(i+1)].ownerAddress) = (arr[uint(i+1)].ownerAddress, arr[uint(i)].ownerAddress);
+                (arr[uint(i)].clearingMemberAddress, arr[uint(i+1)].clearingMemberAddress) = (arr[uint(i+1)].clearingMemberAddress, arr[uint(i)].clearingMemberAddress);
                 (arr[uint(i)].timestamp, arr[uint(i+1)].timestamp) = (arr[uint(i+1)].timestamp, arr[uint(i)].timestamp);
             }
         }
@@ -106,7 +106,7 @@ contract QuickSortOrder
            {
                (arr[uint(i)].price, arr[uint(j)].price) = (arr[uint(j)].price, arr[uint(i)].price);
                (arr[uint(i)].quantity, arr[uint(j)].quantity) = (arr[uint(j)].quantity, arr[uint(i)].quantity);
-               (arr[uint(i)].ownerAddress, arr[uint(j)].ownerAddress) = (arr[uint(j)].ownerAddress, arr[uint(i)].ownerAddress);
+               (arr[uint(i)].clearingMemberAddress, arr[uint(j)].clearingMemberAddress) = (arr[uint(j)].clearingMemberAddress, arr[uint(i)].clearingMemberAddress);
                (arr[uint(i)].timestamp, arr[uint(j)].timestamp) = (arr[uint(j)].timestamp, arr[uint(i)].timestamp);
                i++;
                j--;
@@ -135,7 +135,7 @@ contract QuickSortOrder
         {
                (arr[uint(i)].price, arr[uint(j)].price) = (arr[uint(j)].price, arr[uint(i)].price);
                (arr[uint(i)].quantity, arr[uint(j)].quantity) = (arr[uint(j)].quantity, arr[uint(i)].quantity);
-               (arr[uint(i)].ownerAddress, arr[uint(j)].ownerAddress) = (arr[uint(j)].ownerAddress, arr[uint(i)].ownerAddress);
+               (arr[uint(i)].clearingMemberAddress, arr[uint(j)].clearingMemberAddress) = (arr[uint(j)].clearingMemberAddress, arr[uint(i)].clearingMemberAddress);
                (arr[uint(i)].timestamp, arr[uint(j)].timestamp) = (arr[uint(j)].timestamp, arr[uint(i)].timestamp);
                i++;
                j--;

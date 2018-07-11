@@ -10,31 +10,46 @@ library Utils
 
     struct order
     {
-        address ownerAddress;
+        address clearingMemberAddress;
         uint quantity;
         uint timestamp;
         uint price; // the las 3 numbers of the integer represents the decimals, so 3000 equals to 3.
     }
 
-
-
-
-  // Convert from bytes32 to String
-  function bytes32ToString(bytes32 _bytes32) internal pure returns (string)
-  {
-    bytes memory bytesArray = new bytes(32);
-    for (uint256 i; i < 32; i++)
+    enum instrumentType
     {
-        bytesArray[i] = _bytes32[i];
+        future,
+        swap
     }
 
-    var stringToParse = string(bytesArray).toSlice();
-    strings.slice memory part;
+    enum paymentType
+    {
+        initialMargin,
+        variationMargin
+    }
 
-    // remove all \u0000 after the word
-    stringToParse.split("\u0000".toSlice(), part);
-    return part.toString();
-  }
+    struct variationMarginChange
+    {
+        address clearingMemberAddress;
+        int value;
+    }
+
+    // Convert from bytes32 to String
+    function bytes32ToString(bytes32 _bytes32) internal pure returns (string)
+    {
+        bytes memory bytesArray = new bytes(32);
+        for (uint256 i; i < 32; i++)
+        {
+        bytesArray[i] = _bytes32[i];
+        }
+
+        var stringToParse = string(bytesArray).toSlice();
+        strings.slice memory part;
+
+        // remove all \u0000 after the word
+        stringToParse.split("\u0000".toSlice(), part);
+        return part.toString();
+    }
 
     // Convert addressToString
     function addressToString(address x) internal pure returns (string)
