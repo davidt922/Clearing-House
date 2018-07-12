@@ -808,29 +808,9 @@ contract MarketData is usingOraclize
 contract PaymentRequest
 {
     uint value;
-    uint timestamp;
-    bool payed;
 
     address owner;
     address clearingMemberAddress;
-    address compensationChamberAddress;
-
-    Utils.paymentType payType;
-
-  /*  function PaymentRequest(uint _value, address _clearingMemberAddress, address _compensationChamberAddress, uint _payType) public
-    {
-        value = _value;
-        timestamp = block.timestamp;
-        owner = msg.sender;
-        payed = false;
-    }*/
-
-    function pay() public payable returns(bool)
-    {
-        require (msg.value == value);
-        payed = true;
-        return payed;
-    }
 
     function getValue() view public returns(uint)
     {
