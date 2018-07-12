@@ -90,6 +90,6 @@ contract Derivative
 
     function setIM(string result);
 
-    function computeVM() public /*onlyChamber*/ returns (Utils.variationMarginChange[2]);
+    function computeVM() public returns (Utils.variationMarginChange[2]);
 
 }

@@ -1,6 +1,7 @@
 pragma experimental ABIEncoderV2;
 
-import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+//import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+import "OraclizeAPI.sol";
 import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 
@@ -548,9 +549,9 @@ contract Market
         owner = msg.sender;
         compensationChamberAddress = (new CompensationChamber).value(12 ether)(timestampUntilNextVMRevision);
         // Start for test
-        CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-        _compensationChamber.addClearingMember(0x14723a09acff6d2a60dcdf7aa4aff308fddc160c);
-        _compensationChamber.addClearingMember(0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db);
+        //CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+        //_compensationChamber.addClearingMember(0xc9b6e6f423be49fe3f00f0be127d32831645561f);
+        //_compensationChamber.addClearingMember(0xf6c718755ef2db32495e79967571bddba6c7836a);
         // End for test
     }
 
@@ -564,7 +565,7 @@ contract Market
         logPaymentRequest(_paymentRequestAddress, value, clearingMember, creatorOfTheRequest);
     }
 
-    function addNewDerivative (string _instrumentID, string _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public onlyOwner payable
+    function addNewDerivative (string _instrumentID, string _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public /*onlyOwner*/ payable
     {
         mapInstrumentIdToOrderBookAddress[_instrumentID] = new OrderBook(_instrumentID, _market, _instrumentType, _settlementTimestamp);
     }
@@ -774,7 +775,7 @@ contract MarketData is usingOraclize
 
   function __callback(bytes32 myid, string result)
   {
-    if (msg.sender != oraclize_cbAddress())
+  /*  if (msg.sender != oraclize_cbAddress())
     {
       revert();
     }
@@ -794,13 +795,13 @@ contract MarketData is usingOraclize
       returnETHPrice(result);
     }
     else if(functionNumber == 4)
-    {
+    {*/
 
      address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
      Derivative _derivative = Derivative(contractAddress);
      //vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
      _derivative.setIM(result);
-    }
+   // }
   }
 
 }
@@ -866,7 +867,7 @@ contract CompensationChamber
     {
         marketAddress = msg.sender;
         marketDataAddress = (new MarketData).value(3 ether)();
-        uint timeUntilFirstVMRevisionInSeconds = timestampUntilNextVMrevision - block.timestamp;
+        //uint timeUntilFirstVMRevisionInSeconds = timestampUntilNextVMrevision - block.timestamp;
     }
 
     function addClearingMember(address _clearingMemberAddress) onlyMarket public

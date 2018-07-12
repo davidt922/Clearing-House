@@ -40,11 +40,11 @@ contract Future is Derivative
 
     function setIM(string result) onlyMarketData public
     {
-       // initialMargin[longMemberAddress] = new PaymentRequest(100, longMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
+        initialMargin[longMemberAddress] = new PaymentRequest();
        // initialMargin[shortMemberAddress] = new PaymentRequest(100, shortMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
     }
 
-    function computeVM() public /*onlyChamber*/ returns (Utils.variationMarginChange[2])
+    function computeVM() public onlyChamber returns (Utils.variationMarginChange[2])
     {
         Utils.variationMarginChange[2] ret;
         ret[0] = Utils.variationMarginChange(0xca35b7d915458ef540ade6068dfe2f44e8fa733c, 10);
