@@ -817,20 +817,12 @@ contract PaymentRequest
 
     Utils.paymentType payType;
 
-    function PaymentRequest(uint _value, address _clearingMemberAddress, address _compensationChamberAddress, Utils.paymentType _payType) public
+    function PaymentRequest(uint _value, address _clearingMemberAddress, address _compensationChamberAddress, uint _payType) public
     {
         value = _value;
         timestamp = block.timestamp;
         owner = msg.sender;
         payed = false;
-
-        clearingMemberAddress = _clearingMemberAddress;
-        compensationChamberAddress = _compensationChamberAddress;
-
-        payType = _payType;
-
-        CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
-        _compensationChamberContract.paymentRequest();
     }
 
     function pay() public payable returns(bool)
@@ -922,9 +914,9 @@ contract CompensationChamber
 
     function paymentRequest() public
     {
-        payments.push(msg.sender);
-        Market _marketContract = Market(marketAddress);
-        _marketContract.paymentRequest(msg.sender);
+        //payments.push(msg.sender);
+        //Market _marketContract = Market(marketAddress);
+       // _marketContract.paymentRequest(msg.sender);
     }
 }
 
@@ -1053,7 +1045,7 @@ contract Future is Derivative
 
     function setIM(string result) onlyMarketData public
     {
-        initialMargin[longMemberAddress] = new PaymentRequest(100, longMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
+        initialMargin[longMemberAddress] = new PaymentRequest(100, longMemberAddress, compensationChamberAddress, 0);
        // initialMargin[shortMemberAddress] = new PaymentRequest(100, shortMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
     }
 
