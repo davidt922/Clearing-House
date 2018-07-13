@@ -3,39 +3,31 @@ pragma solidity ^0.4.20;
 import "Utils.sol";
 import "CompensationChamber.sol";
 
+/**
+ * Add oraclize API
+ */
+import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
+
 contract PaymentRequest
 {
     uint value;
-    uint timestamp;
+    uint payType;
     bool payed;
 
     address owner;
     address clearingMemberAddress;
     address compensationChamberAddress;
 
-    Utils.paymentType payType;
-
-    function PaymentRequest(uint _value, address _clearingMemberAddress, address _compensationChamberAddress, Utils.paymentType _payType) public
+    function PaymentRequest(uint _value, address _clearingMemberAddress, address _compensationChamberAddress, uint _payType) public
     {
-        value = _value;
-        timestamp = block.timestamp;
         owner = msg.sender;
-        payed = false;
-
-        clearingMemberAddress = _clearingMemberAddress;
         compensationChamberAddress = _compensationChamberAddress;
-
+        clearingMemberAddress = _clearingMemberAddress;
+        value = _value;
         payType = _payType;
-
+        payed = false;
         CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
-        _compensationChamberContract.paymentRequest();
-    }
-
-    function pay() public payable returns(bool)
-    {
-        require (msg.value == value);
-        payed = true;
-        return payed;
+        _compensationChamberContract.paymentRequest(value, clearingMemberAddress);
     }
 
     function getValue() view public returns(uint)
@@ -51,5 +43,18 @@ contract PaymentRequest
     function getOwner() view public returns(address)
     {
         return owner;
+    }
+
+    function pay() public payable returns(bool)
+    {
+        require(msg.value == value);
+        payed = true;
+
+        return payed;
+    }
+
+    function isPayed() view public returns(bool)
+    {
+        return payed;
     }
 }

@@ -10,7 +10,6 @@ contract CompensationChamber
     address private marketAddress;
     address private marketDataAddress;
     address private settlementAddress;
-    address private variationMarginAutoExecutionAddress;
 
     mapping (address => bool) isAClearingMember;
     address[] clearingMembersAddresses;
@@ -24,25 +23,25 @@ contract CompensationChamber
 
     modifier onlyMarket
     {
-        require(msg.sender == marketAddress);
+        require (msg.sender == marketAddress);
         _;
     }
 
     modifier onlySettlement
     {
-        require(msg.sender == settlementAddress);
+        require (msg.sender == settlementAddress);
         _;
     }
 
     modifier onlyMarketData
     {
-        require(msg.sender == marketDataAddress);
+        require (msg.sender == marketDataAddress);
         _;
     }
 
     modifier onlyVMOrMarket
     {
-        require(msg.sender == variationMarginAutoExecutionAddress || msg.sender == marketAddress);
+        require (msg.sender == marketAddress/* || msg.sender == */);
         _;
     }
 
@@ -50,7 +49,7 @@ contract CompensationChamber
     {
         marketAddress = msg.sender;
         marketDataAddress = (new MarketData).value(3 ether)();
-        variationMarginAutoExecutionAddress = new  VariationMarginAutoExecution(timestampUntilNextVMrevision);
+        //uint timeUntilFirstVMRevisionInSeconds = timestampUntilNextVMrevision - block.timestamp;
     }
 
     function addClearingMember(address _clearingMemberAddress) onlyMarket public
@@ -76,18 +75,19 @@ contract CompensationChamber
         return marketAddress;
     }
 
-    function paymentRequest() public
+    function paymentRequest(uint _value, address _clearingMemberAddress) public
     {
         payments.push(msg.sender);
         Market _marketContract = Market(marketAddress);
-        _marketContract.paymentRequest(msg.sender);
+        _marketContract.paymentRequest(msg.sender, _value, _clearingMemberAddress);
     }
+
 
     // Compute
     uint counter;
     mapping (address => uint) mapAddressToTotalVM;
 
-    function computeVariationMargin() onlyVMOrMarket public
+    function computeVariationMargin() /*onlyVMOrMarket*/ public
     {
         counter = derivatives.length * 2;
         Utils.variationMarginChange[2] memory varMarginChangeArray;
@@ -147,5 +147,4 @@ contract CompensationChamber
             mapAddressToVMValue[clearingMembersAddresses[i]] = 0;
         }
     }
-
 }

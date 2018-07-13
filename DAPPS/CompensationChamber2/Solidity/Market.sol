@@ -40,17 +40,29 @@ contract Market
         // End for test
     }
 
-    event logPaymentRequest(address, uint, address, address);
-    function paymentRequest(address _paymentRequestAddress) public onlyCCP
+    event logPaymentRequestAddress(address paymentRequestAddress, uint value, address clearingMemberAddress);
+
+    function paymentRequest(address _paymentRequestAddress, uint _value, address _clearingMemberAddress) public onlyCCP
     {
-        PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
-        uint value = _paymentRequestContract.getValue();
-        address clearingMember = _paymentRequestContract.getClearingMember();
-        address creatorOfTheRequest = _paymentRequestContract.getOwner();
-        logPaymentRequest(_paymentRequestAddress, value, clearingMember, creatorOfTheRequest);
+        logPaymentRequestAddress(_paymentRequestAddress, _value, _clearingMemberAddress);
     }
 
-    function addNewDerivative (string _instrumentID, string _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public onlyOwner payable
+    event logString(string);
+    function payPaymentRequest(address _paymentRequestAddress) public payable
+    {
+        PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
+
+        require (_paymentRequestContract.getValue() <= msg.value);
+        bool result = _paymentRequestContract.pay.value(msg.value)();
+
+        if (result == true)
+        {
+            string memory _result = Utils.strConcat("Payment request ", Utils.addressToString(_paymentRequestAddress), "Payed successfully");
+            logString(_result);
+        }
+    }
+
+    function addNewDerivative (string _instrumentID, string _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public /*onlyOwner*/ payable
     {
         mapInstrumentIdToOrderBookAddress[_instrumentID] = new OrderBook(_instrumentID, _market, _instrumentType, _settlementTimestamp);
     }

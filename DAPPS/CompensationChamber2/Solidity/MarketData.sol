@@ -12,6 +12,7 @@ import "github.com/Arachnid/solidity-stringutils/strings.sol";
 
 //import "VanillaSwap.sol";
 import "Derivative.sol";
+import "PaymentRequest.sol";
 
 contract MarketData is usingOraclize
 {
@@ -21,7 +22,6 @@ contract MarketData is usingOraclize
   using strings for *;
 
 
-  event LogConstructorInitiated(string nextStep);
   event LogNewOraclizeQuery(string description);
   event returnCurrencyExchange(string currExchange);
   event returnETHPrice(string ethPrice);
@@ -30,9 +30,13 @@ contract MarketData is usingOraclize
   mapping(bytes32 => uint) queryIdToFunctionNumber;
   mapping(bytes32 => address) queryIdToContractAddressThatHaveCalledTheFunction;
 
+  address compensationChamberAddress;
+
+  uint gasLimit = 4000000;
+
   function MarketData() public payable
   {
-    LogConstructorInitiated("Constructor was initiated. Call 'updatePrice()' to send the Oraclize Query.");
+    compensationChamberAddress = msg.sender;
   }
 
   /**
@@ -42,11 +46,7 @@ contract MarketData is usingOraclize
    */
   function getCurrencyExchange(string _base, string _secundary) public payable
   {
-    if (oraclize_getPrice("URL") > this.balance)
-    {
-      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
-    }
-    else
+    if (oraclize_getPrice("URL") < this.balance)
     {
       string memory string1 = "json(http://data.fixer.io/api/latest?access_key=c06c3bdf5ea5e65c2dfb574f744725c4&base=";
       string memory string2 = _base;
@@ -58,7 +58,7 @@ contract MarketData is usingOraclize
       string memory query = strConcat(querys1, string5, string4);
 
       LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
-      bytes32 queryID = oraclize_query("URL",query);
+      bytes32 queryID = oraclize_query("URL",query, gasLimit);
       queryIdToFunctionNumber[queryID] = 1;
     }
   }
@@ -73,11 +73,7 @@ contract MarketData is usingOraclize
      * this.balance is the number of ETH stored in the contract,
      * msg.value is the amount of ETH send to a public payable method
      */
-    if (oraclize_getPrice("URL") > this.balance)
-    {
-      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
-    }
-    else
+    if (oraclize_getPrice("URL") < this.balance)
     {
         string memory URL = "json(https://api.kraken.com/0/public/Ticker?pair=ETH";
         string memory baseCurrency = _baseCurrency;
@@ -87,18 +83,14 @@ contract MarketData is usingOraclize
         string memory query = strConcat(URL, baseCurrency, query1,baseCurrency, query2);
 
         LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
-        bytes32 queryID = oraclize_query("URL",query);
+        bytes32 queryID = oraclize_query("URL",query, gasLimit);
         queryIdToFunctionNumber[queryID] = 3;
     }
   }
 
   function getIMFutureBOE(string _nominal, string _instrumentID) public payable
   {
-    if (oraclize_getPrice("URL") > this.balance)
-    {
-      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
-    }
-    else
+    if (oraclize_getPrice("URL") < this.balance)
     {
       string memory URL = "json(https://83.231.14.17:3002/BOE/computeVaR/";
       //string memory URL = "json(https://tidy-jellyfish-22.localtunnel.me/BOE/computeVaR/";
@@ -110,7 +102,7 @@ contract MarketData is usingOraclize
 
       string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
       string memory query = strConcat(_query, _instrumentID, query6);
-      bytes32 queryID = oraclize_query("URL",query);
+      bytes32 queryID = oraclize_query("URL",query, gasLimit);
       queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
       queryIdToFunctionNumber[queryID] = 4;
     }
@@ -118,11 +110,7 @@ contract MarketData is usingOraclize
 
   function getIMFutureEUREX(string _nominal, string _instrumentID) public payable
   {
-    if (oraclize_getPrice("URL") > this.balance)
-    {
-      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
-    }
-    else
+    if (oraclize_getPrice("URL") < this.balance)
     {
       string memory URL = "json(https://83.231.14.17:3002/EUREX/computeVaR/";
       string memory query1 = "0.95";
@@ -133,7 +121,7 @@ contract MarketData is usingOraclize
 
       string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
       string memory query = strConcat(_query, _instrumentID, query6);
-      bytes32 queryID = oraclize_query("URL",query);
+      bytes32 queryID = oraclize_query("URL",query, gasLimit);
       queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
       queryIdToFunctionNumber[queryID] = 4;
     }
@@ -141,11 +129,7 @@ contract MarketData is usingOraclize
 
   function getIMFutureCME(string _nominal, string _instrumentID) public payable
   {
-    if (oraclize_getPrice("URL") > this.balance)
-    {
-      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
-    }
-    else
+    if (oraclize_getPrice("URL") < this.balance)
     {
       string memory URL = "json(https://83.231.14.17:3002/CME/computeVaR/";
       string memory query1 = "0.95";
@@ -156,7 +140,7 @@ contract MarketData is usingOraclize
 
       string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
       string memory query = strConcat(_query, _instrumentID, query6);
-      bytes32 queryID = oraclize_query("URL",query);
+      bytes32 queryID = oraclize_query("URL",query, gasLimit);
       queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
       queryIdToFunctionNumber[queryID] = 4;
     }
@@ -165,11 +149,7 @@ contract MarketData is usingOraclize
 
   function getIMSwap(string _nominal, string _instrumentID) public payable
   {
-    if (oraclize_getPrice("URL") > this.balance)
-    {
-      LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
-    }
-    else
+    if (oraclize_getPrice("URL") < this.balance)
     {
       string memory URL = "json(https://83.231.14.17:3002/BOE/computeVaR/";
       string memory query1 = "0.95";
@@ -181,7 +161,7 @@ contract MarketData is usingOraclize
       string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
       string memory query = strConcat(_query, _instrumentID, query6);
       //LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
-      bytes32 queryID = oraclize_query("URL",query);
+      bytes32 queryID = oraclize_query("URL",query, gasLimit);
       queryIdToContractAddressThatHaveCalledTheFunction[queryID] = msg.sender;
       queryIdToFunctionNumber[queryID] = 4;
     }
@@ -194,7 +174,6 @@ contract MarketData is usingOraclize
     {
       revert();
     }
-    callbackRuning("The callback is runing");
     uint functionNumber = queryIdToFunctionNumber[myid];
 
     if(functionNumber == 1)
@@ -212,10 +191,11 @@ contract MarketData is usingOraclize
     else if(functionNumber == 4)
     {
 
-     address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
-     Derivative _derivative = Derivative(contractAddress);
+     //address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
+     address _a = new PaymentRequest(100, 0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db, compensationChamberAddress, 1);
+     //Derivative _derivative = Derivative(contractAddress);
      //vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
-     _derivative.setIM(result);
+     //_derivative.setIM(result);
     }
   }
 

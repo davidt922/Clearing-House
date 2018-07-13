@@ -35,61 +35,61 @@ contract Derivative
     mapping(address => uint) accumulatedVariationMargin;
 
     /**
-     * Modifiers
-     */
+    * Modifiers
+    */
 
     modifier onlyMarketData
     {
-        require(msg.sender == marketDataAddress);
-        _;
+       require(msg.sender == marketDataAddress);
+       _;
     }
 
     modifier onlyChamber
     {
-        require(msg.sender == compensationChamberAddress);
-        _;
+       require(msg.sender == compensationChamberAddress);
+       _;
     }
 
     /**
-     * Constructor
-     */
+    * Constructor
+    */
     function Derivative(string _instrumentID, uint _settlementTimestamp, address _marketDataAddress, string _market, string _price) public
     {
-        instrumentID = _instrumentID;
-        market = _market;
+       instrumentID = _instrumentID;
+       market = _market;
 
-        marketDataAddress = _marketDataAddress;
-        compensationChamberAddress = msg.sender;
-        price = _price;
+       marketDataAddress = _marketDataAddress;
+       compensationChamberAddress = msg.sender;
+       price = _price;
 
-        settlementTimestamp = _settlementTimestamp;
-        tradeTimestamp = block.timestamp;
+       settlementTimestamp = _settlementTimestamp;
+       tradeTimestamp = block.timestamp;
     }
 
     function getTheContractCounterparts() public returns(address[2]);
 
     function getInitialMarginPaymentRequestAddress(address _clearingMemberAddress) public view returns(address)
     {
-        address initialMarginParmentRequestAddress = initialMargin[_clearingMemberAddress];
+       address initialMarginParmentRequestAddress = initialMargin[_clearingMemberAddress];
 
-        if (initialMarginParmentRequestAddress != 0)
-        {
-            return initialMarginParmentRequestAddress;
-        }
+       if (initialMarginParmentRequestAddress != 0)
+       {
+           return initialMarginParmentRequestAddress;
+       }
     }
 
     function getVariationMarginPaymentRequestAddress(address _clearingMemberAddress) public view returns(address)
     {
-        address initialMarginParmentRequestAddress = initialMargin[_clearingMemberAddress];
+       address initialMarginParmentRequestAddress = initialMargin[_clearingMemberAddress];
 
-        if (initialMarginParmentRequestAddress != 0)
-        {
-            return initialMarginParmentRequestAddress;
-        }
+       if (initialMarginParmentRequestAddress != 0)
+       {
+           return initialMarginParmentRequestAddress;
+       }
     }
 
     function setIM(string result);
 
-    function computeVM() public returns (Utils.variationMarginChange[2]);
+    function computeVM() public /*onlyChamber*/ returns (Utils.variationMarginChange[2]);
 
 }
