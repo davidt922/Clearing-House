@@ -192,7 +192,7 @@ contract MarketData is usingOraclize
     {
 
      //address contractAddress = queryIdToContractAddressThatHaveCalledTheFunction[myid];
-     address _a = new PaymentRequest(100, 0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db, compensationChamberAddress, 1);
+     address _a = (new PaymentRequest).value(30000)(100, 0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db, compensationChamberAddress, 1);
      //Derivative _derivative = Derivative(contractAddress);
      //vanillaSwap _vanillaSwap = vanillaSwap(contractAddress);
      //_derivative.setIM(result);

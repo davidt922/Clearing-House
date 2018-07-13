@@ -8,7 +8,7 @@ import "CompensationChamber.sol";
  */
 import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 
-contract PaymentRequest
+contract PaymentRequest is usingOraclize
 {
     uint value;
     uint payType;
@@ -18,7 +18,7 @@ contract PaymentRequest
     address clearingMemberAddress;
     address compensationChamberAddress;
 
-    function PaymentRequest(uint _value, address _clearingMemberAddress, address _compensationChamberAddress, uint _payType) public
+    function PaymentRequest(uint _value, address _clearingMemberAddress, address _compensationChamberAddress, uint _payType) public payable
     {
         owner = msg.sender;
         compensationChamberAddress = _compensationChamberAddress;
@@ -26,21 +26,24 @@ contract PaymentRequest
         value = _value;
         payType = _payType;
         payed = false;
-        CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
-        _compensationChamberContract.paymentRequest(value, clearingMemberAddress);
+       // CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
+       // _compensationChamberContract.paymentRequest(value, clearingMemberAddress);
+
+        oraclize_query(60, "URL", "json(https://api.nasa.gov/planetary/apod?api_key=NNKOjkoul8n1CH18TWA9gwngW1s1SmjESPjNoUFo).copyright");
+
     }
 
-    function getValue() view public returns(uint)
+    function getValue() public payable returns(uint)
     {
         return value;
     }
 
-    function getClearingMember() view public returns(address)
+    function getClearingMember() public payable returns(address)
     {
         return clearingMemberAddress;
     }
 
-    function getOwner() view public returns(address)
+    function getOwner() public payable returns(address)
     {
         return owner;
     }
@@ -53,8 +56,23 @@ contract PaymentRequest
         return payed;
     }
 
-    function isPayed() view public returns(bool)
+    function isPayed() public payable returns(bool)
     {
         return payed;
+    }
+    event done(string)
+    function __callback(bytes32 myid, string result)
+    {
+        if (msg.sender != oraclize_cbAddress())
+        {
+            revert();
+        }
+
+        if (payed == false)
+        {
+            CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
+            _compensationChamberContract.deleteClearingMember(clearingMemberAddress);
+        }
+        done("DONE");
     }
 }
