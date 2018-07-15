@@ -13,6 +13,7 @@ contract CompensationChamber
 
     mapping (address => bool) isAClearingMember;
     address[] clearingMembersAddresses;
+    Utils.clearingMember[] clearingMembers;
 
     address[] payments;
     address[] derivatives;
@@ -52,10 +53,20 @@ contract CompensationChamber
         //uint timeUntilFirstVMRevisionInSeconds = timestampUntilNextVMrevision - block.timestamp;
     }
 
-    function addClearingMember(address _clearingMemberAddress) onlyMarket public
+    function addClearingMember(string _name, string _email, address _clearingMemberAddress) onlyMarket public returns(bool itExist)
     {
+        clearingMembers.push(Utils.clearingMember(_name, _email, _clearingMemberAddress));
         clearingMembersAddresses.push(_clearingMemberAddress);
-        isAClearingMember[_clearingMemberAddress] = true;
+        
+        if (isAClearingMember[_clearingMemberAddress] == true)
+        {
+          return true;
+        }
+        else
+        {
+          isAClearingMember[_clearingMemberAddress] = true;
+          return false;
+        }
     }
 
     function futureNovation(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string _market) public onlyMarket payable

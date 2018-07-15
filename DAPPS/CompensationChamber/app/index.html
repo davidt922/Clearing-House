@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html>
-  <header>
-    <script src="./app.js"></script>
-  </header>
-  <body>
-    <div class="login-page">
-      <div class="form">
-        <form class="register-form">
-          <input type="text" placeholder="name"/>
-          <input type="password" placeholder="password"/>
-          <input type="text" placeholder="email address"/>
-          <button>create</button>
-          <p class="message">Already registered? <a href="#">Sign In</a></p>
-        </form>
-        <form class="login-form">
-          <input type="text" placeholder="username"/>
-          <input type="password" placeholder="password"/>
-          <button>login</button>
-          <p class="message">Not registered? <a href="#">Create an account</a></p>
-        </form>
-      </div>
-    </div>
-  </body>
-</html>
+    <head>
+        <title> AgroHelp Login</title>
+        <link href="{{asset('stylesheets/app.css')}}" rel="stylesheet" />
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="./app.js"></script>
+    </head>
 
+    <body>
+        <div class="login-page">
+            <div class="form">
+                <form class="register-form">
+                    <input type="text" id="name1" placeholder="name" />
+                    <input type="password" id ="password1" placeholder="password" />
+                    <input type="text" id="email1" placeholder="email address" />
+                    <button id="create">create</button>
+                    <p class="message" id="register">Already registered? <a href="#">Sign In</a>
+                    </p>
+                    <div id="result"></div>
+                </form>
+                <form class="login-form">
+                    <input type="text" id="username2" placeholder="username" />
+                    <input type="password" id = "password2" placeholder="password" />
+                    <button>login</button>
+                    <p class="message" id="login">Not registered? <a href="#">Create an account</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </body>
 </html>

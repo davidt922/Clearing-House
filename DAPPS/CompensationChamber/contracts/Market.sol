@@ -26,17 +26,33 @@ contract Market
         _;
     }
 
+    event logString(string);
+
+    event logBytes32(bytes32);
     function Market(uint timestampUntilNextVMRevision) public payable
     {
         require (msg.value >= 15 ether);
 
         owner = msg.sender;
         compensationChamberAddress = (new CompensationChamber).value(12 ether)(timestampUntilNextVMRevision);
-        // Start for test
-        CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-        _compensationChamber.addClearingMember(0x14723a09acff6d2a60dcdf7aa4aff308fddc160c);
-        _compensationChamber.addClearingMember(0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db);
-        // End for test
+    }
+
+    function addClearingMember(string _name, string _email) public returns (bool)
+    {
+      // Start for test
+      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+      bool itExist = _compensationChamber.addClearingMember(_name, _email, msg.sender);
+
+      if (itExist == true)
+      {
+        logBytes32(Utils.stringToBytes32("This address is alredy register"));
+      }
+      else
+      {
+          logBytes32(Utils.stringToBytes32("Registration done!"));
+      }
+      return itExist;
+      // End for test
     }
 
     event logPaymentRequestAddress(address paymentRequestAddress, uint value, address clearingMemberAddress);
@@ -46,7 +62,6 @@ contract Market
         logPaymentRequestAddress(_paymentRequestAddress, _value, _clearingMemberAddress);
     }
 
-    event logString(string);
     function payPaymentRequest(address _paymentRequestAddress) public payable
     {
         PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
@@ -90,6 +105,10 @@ contract Market
                 _orderBook.addSellOrder(msg.sender, _quantity, _price);
             }
         }
+    }
+    function test() public returns(uint)
+    {
+      return 1;
     }
 
 }

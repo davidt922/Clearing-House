@@ -1,6 +1,7 @@
 pragma solidity ^0.4.20;
 
-import "installed_contracts/oraclize-api/contracts/usingOraclize.sol";
+//import "installed_contracts/oraclize-api/contracts/usingOraclize.sol";
+import "usingOraclize.sol";
 import "./strings.sol";
 
 
@@ -32,6 +33,13 @@ library Utils
     {
         address clearingMemberAddress;
         int value;
+    }
+
+    struct clearingMember
+    {
+      string name;
+      string email;
+      address clearingMemberAddress;
     }
 
     // Convert from bytes32 to String
