@@ -1,0 +1,386 @@
+{
+  "contractName": "Test",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "name": "_a",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b50604051602080607b83398101806040528101908080519060200190929190505050806000819055505060358060466000396000f3006080604052600080fd00a165627a7a723058205536a5f70143acafb0ba7e925020b7282f41b8fa01ae150f5953964b704aea820029",
+  "deployedBytecode": "0x6080604052600080fd00a165627a7a723058205536a5f70143acafb0ba7e925020b7282f41b8fa01ae150f5953964b704aea820029",
+  "sourceMap": "26:79:10:-;;;54:49;8:9:-1;5:2;;;30:1;27;20:12;5:2;54:49:10;;;;;;;;;;;;;;;;;;;;;;;;;;;;;96:2;92:1;:6;;;;54:49;26:79;;;;;;",
+  "deployedSourceMap": "26:79:10:-;;;;;",
+  "source": "pragma solidity ^0.4.20;\n\ncontract Test\n{\n  uint a;\n  function Test(uint _a) public\n  {\n    a = _a;\n  }\n}\n",
+  "sourcePath": "/home/dtm/Desktop/TFM/DAPPS/CompensationChamber/contracts/Test.sol",
+  "ast": {
+    "absolutePath": "/home/dtm/Desktop/TFM/DAPPS/CompensationChamber/contracts/Test.sol",
+    "exportedSymbols": {
+      "Test": [
+        7091
+      ]
+    },
+    "id": 7092,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 7078,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:10"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 7091,
+        "linearizedBaseContracts": [
+          7091
+        ],
+        "name": "Test",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 7080,
+            "name": "a",
+            "nodeType": "VariableDeclaration",
+            "scope": 7091,
+            "src": "44:6:10",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 7079,
+              "name": "uint",
+              "nodeType": "ElementaryTypeName",
+              "src": "44:4:10",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 7089,
+              "nodeType": "Block",
+              "src": "86:17:10",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 7087,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 7085,
+                      "name": "a",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 7080,
+                      "src": "92:1:10",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 7086,
+                      "name": "_a",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 7082,
+                      "src": "96:2:10",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "src": "92:6:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 7088,
+                  "nodeType": "ExpressionStatement",
+                  "src": "92:6:10"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 7090,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "Test",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 7083,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 7082,
+                  "name": "_a",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 7090,
+                  "src": "68:7:10",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 7081,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "68:4:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "67:9:10"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 7084,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "86:0:10"
+            },
+            "scope": 7091,
+            "src": "54:49:10",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 7092,
+        "src": "26:79:10"
+      }
+    ],
+    "src": "0:106:10"
+  },
+  "legacyAST": {
+    "absolutePath": "/home/dtm/Desktop/TFM/DAPPS/CompensationChamber/contracts/Test.sol",
+    "exportedSymbols": {
+      "Test": [
+        7091
+      ]
+    },
+    "id": 7092,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 7078,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:10"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 7091,
+        "linearizedBaseContracts": [
+          7091
+        ],
+        "name": "Test",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 7080,
+            "name": "a",
+            "nodeType": "VariableDeclaration",
+            "scope": 7091,
+            "src": "44:6:10",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 7079,
+              "name": "uint",
+              "nodeType": "ElementaryTypeName",
+              "src": "44:4:10",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 7089,
+              "nodeType": "Block",
+              "src": "86:17:10",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 7087,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 7085,
+                      "name": "a",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 7080,
+                      "src": "92:1:10",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 7086,
+                      "name": "_a",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 7082,
+                      "src": "96:2:10",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "src": "92:6:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 7088,
+                  "nodeType": "ExpressionStatement",
+                  "src": "92:6:10"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 7090,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "Test",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 7083,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 7082,
+                  "name": "_a",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 7090,
+                  "src": "68:7:10",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 7081,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "68:4:10",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "67:9:10"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 7084,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "86:0:10"
+            },
+            "scope": 7091,
+            "src": "54:49:10",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 7092,
+        "src": "26:79:10"
+      }
+    ],
+    "src": "0:106:10"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {
+    "1531732374450": {
+      "events": {},
+      "links": {},
+      "address": "0x9b1e983c0548149c6657543f6e0738ffcb23ae88",
+      "transactionHash": "0xf3afec02935d4deff80ee16c76e4afc552060fce41383ae2e46175065bbe84e6"
+    }
+  },
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-07-16T09:50:42.447Z"
+}

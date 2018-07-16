@@ -1,7 +1,7 @@
 pragma experimental ABIEncoderV2;
 
 
-import "installed_contracts/oraclize-api/contracts/usingOraclize.sol";
+import "./usingOraclize.sol";
 import "./strings.sol";
 
 

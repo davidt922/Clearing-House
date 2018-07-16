@@ -37,11 +37,17 @@ contract Market
         compensationChamberAddress = (new CompensationChamber).value(12 ether)(timestampUntilNextVMRevision);
     }
 
+    uint a;
+    function testOne(uint _a) public
+    {
+      a = _a;
+    }
+
     function addClearingMember(string _name, string _email) public returns (bool)
     {
       // Start for test
-      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-      bool itExist = _compensationChamber.addClearingMember(_name, _email, msg.sender);
+      //CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+      bool itExist = false;/*_compensationChamber.addClearingMember(_name, _email, msg.sender);
 
       if (itExist == true)
       {
@@ -50,7 +56,7 @@ contract Market
       else
       {
           logBytes32(Utils.stringToBytes32("Registration done!"));
-      }
+      }*/
       return itExist;
       // End for test
     }
@@ -110,5 +116,4 @@ contract Market
     {
       return 1;
     }
-
 }

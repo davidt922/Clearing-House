@@ -4,7 +4,7 @@ pragma solidity ^0.4.20;
  * Add oraclize API
  */
 //import "installed_contracts/oraclize-api/contracts/usingOraclize.sol";
-import "usingOraclize.sol";
+import "./usingOraclize.sol";
 
 /**
  * Allow Slice strings

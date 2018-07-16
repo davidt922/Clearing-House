@@ -7,7 +7,7 @@ import "./CompensationChamber.sol";
  * Add oraclize API
  */
 //import "installed_contracts/oraclize-api/contracts/usingOraclize.sol";
-import "usingOraclize.sol";
+import "./usingOraclize.sol";
 contract PaymentRequest
 {
     uint value;
