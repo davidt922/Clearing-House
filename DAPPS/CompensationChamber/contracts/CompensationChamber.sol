@@ -12,11 +12,15 @@ contract CompensationChamber
     address private settlementAddress;
 
     mapping (address => bool) isAClearingMember;
+    mapping (string => bool) emailIsRegistred;
+    mapping (string => Utils.clearingMember) mapEmailToClearingMemberStruct;
     address[] clearingMembersAddresses;
     Utils.clearingMember[] clearingMembers;
 
     address[] payments;
     address[] derivatives;
+
+    int numberOfClearingMembers;
 
     /**
      * Modifiers
@@ -50,23 +54,47 @@ contract CompensationChamber
     {
         marketAddress = msg.sender;
         marketDataAddress = (new MarketData).value(3 ether)();
+        numberOfClearingMembers = 0;
         //uint timeUntilFirstVMRevisionInSeconds = timestampUntilNextVMrevision - block.timestamp;
     }
 
-    function addClearingMember(string _name, string _email, address _clearingMemberAddress) onlyMarket public returns(bool itExist)
+    function addClearingMember(string _name, string _email, address _clearingMemberAddress, string _password) onlyMarket public returns(int)
     {
-        clearingMembers.push(Utils.clearingMember(_name, _email, _clearingMemberAddress));
-        clearingMembersAddresses.push(_clearingMemberAddress);
-        
-        if (isAClearingMember[_clearingMemberAddress] == true)
+
+        if (emailIsRegistred[_email] == true)
         {
-          return true;
+          return -1;
         }
         else
         {
+          numberOfClearingMembers++;
+          int addressID = numberOfClearingMembers;
+
           isAClearingMember[_clearingMemberAddress] = true;
-          return false;
+          emailIsRegistred[_email] = true;
+          Utils.clearingMember memory _clearingMemberStruct = Utils.clearingMember(_name, _email, _clearingMemberAddress, _password, addressID);
+          mapEmailToClearingMemberStruct[_email] = _clearingMemberStruct;
+          clearingMembers.push(_clearingMemberStruct);
+          clearingMembersAddresses.push(_clearingMemberAddress);
+
+          return addressID;
         }
+    }
+
+    function checkSignInEmailAndPassword(string _email, string _password) onlyMarket public returns(int addressID)
+    {
+      if (emailIsRegistred[_email] != true)
+      {
+        return -1;
+      }
+      else if (Utils.compareStrings(mapEmailToClearingMemberStruct[_email].password, _password))
+      {
+        return mapEmailToClearingMemberStruct[_email].addressID;
+      }
+      else
+      {
+        return -1;
+      }
     }
 
     function futureNovation(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string _market) public onlyMarket payable

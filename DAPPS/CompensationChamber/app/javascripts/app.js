@@ -66,7 +66,7 @@ window.App = {
     });
   },
 
-  addCompensationMember: function(_name, _email)
+  addCompensationMember: function(_name, _email, _password)
   {
     var self = this;
     var _market;
@@ -76,15 +76,48 @@ window.App = {
     {
       _market = instance;
       console.log("Execute add clearing member");
-      return _market.addClearingMember(_name, _email, {from: account, gas: 39000000});
+      return _market.addClearingMember(_name, _email, _password, {from: accounts[2], gas: 39000000});
     }).then(function(value)
   {
-    alert("Done");
-    console.log(value);
+    alert(value.logs[0].args.getString);
+    console.log(value.logs[0].args.logRegInfo);
     //var result_element = document.getElementById("result");
     //result_element.innerHTML = value.valueOf();
   })
 },
+
+login: function (_email, _password)
+{
+  var self = this;
+  var _market;
+
+  Market.deployed().then(
+    function(instance)
+    {
+      _market = instance;
+      console.log("Test");
+      return _market.signIn(_email, _password, {from: accounts[2], gas: 39000000});
+    })
+    .then(function(value)
+  {
+    var addressID = value.logs[1].args.getInt.s;
+    var logInfo = value.logs[0].args.getString;
+
+    console.log(value);
+    if (addressID == -1)
+    {
+      alert(logInfo);
+    }
+    else
+    {
+       $("#webPage").load("/main/index.html");
+      //xhttp.open("GET", "demo_get.asp", true);
+      //xhttp.send();
+        //console.log("Redirigir a una altra pagina");
+
+    }
+  })
+}
 /*
 */
 /*
@@ -153,6 +186,14 @@ window.addEventListener('load', function()
   {
     var name = document.getElementById("name1");
     var email = document.getElementById("email1");
-      App.addCompensationMember(name, email);
+    var password = document.getElementById("password1");
+      App.addCompensationMember(name, email, password);
   }, false);
+
+  document.getElementById("loginButton").addEventListener("click", function()
+  {
+    var email = document.getElementById("email2");
+    var password = document.getElementById("password2");
+     App.login(email, password);
+  });
 });

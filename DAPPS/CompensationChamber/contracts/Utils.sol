@@ -40,6 +40,8 @@ library Utils
       string name;
       string email;
       address clearingMemberAddress;
+      string password;
+      int addressID;
     }
 
     // Convert from bytes32 to String

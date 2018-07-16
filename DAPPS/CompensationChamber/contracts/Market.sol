@@ -26,9 +26,13 @@ contract Market
         _;
     }
 
-    event logString(string);
+    event logRegInfo(string getString);
+    event logString(string getString);
+    event loginInfo(string getString);
 
-    event logBytes32(bytes32);
+    event logBytes32(bytes32 getBytes32);
+    event getAddressID(int getInt);
+
     function Market(uint timestampUntilNextVMRevision) public payable
     {
         require (msg.value >= 15 ether);
@@ -37,27 +41,21 @@ contract Market
         compensationChamberAddress = (new CompensationChamber).value(12 ether)(timestampUntilNextVMRevision);
     }
 
-    uint a;
-    function testOne(uint _a) public
+    function addClearingMember(string _name, string _email, string _password) public returns (int)
     {
-      a = _a;
-    }
+       //Start for test
+      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+      int addressID = _compensationChamber.addClearingMember(_name, _email, msg.sender, _password);
 
-    function addClearingMember(string _name, string _email) public returns (bool)
-    {
-      // Start for test
-      //CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-      bool itExist = false;/*_compensationChamber.addClearingMember(_name, _email, msg.sender);
-
-      if (itExist == true)
+      if (addressID != -1)
       {
-        logBytes32(Utils.stringToBytes32("This address is alredy register"));
+          logRegInfo("This email is alredy register");
       }
       else
       {
-          logBytes32(Utils.stringToBytes32("Registration done!"));
-      }*/
-      return itExist;
+          logRegInfo("Registration done!");
+      }
+      return addressID;
       // End for test
     }
 
@@ -112,8 +110,20 @@ contract Market
             }
         }
     }
-    function test() public returns(uint)
+
+    function signIn(string _email, string _password) public
     {
-      return 1;
+      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+      int addressID =_compensationChamber.checkSignInEmailAndPassword(_email, _password);
+
+      if (addressID == -1)
+      {
+        loginInfo("This email is not registred or the password is not correct");
+      }
+      else
+      {
+        loginInfo("Sign In successful");
+      }
+      getAddressID(addressID);
     }
 }
