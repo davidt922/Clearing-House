@@ -1,4 +1,4 @@
-pragma solidity ^0.4.20;
+pragma experimental ABIEncoderV2;
 
 import "./strings.sol";
 
@@ -13,6 +13,7 @@ contract Market
     address owner;
 
     mapping (string => address) mapInstrumentIdToOrderBookAddress;
+    string[] availableInstrumentIDs;
 
     modifier onlyCCP()
     {
@@ -29,7 +30,11 @@ contract Market
     event logRegInfo(string getString);
     event logString(string getString);
 
+    event logAddressID(int addressID);
+
     event logBytes32(bytes32 getBytes32);
+
+    event logMarketOrder(string instrumentID, uint quantity, uint price, string side);
 
     function Market(uint timestampUntilNextVMRevision) public payable
     {
@@ -39,7 +44,7 @@ contract Market
         compensationChamberAddress = (new CompensationChamber).value(12 ether)(timestampUntilNextVMRevision);
     }
 
-    function addClearingMember(string _name, string _email, string _password) public returns (int)
+    function addClearingMember(string _name, string _email, string _password)
     {
        //Start for test
       CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
@@ -53,8 +58,14 @@ contract Market
       {
           logRegInfo("Registration done!");
       }
-      return addressID;
+      logAddressID(addressID);
       // End for test
+    }
+
+    function confirmClearingMemberAddress(string email)
+    {
+      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+      _compensationChamber.confirmClearingMember(msg.sender, email);
     }
 
     event logPaymentRequestAddress(address paymentRequestAddress, uint value, address clearingMemberAddress);
@@ -81,6 +92,7 @@ contract Market
     function addNewDerivative (string _instrumentID, string _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public /*onlyOwner*/ payable
     {
         mapInstrumentIdToOrderBookAddress[_instrumentID] = new OrderBook(_instrumentID, _market, _instrumentType, _settlementTimestamp);
+        availableInstrumentIDs.push(_instrumentID);
     }
 
     function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string  _market) public
@@ -109,11 +121,48 @@ contract Market
         }
     }
 
-    function signIn(string _email, string _password) public returns (int)
+    function signIn(string _email, string _password) public returns (int addressID, string name, address compensationMemberAddress)
     {
       CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-      int addressID =_compensationChamber.checkSignInEmailAndPassword(_email, _password);
+      var( _addressID, _name, _compensationMemberAddress )=_compensationChamber.checkSignInEmailAndPassword(_email, _password);
 
-      return addressID;
+      addressID = _addressID;
+      name = _name;
+      compensationMemberAddress = _compensationMemberAddress;
     }
+
+    mapping(uint => string) sideMap;
+    function getMarket() public
+    {
+      sideMap[0] = "ASK";
+      sideMap[1] = "BID";
+
+      for (uint i = 0; i < availableInstrumentIDs.length; i++)
+      {
+        address _orderBookAddress = mapInstrumentIdToOrderBookAddress[availableInstrumentIDs[i]];
+        OrderBook _orderBook = OrderBook(_orderBookAddress);
+
+        string memory _instrumentID = _orderBook.getInstrumentID();
+
+        uint askLength = _orderBook.getAskOrdersLength();
+
+        Utils.marketOrder memory _marketOrder ;
+        uint j;
+        for (j = 0; j < askLength; j++)
+        {
+          _marketOrder = _orderBook.getAskOrders(j);
+          emit logMarketOrder(_instrumentID, _marketOrder.quantity, _marketOrder.price, "ASK");
+        }
+
+        uint bidLength = _orderBook.getBidOrdersLength();
+
+        for (j = 0; j < bidLength; j++)
+        {
+          _marketOrder = _orderBook.getBidOrders(j);
+          emit logMarketOrder(_instrumentID, _marketOrder.quantity, _marketOrder.price, "BID");
+        }
+
+      }
+    }
+
 }

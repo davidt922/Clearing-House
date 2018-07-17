@@ -1,4 +1,4 @@
-pragma solidity ^0.4.20;
+pragma experimental ABIEncoderV2;
 
 import "./QuickSortOrder.sol";
 import "./Market.sol";
@@ -138,5 +138,29 @@ contract OrderBook is QuickSortOrder
     {
         askOrders.push(Utils.order(_clearingMemberAddress, _quantity, block.timestamp,  _price));
         orderDecreasing(bidOrders);
+    }
+    function getInstrumentID() returns (string)
+    {
+      return instrumentID;
+    }
+
+    function getAskOrdersLength() returns (uint)
+    {
+      return askOrders.length;
+    }
+
+    function getBidOrdersLength() returns (uint)
+    {
+      return bidOrders.length;
+    }
+
+    function getAskOrders(uint i) public constant returns (Utils.marketOrder _marketOrder)
+    {
+        _marketOrder = Utils.marketOrder(askOrders[i].quantity, askOrders[i].price);
+    }
+
+    function getBidOrders(uint i) public constant returns (Utils.marketOrder _marketOrder)
+    {
+      _marketOrder = Utils.marketOrder(bidOrders[i].quantity, bidOrders[i].price);
     }
 }

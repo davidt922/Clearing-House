@@ -15,6 +15,8 @@ var Market = contract(market_artifacts);
 var accounts;
 var account;
 
+var orders = [];
+
 
 // Import libraries we need.
 $('.message a').click(function()
@@ -78,13 +80,16 @@ window.App = {
     {
       _market = instance;
       console.log("Execute add clearing member");
-      return _market.addClearingMember(_name, _email, _password, {from: accounts[2], gas: 39000000});
+      return _market.addClearingMember(_name, _email, _password, {from: account, gas: 39000000});
     }).then(function(value)
   {
     alert(value.logs[0].args.getString);
-    console.log(value.logs[0].args.logRegInfo);
-    //var result_element = document.getElementById("result");
-    //result_element.innerHTML = value.valueOf();
+    console.log(value.logs[1].args.addressID);
+    var addressID = new BigNumber(value.logs[1].args.addressID).toNumber();
+    console.log(addressID);
+    account = accounts[addressID];
+    console.log(account);
+    _market.confirmClearingMemberAddress(_email, {from: account, gas: 39000000});
   })
 },
 
@@ -101,20 +106,80 @@ login: function (_email, _password)
     })
     .then(function(value)
   {
-    var addressID = new BigNumber(value).toNumber();
 
-    console.log(addressID);
+    var addressID = new BigNumber(value[0]).toNumber();
+    var name = value[1];
+    account = value[2];
+
+
     if (addressID == -1)
     {
-      alert(logInfo);
+      alert("This email is not registred");
+      return -1;
+    }
+    else if (addressID == -2)
+    {
+      alert("The password is incorrect");
+      return -1;
     }
     else
     {
-       //$("#webPage").load("/main/index.html");
+      //alert("Welcome "+name+"!")
        $("#index").remove();
        $("#main").show();
        account = accounts[addressID];
+       return 0;
     }
+  }).then(function(value)
+{
+  console.log(value);
+  if (value == 0)
+  {
+    return _market.addNewDerivative("IUDERB3", "BOE", 0, 120003000,{from: account, gas: 39000000});
+  }
+  else
+  {
+    return -1;
+  }
+}).then(function(value)
+{
+  console.log(value);
+    if (value != -1)
+    {
+      return _market.addOrder("IUDERB3",10, 10000, "SELL",{from: account, gas: 39000000});
+    }
+    else
+    {
+      return -1;
+    }
+})
+  .then(function(value)
+  {
+    console.log(value);
+      if (value != -1)
+      {
+        return _market.getMarket({from: account, gas: 39000000})
+      }
+      else
+      {
+        return 0;
+      }
+  }).then(function(value)
+  {
+      if (value != 0)
+      {
+          console.log(value.logs);
+          var _orders = value.logs;
+
+          for (var k = 0; k < _orders.length; k++)
+          {
+            //test();
+            //orders.push({instrumentID: _orders[k].instrumentID, quantity: new BigNumber(_orders[k].quantity).toNumber(), price: })
+          }
+          var a = new OrderBook("TELEFONICA");
+          a.addOrder(11,22);
+          var b = new OrderBook("Repsol");
+      }
   })
 }
 /*
@@ -160,6 +225,24 @@ login: function (_email, _password)
   }*/
 };
 
+class OrderBook
+{
+  constructor(instrumentID)
+  {
+    this.instrumentID = instrumentID;
+    addOrderToHTML(instrumentID);
+  }
+  addOrder(_price, _quantity)
+  {
+    orders.push({price: _price, quantity: _quantity});
+    $("#orders"+this.instrumentID).append("<div>"+_price+" "+_quantity+"</div>");
+  }
+}
+
+function addOrderToHTML(instrumentID)
+{
+  $( "#orderBooks" ).append("<div class='orderBook'><div class='orders' id='orders"+instrumentID+"'></div><div><button class='twoButtons'>BUY</button><button class='twoButtons' style='background:#ff0000;'>SELL</button></div></div>");
+}
 
 window.addEventListener('load', function()
 {
@@ -183,16 +266,16 @@ window.addEventListener('load', function()
 
   document.getElementById("create").addEventListener("click", function()
   {
-    var name = document.getElementById("name1");
-    var email = document.getElementById("email1");
-    var password = document.getElementById("password1");
+    var name = document.getElementById("name1").value;
+    var email = document.getElementById("email1").value;
+    var password = document.getElementById("password1").value;
       App.addCompensationMember(name, email, password);
   }, false);
 
   document.getElementById("loginButton").addEventListener("click", function()
   {
-    var email = document.getElementById("email2");
-    var password = document.getElementById("password2");
+    var email = document.getElementById("email2").value;
+    var password = document.getElementById("password2").value;
      App.login(email, password);
   });
 });

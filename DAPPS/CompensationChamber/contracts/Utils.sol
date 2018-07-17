@@ -16,6 +16,11 @@ library Utils
         uint timestamp;
         uint price; // the las 3 numbers of the integer represents the decimals, so 3000 equals to 3.
     }
+    struct marketOrder
+    {
+      uint quantity;
+      uint price;
+    }
 
     enum instrumentType
     {

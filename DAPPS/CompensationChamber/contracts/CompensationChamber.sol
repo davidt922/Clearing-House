@@ -72,7 +72,7 @@ contract CompensationChamber
 
           isAClearingMember[_clearingMemberAddress] = true;
           emailIsRegistred[_email] = true;
-          Utils.clearingMember memory _clearingMemberStruct = Utils.clearingMember(_name, _email, _clearingMemberAddress, _password, addressID);
+          Utils.clearingMember memory _clearingMemberStruct = Utils.clearingMember(_name, _email, 0x0, _password, addressID);
           mapEmailToClearingMemberStruct[_email] = _clearingMemberStruct;
           clearingMembers.push(_clearingMemberStruct);
           clearingMembersAddresses.push(_clearingMemberAddress);
@@ -81,22 +81,34 @@ contract CompensationChamber
         }
     }
 
-    function checkSignInEmailAndPassword(string _email, string _password) onlyMarket public returns(int addressID)
+    function confirmClearingMember(address _clearingMemberAddress, string _email)
+    {
+      if (isAClearingMember[_clearingMemberAddress] != true)
+      {
+        isAClearingMember[_clearingMemberAddress] = true;
+        mapEmailToClearingMemberStruct[_email].clearingMemberAddress = _clearingMemberAddress;
+      }
+    }
+
+    function checkSignInEmailAndPassword(string _email, string _password) onlyMarket public returns(int addressID, string name, address clearingMemberAddress)
     {
       if (emailIsRegistred[_email] != true)
       {
-        return 2;
-        //return -1;
+        addressID = -1;
+        name = "";
+        clearingMemberAddress = 0x0;
       }
       else if (Utils.compareStrings(mapEmailToClearingMemberStruct[_email].password, _password))
       {
-        return 10;
-        //return mapEmailToClearingMemberStruct[_email].addressID;
+        addressID = mapEmailToClearingMemberStruct[_email].addressID;
+        name = mapEmailToClearingMemberStruct[_email].name;
+        clearingMemberAddress = mapEmailToClearingMemberStruct[_email].clearingMemberAddress;
       }
       else
       {
-        return 3;
-        //return -1;
+        addressID = -2;
+        name = "";
+        clearingMemberAddress = 0x0;
       }
     }
 
