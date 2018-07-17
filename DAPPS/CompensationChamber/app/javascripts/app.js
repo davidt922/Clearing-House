@@ -101,7 +101,7 @@ login: function (_email, _password)
     })
     .then(function(value)
   {
-    var addressID = new BigNumber(value);
+    var addressID = new BigNumber(value).toNumber();
 
     console.log(addressID);
     if (addressID == -1)
