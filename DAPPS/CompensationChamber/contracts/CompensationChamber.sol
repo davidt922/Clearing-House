@@ -85,15 +85,18 @@ contract CompensationChamber
     {
       if (emailIsRegistred[_email] != true)
       {
-        return -1;
+        return 2;
+        //return -1;
       }
       else if (Utils.compareStrings(mapEmailToClearingMemberStruct[_email].password, _password))
       {
-        return mapEmailToClearingMemberStruct[_email].addressID;
+        return 10;
+        //return mapEmailToClearingMemberStruct[_email].addressID;
       }
       else
       {
-        return -1;
+        return 3;
+        //return -1;
       }
     }
 

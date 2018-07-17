@@ -28,10 +28,8 @@ contract Market
 
     event logRegInfo(string getString);
     event logString(string getString);
-    event loginInfo(string getString);
 
     event logBytes32(bytes32 getBytes32);
-    event getAddressID(int getInt);
 
     function Market(uint timestampUntilNextVMRevision) public payable
     {
@@ -47,7 +45,7 @@ contract Market
       CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
       int addressID = _compensationChamber.addClearingMember(_name, _email, msg.sender, _password);
 
-      if (addressID != -1)
+      if (addressID == -1)
       {
           logRegInfo("This email is alredy register");
       }
@@ -111,19 +109,11 @@ contract Market
         }
     }
 
-    function signIn(string _email, string _password) public
+    function signIn(string _email, string _password) public returns (int)
     {
       CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
       int addressID =_compensationChamber.checkSignInEmailAndPassword(_email, _password);
 
-      if (addressID == -1)
-      {
-        loginInfo("This email is not registred or the password is not correct");
-      }
-      else
-      {
-        loginInfo("Sign In successful");
-      }
-      getAddressID(addressID);
+      return addressID;
     }
 }

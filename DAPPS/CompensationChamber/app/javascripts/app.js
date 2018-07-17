@@ -4,6 +4,7 @@ import "../stylesheets/app.css";
 // Import libraries we need.
 import { default as Web3} from 'web3';
 import { default as contract } from 'truffle-contract';
+import {BigNumber} from 'bignumber.js';
 
 // Import our contract artifacts and turn them into usable abstractions.
 import market_artifacts from '../../build/contracts/Market.json';
@@ -13,6 +14,7 @@ var Market = contract(market_artifacts);
 
 var accounts;
 var account;
+
 
 // Import libraries we need.
 $('.message a').click(function()
@@ -95,26 +97,23 @@ login: function (_email, _password)
     function(instance)
     {
       _market = instance;
-      console.log("Test");
-      return _market.signIn(_email, _password, {from: accounts[2], gas: 39000000});
+      return _market.signIn.call(_email, _password, {from: accounts[2], gas: 39000000});
     })
     .then(function(value)
   {
-    var addressID = value.logs[1].args.getInt.s;
-    var logInfo = value.logs[0].args.getString;
+    var addressID = new BigNumber(value);
 
-    console.log(value);
+    console.log(addressID);
     if (addressID == -1)
     {
       alert(logInfo);
     }
     else
     {
-       $("#webPage").load("/main/index.html");
-      //xhttp.open("GET", "demo_get.asp", true);
-      //xhttp.send();
-        //console.log("Redirigir a una altra pagina");
-
+       //$("#webPage").load("/main/index.html");
+       $("#index").remove();
+       $("#main").show();
+       account = accounts[addressID];
     }
   })
 }
