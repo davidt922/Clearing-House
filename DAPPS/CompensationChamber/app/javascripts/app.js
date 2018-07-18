@@ -15,7 +15,7 @@ var Market = contract(market_artifacts);
 var accounts;
 var account;
 
-var orders = [];
+var instruments = [];
 
 
 // Import libraries we need.
@@ -152,10 +152,29 @@ login: function (_email, _password)
     {
       return -1;
     }
-})
-  .then(function(value)
+}).then(function(value){
+  return _market.getInstruments({from: account, gas: 39000000});
+}).then(function(value){
+
+  if (value != -1)
   {
-    console.log(value);
+    var instrumentArray = value.logs;
+    var _instrumentID;
+
+    for (var k = 0; k < instrumentArray.length; k++)
+    {
+      _instrumentID = instrumentArray[k].args.instrumentID;
+      instruments[_instrumentID] = new OrderBook(_instrumentID);
+    }
+    return 0;
+  }
+  else
+  {
+      return -1;
+  }
+
+}).then(function(value)
+  {
       if (value != -1)
       {
         return _market.getMarket({from: account, gas: 39000000})
@@ -168,61 +187,38 @@ login: function (_email, _password)
   {
       if (value != 0)
       {
-          console.log(value.logs);
           var _orders = value.logs;
-
+          console.log(_orders);
+          var order;
+          var quantity;
+          var price;
           for (var k = 0; k < _orders.length; k++)
           {
+            order = _orders[k].args;
             //test();
             //orders.push({instrumentID: _orders[k].instrumentID, quantity: new BigNumber(_orders[k].quantity).toNumber(), price: })
+            price = new BigNumber(order.price).toNumber();
+            quantity = new BigNumber(order.quantity).toNumber();
+            instruments[order.instrumentID].addOrder(price, quantity, order.side);
+
           }
-          var a = new OrderBook("TELEFONICA");
-          a.addOrder(11,22);
-          var b = new OrderBook("Repsol");
       }
   })
+},
+addOrderToBlockchain : function(_instrumentID, _type)
+{
+  var _quantity = $( "#quantity" );
+  var _price = $( "#price" );
+  var _market;
+  Market.deployed().then(function(instance)
+    {
+      _market = instance;
+      return _market.addOrder(_instrumentID, _quantity.val(), _price.val(), _type, {from: account, gas: 39000000});
+    }).then(function(value)
+  {
+    console.log(value);
+  });
 }
-/*
-*/
-/*
-  setStatus: function(message)
-  {
-    var status = document.getElementById("status");
-    status.innerHTML = message;
-  },
-  refreshBalance: function()
-  {
-    var self = this;
-    var meta;
-    MetaCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.getBalance.call(account, {from: account});
-    }).then(function(value) {
-      var balance_element = document.getElementById("balance");
-      balance_element.innerHTML = value.valueOf();
-    }).catch(function(e) {
-      console.log(e);
-      self.setStatus("Error getting balance; see log.");
-    });
-  },
-  sendCoin: function()
-  {
-    var self = this;
-    var amount = parseInt(document.getElementById("amount").value);
-    var receiver = document.getElementById("receiver").value;
-    this.setStatus("Initiating transaction... (please wait)");
-    var meta;
-    MetaCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.sendCoin(receiver, amount, {from: account});
-    }).then(function() {
-      self.setStatus("Transaction complete!");
-      self.refreshBalance();
-    }).catch(function(e) {
-      console.log(e);
-      self.setStatus("Error sending coin; see log.");
-    });
-  }*/
 };
 
 class OrderBook
@@ -232,16 +228,33 @@ class OrderBook
     this.instrumentID = instrumentID;
     addOrderToHTML(instrumentID);
   }
-  addOrder(_price, _quantity)
+  addOrder(_price, _quantity, _side)
   {
-    orders.push({price: _price, quantity: _quantity});
-    $("#orders"+this.instrumentID).append("<div>"+_price+" "+_quantity+"</div>");
+    //orders.push({price: _price, quantity: _quantity});
+    if (_side == "ASK")
+    {
+      $("#table"+this.instrumentID).append("<tr> <td></td> <td>"+_price+"</td> <td>"+_quantity+"</td> </tr>");
+    }
+    else if (_side == "BID")
+    {
+      $("#table"+this.instrumentID).append("<tr> <td>"+_quantity+"</td> <td>"+_price+"</td> <td></td> </tr>");
+    }
   }
 }
 
 function addOrderToHTML(instrumentID)
 {
-  $( "#orderBooks" ).append("<div class='orderBook'><div class='orders' id='orders"+instrumentID+"'></div><div><button class='twoButtons'>BUY</button><button class='twoButtons' style='background:#ff0000;'>SELL</button></div></div>");
+  $( "#orderBooks" ).append("<div class='orderBook'><div>"+instrumentID.toUpperCase()+"</div><div class='orders' id='orders"+instrumentID+"'></div><div><button class='twoButtons' id='buy"+instrumentID+"'>BUY</button><button class='twoButtons' style='background:#ff0000;' id='sell"+instrumentID+"'>SELL</button></div></div>");
+  $("#orders"+instrumentID).append("<table id='table"+instrumentID+"'><tr><th>Bid Size</th><th>Price</th><th>Ask Size</th></tr></table>");
+
+  $("#buy"+instrumentID).click(function()
+  {
+    createDialog(instrumentID, "Buy");
+  });
+  $("#sell"+instrumentID).click(function()
+  {
+    createDialog(instrumentID, "Sell");
+  });
 }
 
 window.addEventListener('load', function()
@@ -279,3 +292,73 @@ window.addEventListener('load', function()
      App.login(email, password);
   });
 });
+
+
+function createDialog(instrumentID, side)
+{
+  if (side == "Buy")
+  {
+    dialog.dialog({  title: side+" "+instrumentID }).dialog({buttons:
+      {
+        Buy: function()
+        {
+          App.addOrderToBlockchain(instrumentID, "BUY");
+          dialog.dialog( "close" );
+        },
+        Cancel: function()
+        {
+          dialog.dialog( "close" );
+        }
+      }}).dialog( "open" );
+  }
+  else if(side == "Sell")
+  {
+    dialog.dialog({  title: side+" "+instrumentID }).dialog({buttons:
+      {
+        Sell: function(callback)
+        {
+          //console.log(callback);
+          App.addOrderToBlockchain(instrumentID, "SELL");
+          dialog.dialog( "close" );
+        },
+        Cancel: function()
+        {
+          dialog.dialog( "close" );
+        }
+      }}).dialog( "open" );
+  }
+}
+
+var dialog;
+$( function() {
+   var  form;
+
+     // From http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#e-mail-state-%28type=email%29
+   dialog = $( "#dialog-form" ).dialog({
+     autoOpen: false,
+     height: 400,
+     width: 350,
+     modal: true,
+     buttons:
+     {
+       //"Create an account": addUser,
+       Cancel: function()
+       {
+         dialog.dialog( "close" );
+       }
+     },
+     close: function()
+     {
+       form[ 0 ].reset();
+     }
+   });
+
+   form = dialog.find( "form" ).on( "submit", function( event ) {
+     event.preventDefault();
+     addUser();
+   });
+
+   $( "#create-user" ).button().on( "click", function() {
+     dialog.dialog( "open" );
+   });
+ } );

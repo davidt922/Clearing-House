@@ -36,6 +36,8 @@ contract Market
 
     event logMarketOrder(string instrumentID, uint quantity, uint price, string side);
 
+    event logInstruments(string instrumentID);
+
     function Market(uint timestampUntilNextVMRevision) public payable
     {
         require (msg.value >= 15 ether);
@@ -91,8 +93,11 @@ contract Market
 
     function addNewDerivative (string _instrumentID, string _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public /*onlyOwner*/ payable
     {
+      if (mapInstrumentIdToOrderBookAddress[_instrumentID] == 0)
+      {
         mapInstrumentIdToOrderBookAddress[_instrumentID] = new OrderBook(_instrumentID, _market, _instrumentType, _settlementTimestamp);
         availableInstrumentIDs.push(_instrumentID);
+      }
     }
 
     function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string  _market) public
@@ -132,6 +137,15 @@ contract Market
     }
 
     mapping(uint => string) sideMap;
+
+    function getInstruments() public
+    {
+      for (uint i = 0; i < availableInstrumentIDs.length; i++)
+      {
+        emit logInstruments(availableInstrumentIDs[i]);
+      }
+    }
+
     function getMarket() public
     {
       sideMap[0] = "ASK";
@@ -146,6 +160,11 @@ contract Market
 
         uint askLength = _orderBook.getAskOrdersLength();
 
+        if (askLength > 4)
+        {
+          askLength = 4;
+        }
+
         Utils.marketOrder memory _marketOrder ;
         uint j;
         for (j = 0; j < askLength; j++)
@@ -155,6 +174,11 @@ contract Market
         }
 
         uint bidLength = _orderBook.getBidOrdersLength();
+
+        if (bidLength > 4)
+        {
+          bidLength = 4;
+        }
 
         for (j = 0; j < bidLength; j++)
         {
