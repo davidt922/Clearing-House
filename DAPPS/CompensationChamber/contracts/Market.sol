@@ -102,6 +102,7 @@ contract Market
 
     function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string  _market) public
     {
+      logString("ADDED TO MARKET");
         CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
         _compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
     }

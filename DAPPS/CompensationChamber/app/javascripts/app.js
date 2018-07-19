@@ -17,26 +17,35 @@ var account;
 
 var instruments = [];
 
-
 // Import libraries we need.
 $('.message a').click(function()
 {
    $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
 });
 
-$(document).ready(function () {
+function showLogin()
+{
+  $('.register-form').hide();
+  $('.login-form').show();
+}
 
-        $('.register-form').hide();
-        $('.login-form').show();
+function showRegister()
+{
+  $('.register-form').show();
+  $('.login-form').hide();
+}
 
-        $('#register').click(function () {
-            $('.register-form').hide();
-            $('.login-form').show
-            ();
+
+$(document).ready(function ()
+{
+        showLogin();
+        $('#register').click(function ()
+        {
+            showLogin();
         });
-        $('#login').click(function () {
-            $('.register-form').show();
-            $('.login-form').hide();
+        $('#login').click(function ()
+        {
+          showRegister();
         });
     });
 
@@ -74,23 +83,25 @@ window.App = {
   {
     var self = this;
     var _market;
-    console.log("js functrion addCompensationMember executed");
 
     Market.deployed().then(function(instance)
     {
       _market = instance;
-      console.log("Execute add clearing member");
       return _market.addClearingMember(_name, _email, _password, {from: account, gas: 39000000});
-    }).then(function(value)
-  {
-    alert(value.logs[0].args.getString);
-    console.log(value.logs[1].args.addressID);
-    var addressID = new BigNumber(value.logs[1].args.addressID).toNumber();
-    console.log(addressID);
-    account = accounts[addressID];
-    console.log(account);
-    _market.confirmClearingMemberAddress(_email, {from: account, gas: 39000000});
-  })
+    })
+    .then(function(value)
+    {
+      alert(value.logs[0].args.getString);
+      var addressID = new BigNumber(value.logs[1].args.addressID).toNumber();
+
+      if (addressID != -1)
+      {
+        account = accounts[addressID];
+        alert("Your ethereum account public key is "+account);
+        _market.confirmClearingMemberAddress(_email, {from: account, gas: 39000000});
+        showLogin();
+      }
+    });
 },
 
 login: function (_email, _password)
@@ -210,12 +221,16 @@ addOrderToBlockchain : function(_instrumentID, _type)
   var _quantity = $( "#quantity" );
   var _price = $( "#price" );
   var _market;
+  console.log(_instrumentID+" "+_quantity.val()+" "+_price.val()+" "+_type);
+  // _market.addOrder("IUDERB3",10, 10000, "SELL",{from: account, gas: 39000000});
   Market.deployed().then(function(instance)
     {
       _market = instance;
       return _market.addOrder(_instrumentID, _quantity.val(), _price.val(), _type, {from: account, gas: 39000000});
     }).then(function(value)
   {
+    console.log("EXECUTED");
+    _market.addOrder("IUDERB3",3, 900, "BUY",{from: account, gas: 39000000});
     console.log(value);
   });
 }
@@ -291,6 +306,28 @@ window.addEventListener('load', function()
     var password = document.getElementById("password2").value;
      App.login(email, password);
   });
+
+  document.getElementById("buttonID").addEventListener("click", function()
+  {
+    var _market;
+    Market.deployed().then(function(instance)
+    {
+      _market = instance;
+      return _market.getMarket({from: account, gas: 39000000})
+    })
+    .then(function(value)
+    {
+      var _args;
+      console.log(value.logs.length);
+
+      for(var k = 0; k < value.logs.length; k++)
+      {
+        _args = value.logs[k].args;
+        console.log(_args.instrumentID+" "+_args.side+" "+_args.quantity+" "+_args.price);
+      }
+    });
+  });
+
 });
 
 

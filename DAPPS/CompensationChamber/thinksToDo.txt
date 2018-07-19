@@ -1,0 +1,2 @@
+Fer que es generin accounts amb https://web3js.readthedocs.io/en/1.0/web3-eth-accounts.html
+He de actualitzar web3js a la versió 1.0

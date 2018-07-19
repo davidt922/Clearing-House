@@ -137,7 +137,7 @@ contract OrderBook is QuickSortOrder
     function addAskToOrderBook(address _clearingMemberAddress, uint _quantity, uint _price) internal
     {
         askOrders.push(Utils.order(_clearingMemberAddress, _quantity, block.timestamp,  _price));
-        orderDecreasing(bidOrders);
+        orderDecreasing(askOrders);
     }
     function getInstrumentID() returns (string)
     {
