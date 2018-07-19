@@ -152,17 +152,6 @@ login: function (_email, _password)
   {
     return -1;
   }
-}).then(function(value)
-{
-  console.log(value);
-    if (value != -1)
-    {
-      return _market.addOrder("IUDERB3",10, 10000, "SELL",{from: account, gas: 39000000});
-    }
-    else
-    {
-      return -1;
-    }
 }).then(function(value){
   return _market.getInstruments({from: account, gas: 39000000});
 }).then(function(value){
