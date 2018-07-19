@@ -35,7 +35,7 @@ contract OrderBook is QuickSortOrder
         settlementTimestamp = _settlementTimestamp;
     }
     // In this case we consider than _clearingMemberAddress is equals to _MarketMemberAddress
-    function addBuyOrder(address _clearingMemberAddress, uint _quantity, uint _price) public onlyMarket
+    function addBuyOrder(address _clearingMemberAddress, uint _quantity, uint _price) public onlyMarket returns(uint quantity, uint price)
     {
         if (askOrders.length != 0)
         {
@@ -72,6 +72,12 @@ contract OrderBook is QuickSortOrder
 
                     askOrders[i].quantity = askOrders[i].quantity - _quantity;
                     _quantity = 0;
+
+                    if (askOrders[i].quantity == 0)
+                    {
+                      Utils.removeOrder(askOrders, i);
+                      i--;
+                    }
                 }
                 i++;
             }
@@ -80,10 +86,12 @@ contract OrderBook is QuickSortOrder
         if (_quantity > 0)
         {
           addBidToOrderBook(_clearingMemberAddress, _quantity, _price);
+          quantity = _quantity;
+          price = _price;
         }
     }
 
-    function addSellOrder(address _clearingMemberAddress, uint _quantity, uint _price) public onlyMarket
+    function addSellOrder(address _clearingMemberAddress, uint _quantity, uint _price) public onlyMarket returns(uint quantity, uint price)
     {
         if (bidOrders.length != 0)
         {
@@ -119,6 +127,12 @@ contract OrderBook is QuickSortOrder
                     }
                     bidOrders[i].quantity = bidOrders[i].quantity - _quantity;
                     _quantity = 0;
+
+                    if (bidOrders[i].quantity == 0)
+                    {
+                      Utils.removeOrder(bidOrders, i);
+                      i--;
+                    }
                 }
                 i++;
             }
@@ -127,6 +141,8 @@ contract OrderBook is QuickSortOrder
         if (_quantity > 0)
         {
             addAskToOrderBook(_clearingMemberAddress, _quantity, _price);
+            quantity = _quantity;
+            price = _price;
         }
     }
 

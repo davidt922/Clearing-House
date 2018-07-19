@@ -103,6 +103,7 @@ contract Market
     function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string  _market) public
     {
       logString("ADDED TO MARKET");
+      logPaymentRequestAddress(0x0, 20, 0x0);
         CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
         _compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
     }
@@ -115,14 +116,18 @@ contract Market
         if (_orderBookAddress != 0)
         {
             OrderBook _orderBook = OrderBook(_orderBookAddress);
+            uint quantity;
+            uint price;
 
             if (Utils.compareStrings(_type, "BUY"))
             {
-                _orderBook.addBuyOrder(msg.sender, _quantity, _price);
+                (quantity, price) = _orderBook.addBuyOrder(msg.sender, _quantity, _price);
+                logMarketOrder(_instrumentID, quantity, price, "BID");
             }
             else if (Utils.compareStrings(_type, "SELL"))
             {
-                _orderBook.addSellOrder(msg.sender, _quantity, _price);
+                (quantity, price) = _orderBook.addSellOrder(msg.sender, _quantity, _price);
+                logMarketOrder(_instrumentID, quantity, price, "ASK");
             }
         }
     }
@@ -149,9 +154,6 @@ contract Market
 
     function getMarket() public
     {
-      sideMap[0] = "ASK";
-      sideMap[1] = "BID";
-
       for (uint i = 0; i < availableInstrumentIDs.length; i++)
       {
         address _orderBookAddress = mapInstrumentIdToOrderBookAddress[availableInstrumentIDs[i]];
@@ -161,13 +163,10 @@ contract Market
 
         uint askLength = _orderBook.getAskOrdersLength();
 
-        if (askLength > 4)
-        {
-          askLength = 4;
-        }
 
         Utils.marketOrder memory _marketOrder ;
         uint j;
+
         for (j = 0; j < askLength; j++)
         {
           _marketOrder = _orderBook.getAskOrders(j);
@@ -175,11 +174,6 @@ contract Market
         }
 
         uint bidLength = _orderBook.getBidOrdersLength();
-
-        if (bidLength > 4)
-        {
-          bidLength = 4;
-        }
 
         for (j = 0; j < bidLength; j++)
         {

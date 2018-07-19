@@ -77,6 +77,22 @@ window.App = {
 
       //self.refreshBalance();
     });
+
+    //FICAR els events de market que vull escolar
+
+    Market.deployed().then(function(value)
+    {
+      var paymentRequestEvent = value.logPaymentRequestAddress();
+      paymentRequestEvent.watch(function(error, result)
+      {
+        if(!error)
+        {
+          console.log(result);
+        }
+      });
+
+    });
+
   },
 
   addCompensationMember: function(_name, _email, _password)
@@ -185,6 +201,21 @@ login: function (_email, _password)
       }
   }).then(function(value)
   {
+    var marketOrderEvent = _market.logMarketOrder();
+
+    marketOrderEvent.watch(function(error, result)
+    {
+      if(!error)
+      {
+        console.log(result);
+        var args = result.args;
+        var price = new BigNumber(args.price).toNumber();
+        var quantity = new BigNumber(args.quantity).toNumber();
+        console.log("order "+args.instrumentID+" price "+price+" quantity"+quantity+" side"+args.side);
+        instruments[args.instrumentID].addOrder(price, quantity, args.side);
+      }
+    });
+    /*
       if (value != 0)
       {
           var _orders = value.logs;
@@ -202,46 +233,136 @@ login: function (_email, _password)
             instruments[order.instrumentID].addOrder(price, quantity, order.side);
 
           }
-      }
+      }*/
   })
 },
 addOrderToBlockchain : function(_instrumentID, _type)
 {
-  var _quantity = $( "#quantity" );
-  var _price = $( "#price" );
+  var _quantity = parseInt(document.getElementById("quantity").value);
+  var _price = parseInt(document.getElementById("price").value);
   var _market;
-  console.log(_instrumentID+" "+_quantity.val()+" "+_price.val()+" "+_type);
+
   // _market.addOrder("IUDERB3",10, 10000, "SELL",{from: account, gas: 39000000});
   Market.deployed().then(function(instance)
     {
       _market = instance;
-      return _market.addOrder(_instrumentID, _quantity.val(), _price.val(), _type, {from: account, gas: 39000000});
+      return _market.addOrder(_instrumentID, _quantity, _price, _type, {from: account, gas: 39000000});
     }).then(function(value)
   {
-    console.log("EXECUTED");
-    _market.addOrder("IUDERB3",3, 900, "BUY",{from: account, gas: 39000000});
     console.log(value);
   });
 }
+
 };
 
 class OrderBook
 {
+/*  this.ask = [];
+  this.bid = [];*/
+
   constructor(instrumentID)
   {
     this.instrumentID = instrumentID;
     addOrderToHTML(instrumentID);
+    this.ask = [];
+    this.bid = [];
   }
+
   addOrder(_price, _quantity, _side)
   {
     //orders.push({price: _price, quantity: _quantity});
     if (_side == "ASK")
     {
-      $("#table"+this.instrumentID).append("<tr> <td></td> <td>"+_price+"</td> <td>"+_quantity+"</td> </tr>");
+      this.addAskOrder(_price, _quantity);
     }
     else if (_side == "BID")
     {
-      $("#table"+this.instrumentID).append("<tr> <td>"+_quantity+"</td> <td>"+_price+"</td> <td></td> </tr>");
+      this.addBidOrder(_price, _quantity);
+    }
+  }
+
+  addAskOrder(_price, _quantity)
+  {
+    // if there is another order with this price
+    var found = this.ask.find(function(element)
+    {
+        return element.price = _price;
+    });
+
+    if (found != undefined)
+    {
+      found.quantity = found.quantity + _quantity;
+    }
+    else
+    {
+      this.ask.push({price: _price, quantity: _quantity});
+    }
+    this.updateOrderBook();
+  }
+
+  addBidOrder(_price, _quantity)
+  {
+    var found = this.bid.find(function(element)
+    {
+        return element.price = _price;
+    });
+
+    if (found != undefined)
+    {
+      found.quantity = found.quantity + _quantity;
+    }
+    else
+    {
+      this.bid.push({price: _price, quantity: _quantity});
+    }
+    this.updateOrderBook();
+  }
+
+  removeAskOrder(_price, _quantity)
+  {
+
+  }
+
+  removeBidOrder(_price, _quantity)
+  {
+
+  }
+
+  updateOrderBook()
+  {
+    //$("#table"+this.instrumentID+" tbody").empty();
+
+    this.updateAskOrderBook();
+    this.updateBidOrderBook();
+  }
+
+  updateAskOrderBook()
+  {
+    if (this.ask.length > 0)
+    {
+      this.ask.sort(function(a,b) {return (a.price > b.price) ? 1 : ((b.price > a.price) ? -1 : 0);} );
+
+      var j = this.ask.length > 4 ? 3 : this.ask.length - 1;
+
+      for (var i = j ; i>=0; i--)
+      {
+        $("#table"+this.instrumentID).find('tbody').append("<tr> <td></td> <td>"+this.ask[i].price+"</td> <td>"+this.ask[i].quantity+"</td> </tr>");
+      }
+    }
+  }
+
+  updateBidOrderBook()
+  {
+    if (this.bid.length > 0)
+    {
+      this.bid.sort(function(a,b) {return (a.price < b.price) ? 1 : ((b.price < a.price) ? -1 : 0);} );
+
+      var j = this.bid.length > 4 ? 4 : this.bid.length;
+      console.log(this.bid);
+      for (var i = 0; i<j; i++)
+      {
+        $("#table"+this.instrumentID).find('tbody').append("<tr> <td>"+this.bid[i].quantity+"</td> <td>"+this.bid[i].price+"</td> <td></td> </tr>");
+      }
     }
   }
 }
@@ -249,7 +370,7 @@ class OrderBook
 function addOrderToHTML(instrumentID)
 {
   $( "#orderBooks" ).append("<div class='orderBook'><div>"+instrumentID.toUpperCase()+"</div><div class='orders' id='orders"+instrumentID+"'></div><div><button class='twoButtons' id='buy"+instrumentID+"'>BUY</button><button class='twoButtons' style='background:#ff0000;' id='sell"+instrumentID+"'>SELL</button></div></div>");
-  $("#orders"+instrumentID).append("<table id='table"+instrumentID+"'><tr><th>Bid Size</th><th>Price</th><th>Ask Size</th></tr></table>");
+  $("#orders"+instrumentID).append("<table id='table"+instrumentID+"'><thead><tr><th>Bid Size</th><th>Price</th><th>Ask Size</th></tr></thead><tbody></tbody></table>");
 
   $("#buy"+instrumentID).click(function()
   {
