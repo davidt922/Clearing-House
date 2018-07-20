@@ -37,7 +37,6 @@ contract MarketData is usingOraclize
   function MarketData() public payable
   {
     OAR = OraclizeAddrResolverI(0x6f485C8BF6fc43eA212E93BBF8ce046C7f1cb475);
-    oraclize_setProof(proofType_TLSNotary | proofStorage_IPFS);
     compensationChamberAddress = msg.sender;
   }
 

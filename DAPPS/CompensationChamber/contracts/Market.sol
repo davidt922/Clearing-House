@@ -34,7 +34,8 @@ contract Market
 
     event logBytes32(bytes32 getBytes32);
 
-    event logMarketOrder(string instrumentID, uint quantity, uint price, string side);
+    // side: bid-buy = 1, sell-ask = 0
+    event logMarketOrder(string instrumentID, uint quantity, uint price, uint side, uint orderType);
 
     event logInstruments(string instrumentID);
 
@@ -121,13 +122,11 @@ contract Market
 
             if (Utils.compareStrings(_type, "BUY"))
             {
-                (quantity, price) = _orderBook.addBuyOrder(msg.sender, _quantity, _price);
-                logMarketOrder(_instrumentID, quantity, price, "BID");
+                _orderBook.addBuyOrder(msg.sender, _quantity, _price);
             }
             else if (Utils.compareStrings(_type, "SELL"))
             {
-                (quantity, price) = _orderBook.addSellOrder(msg.sender, _quantity, _price);
-                logMarketOrder(_instrumentID, quantity, price, "ASK");
+                _orderBook.addSellOrder(msg.sender, _quantity, _price);
             }
         }
     }
@@ -152,6 +151,16 @@ contract Market
       }
     }
 
+    function addOrderEvent(string _instrumentID, uint _quantity, uint _price, uint _side)
+    {
+      emit logMarketOrder(_instrumentID, _quantity, _price, _side, 1);
+    }
+
+    function removeOrderEvent(string _instrumentID, uint _quantity, uint _price, uint _side)
+    {
+      emit logMarketOrder(_instrumentID, _quantity, _price, _side, 0);
+    }
+
     function getMarket() public
     {
       for (uint i = 0; i < availableInstrumentIDs.length; i++)
@@ -170,7 +179,7 @@ contract Market
         for (j = 0; j < askLength; j++)
         {
           _marketOrder = _orderBook.getAskOrders(j);
-          emit logMarketOrder(_instrumentID, _marketOrder.quantity, _marketOrder.price, "ASK");
+          emit logMarketOrder(_instrumentID, _marketOrder.quantity, _marketOrder.price, 0, 1);
         }
 
         uint bidLength = _orderBook.getBidOrdersLength();
@@ -178,7 +187,7 @@ contract Market
         for (j = 0; j < bidLength; j++)
         {
           _marketOrder = _orderBook.getBidOrders(j);
-          emit logMarketOrder(_instrumentID, _marketOrder.quantity, _marketOrder.price, "BID");
+          emit logMarketOrder(_instrumentID, _marketOrder.quantity, _marketOrder.price, 1, 1);
         }
 
       }

@@ -150,7 +150,7 @@
         "id": 603,
         "nodeType": "ImportDirective",
         "scope": 759,
-        "sourceUnit": 6547,
+        "sourceUnit": 6697,
         "src": "35:23:1",
         "symbolAliases": [],
         "unitAlias": ""
@@ -161,7 +161,7 @@
         "id": 604,
         "nodeType": "ImportDirective",
         "scope": 759,
-        "sourceUnit": 4768,
+        "sourceUnit": 4918,
         "src": "60:21:1",
         "symbolAliases": [],
         "unitAlias": ""
@@ -525,7 +525,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 12383,
+                            "referencedDeclaration": 12533,
                             "src": "1224:3:1",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -579,10 +579,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        12386,
-                        12387
+                        12536,
+                        12537
                       ],
-                      "referencedDeclaration": 12386,
+                      "referencedDeclaration": 12536,
                       "src": "1216:7:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -656,7 +656,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 12383,
+                            "referencedDeclaration": 12533,
                             "src": "1321:3:1",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -710,10 +710,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        12386,
-                        12387
+                        12536,
+                        12537
                       ],
-                      "referencedDeclaration": 12386,
+                      "referencedDeclaration": 12536,
                       "src": "1313:7:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -933,7 +933,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 12383,
+                        "referencedDeclaration": 12533,
                         "src": "1705:3:1",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -1087,7 +1087,7 @@
                         "name": "block",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 12373,
+                        "referencedDeclaration": 12523,
                         "src": "1816:5:1",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_block",
@@ -1942,7 +1942,7 @@
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_variationMarginChange_$3865_memory_$2_memory_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_variationMarginChange_$4015_memory_$2_memory_ptr",
                     "typeString": "struct Utils.variationMarginChange[2]"
                   },
                   "typeName": {
@@ -1951,10 +1951,10 @@
                       "id": 752,
                       "name": "Utils.variationMarginChange",
                       "nodeType": "UserDefinedTypeName",
-                      "referencedDeclaration": 3865,
+                      "referencedDeclaration": 4015,
                       "src": "2688:27:1",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_variationMarginChange_$3865_storage_ptr",
+                        "typeIdentifier": "t_struct$_variationMarginChange_$4015_storage_ptr",
                         "typeString": "struct Utils.variationMarginChange"
                       }
                     },
@@ -1980,7 +1980,7 @@
                     "nodeType": "ArrayTypeName",
                     "src": "2688:30:1",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_array$_t_struct$_variationMarginChange_$3865_storage_$2_storage_ptr",
+                      "typeIdentifier": "t_array$_t_struct$_variationMarginChange_$4015_storage_$2_storage_ptr",
                       "typeString": "struct Utils.variationMarginChange[2]"
                     }
                   },
@@ -2028,7 +2028,7 @@
         "id": 603,
         "nodeType": "ImportDirective",
         "scope": 759,
-        "sourceUnit": 6547,
+        "sourceUnit": 6697,
         "src": "35:23:1",
         "symbolAliases": [],
         "unitAlias": ""
@@ -2039,7 +2039,7 @@
         "id": 604,
         "nodeType": "ImportDirective",
         "scope": 759,
-        "sourceUnit": 4768,
+        "sourceUnit": 4918,
         "src": "60:21:1",
         "symbolAliases": [],
         "unitAlias": ""
@@ -2403,7 +2403,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 12383,
+                            "referencedDeclaration": 12533,
                             "src": "1224:3:1",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -2457,10 +2457,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        12386,
-                        12387
+                        12536,
+                        12537
                       ],
-                      "referencedDeclaration": 12386,
+                      "referencedDeclaration": 12536,
                       "src": "1216:7:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -2534,7 +2534,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 12383,
+                            "referencedDeclaration": 12533,
                             "src": "1321:3:1",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -2588,10 +2588,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        12386,
-                        12387
+                        12536,
+                        12537
                       ],
-                      "referencedDeclaration": 12386,
+                      "referencedDeclaration": 12536,
                       "src": "1313:7:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -2811,7 +2811,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 12383,
+                        "referencedDeclaration": 12533,
                         "src": "1705:3:1",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -2965,7 +2965,7 @@
                         "name": "block",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 12373,
+                        "referencedDeclaration": 12523,
                         "src": "1816:5:1",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_block",
@@ -3820,7 +3820,7 @@
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_variationMarginChange_$3865_memory_$2_memory_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_variationMarginChange_$4015_memory_$2_memory_ptr",
                     "typeString": "struct Utils.variationMarginChange[2]"
                   },
                   "typeName": {
@@ -3829,10 +3829,10 @@
                       "id": 752,
                       "name": "Utils.variationMarginChange",
                       "nodeType": "UserDefinedTypeName",
-                      "referencedDeclaration": 3865,
+                      "referencedDeclaration": 4015,
                       "src": "2688:27:1",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_variationMarginChange_$3865_storage_ptr",
+                        "typeIdentifier": "t_struct$_variationMarginChange_$4015_storage_ptr",
                         "typeString": "struct Utils.variationMarginChange"
                       }
                     },
@@ -3858,7 +3858,7 @@
                     "nodeType": "ArrayTypeName",
                     "src": "2688:30:1",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_array$_t_struct$_variationMarginChange_$3865_storage_$2_storage_ptr",
+                      "typeIdentifier": "t_array$_t_struct$_variationMarginChange_$4015_storage_$2_storage_ptr",
                       "typeString": "struct Utils.variationMarginChange[2]"
                     }
                   },
@@ -3887,5 +3887,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-07-20T07:38:40.737Z"
+  "updatedAt": "2018-07-20T12:33:15.688Z"
 }

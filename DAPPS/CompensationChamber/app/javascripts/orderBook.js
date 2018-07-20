@@ -8,7 +8,7 @@ class OrderBook
     this.addOrderBookToHTML();
   }
 
-  Order(solOrderTx)
+  order(solOrderTx)
   {
     var args = solOrderTx.args;
     var price = new BigNumber(args.price).toNumber();
@@ -16,7 +16,7 @@ class OrderBook
     // side is buy = 1 or sell = 0 (type int)
     var side = new BigNumber(args.side).toNumber();
     // type is add = 1 or remove = 0 (type int)
-    var type = new BigNumber(args.type).toNumber();
+    var type = new BigNumber(args.orderType).toNumber();
 
     if (type == 1)
     {
@@ -121,7 +121,31 @@ class OrderBook
 
   updateOrderBook()
   {
+    $("#table"+this.instrumentID).find("tbody").empty();
 
+    if (this.ask.length > 0)
+    {
+      this.ask.sort(function(a,b) {return (a.price > b.price) ? 1 : ((b.price > a.price) ? -1 : 0);} );
+
+      var j = this.ask.length > 4 ? 3 : this.ask.length - 1;
+
+      for (var i = j; i >= 0; i--)
+      {
+        $("#table"+this.instrumentID).find('tbody').append("<tr> <td></td> <td>"+this.ask[i].price+"</td> <td>"+this.ask[i].quantity+"</td> </tr>");
+      }
+    }
+
+    if (this.bid.length > 0)
+    {
+      this.bid.sort(function(a,b) {return (a.price < b.price) ? 1 : ((b.price < a.price) ? -1 : 0);} );
+
+      var j = this.bid.length > 4 ? 4 : this.bid.length;
+
+      for (var i = 0; i < j; i++)
+      {
+        $("#table"+this.instrumentID).find('tbody').append("<tr> <td>"+this.bid[i].quantity+"</td> <td>"+this.bid[i].price+"</td> <td></td> </tr>");
+      }
+    }
   }
 
   addOrderBookToHTML()

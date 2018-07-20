@@ -35,7 +35,7 @@ contract OrderBook is QuickSortOrder
         settlementTimestamp = _settlementTimestamp;
     }
     // In this case we consider than _clearingMemberAddress is equals to _MarketMemberAddress
-    function addBuyOrder(address _clearingMemberAddress, uint _quantity, uint _price) public onlyMarket returns(uint quantity, uint price)
+    function addBuyOrder(address _clearingMemberAddress, uint _quantity, uint _price) public onlyMarket
     {
         if (askOrders.length != 0)
         {
@@ -54,10 +54,6 @@ contract OrderBook is QuickSortOrder
                     {
                         //_marketContract.addSwapToCCP(_clearingMemberAddress, askOrders[i].clearingMemberAddress, instrumentID, Utils.uintToString(askOrders[i].quantity), Utils.uintPriceToString(askOrders[i].price), settlementTimestamp, market);
                     }
-
-                    _quantity = _quantity - askOrders[i].quantity;
-                    Utils.removeOrder(askOrders, i);
-                    i--;
                 }
                 else
                 {
@@ -69,16 +65,8 @@ contract OrderBook is QuickSortOrder
                     {
                         //_marketContract.addSwapToCCP(_clearingMemberAddress, askOrders[i].clearingMemberAddress, instrumentID, Utils.uintToString(_quantity), Utils.uintPriceToString(askOrders[i].price), settlementTimestamp, market);
                     }
-
-                    askOrders[i].quantity = askOrders[i].quantity - _quantity;
-                    _quantity = 0;
-
-                    if (askOrders[i].quantity == 0)
-                    {
-                      Utils.removeOrder(askOrders, i);
-                      i--;
-                    }
                 }
+                (i, _quantity) = removeAskFromOrderBook(i, _quantity);
                 i++;
             }
         }
@@ -86,12 +74,10 @@ contract OrderBook is QuickSortOrder
         if (_quantity > 0)
         {
           addBidToOrderBook(_clearingMemberAddress, _quantity, _price);
-          quantity = _quantity;
-          price = _price;
         }
     }
 
-    function addSellOrder(address _clearingMemberAddress, uint _quantity, uint _price) public onlyMarket returns(uint quantity, uint price)
+    function addSellOrder(address _clearingMemberAddress, uint _quantity, uint _price) public onlyMarket
     {
         if (bidOrders.length != 0)
         {
@@ -110,10 +96,6 @@ contract OrderBook is QuickSortOrder
                     {
                         //_marketContract.addSwapToCCP(bidOrders[i].clearingMemberAddress, _clearingMemberAddress, instrumentID, Utils.uintToString(bidOrders[i].quantity), Utils.uintPriceToString(bidOrders[i].price), settlementTimestamp, market);
                     }
-
-                    _quantity = _quantity - bidOrders[i].quantity;
-                    Utils.removeOrder(bidOrders, i);
-                    i--;
                 }
                 else
                 {
@@ -125,15 +107,8 @@ contract OrderBook is QuickSortOrder
                     {
                         //_marketContract.addSwapToCCP(bidOrders[i].clearingMemberAddress, _clearingMemberAddress, instrumentID, Utils.uintToString(_quantity), Utils.uintPriceToString(bidOrders[i].price), settlementTimestamp, market);
                     }
-                    bidOrders[i].quantity = bidOrders[i].quantity - _quantity;
-                    _quantity = 0;
-
-                    if (bidOrders[i].quantity == 0)
-                    {
-                      Utils.removeOrder(bidOrders, i);
-                      i--;
-                    }
                 }
+                (i, _quantity) = removeBidFromOrderBook(i, _quantity);
                 i++;
             }
         }
@@ -141,8 +116,6 @@ contract OrderBook is QuickSortOrder
         if (_quantity > 0)
         {
             addAskToOrderBook(_clearingMemberAddress, _quantity, _price);
-            quantity = _quantity;
-            price = _price;
         }
     }
 
@@ -150,12 +123,58 @@ contract OrderBook is QuickSortOrder
     {
         bidOrders.push(Utils.order(_clearingMemberAddress, _quantity, block.timestamp,  _price));
         orderDecreasing(bidOrders);
+        Market _marketContract = Market(marketAddress);
+        _marketContract.addOrderEvent(instrumentID, _quantity, _price, 1);
     }
 
     function addAskToOrderBook(address _clearingMemberAddress, uint _quantity, uint _price) internal
     {
         askOrders.push(Utils.order(_clearingMemberAddress, _quantity, block.timestamp,  _price));
         orderDecreasing(askOrders);
+        Market _marketContract = Market(marketAddress);
+        _marketContract.addOrderEvent(instrumentID, _quantity, _price, 0);
+    }
+
+    function removeAskFromOrderBook(uint i, uint quantity) returns (uint _i, uint _quantity)
+    {
+      Market _marketContract = Market(marketAddress);
+
+      if (_quantity >= askOrders[i].quantity)
+      {
+        quantity = quantity - askOrders[i].quantity;
+        _marketContract.removeOrderEvent(instrumentID, askOrders[i].quantity, askOrders[i].price, 0);
+        Utils.removeOrder(askOrders, i);
+        i--;
+      }
+      else if (_quantity < askOrders[i].quantity)
+      {
+        askOrders[i].quantity = askOrders[i].quantity - quantity;
+        _marketContract.removeOrderEvent(instrumentID, quantity, askOrders[i].price, 0);
+        quantity = 0;
+      }
+      _i = i;
+      _quantity = quantity;
+    }
+
+    function removeBidFromOrderBook(uint i, uint quantity) returns (uint _i, uint _quantity)
+    {
+      Market _marketContract = Market(marketAddress);
+
+      if (quantity >= bidOrders[i].quantity)
+      {
+        quantity = quantity - bidOrders[i].quantity;
+        _marketContract.removeOrderEvent(instrumentID, bidOrders[i].quantity, bidOrders[i].price, 1);
+        Utils.removeOrder(bidOrders, i);
+        i--;
+      }
+      else if (_quantity < bidOrders[i].quantity)
+      {
+        bidOrders[i].quantity = bidOrders[i].quantity - quantity;
+        _marketContract.removeOrderEvent(instrumentID, _quantity, bidOrders[i].price, 1);
+        quantity = 0;
+      }
+      _i = i;
+      _quantity = quantity;
     }
     function getInstrumentID() returns (string)
     {
