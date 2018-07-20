@@ -445,7 +445,9 @@ function createDialog(instrumentID, side)
 {
   if (side == "Buy")
   {
-    dialog.dialog({  title: side+" "+instrumentID }).dialog({buttons:
+    dialog.dialog({  title: side+" "+instrumentID }).dialog(
+      {
+        buttons:
       {
         Buy: function()
         {
