@@ -244,9 +244,9 @@
       {
         "baseContracts": [],
         "contractDependencies": [
+          943,
           2089,
-          2814,
-          943
+          2814
         ],
         "contractKind": "contract",
         "documentation": null,
@@ -7853,9 +7853,9 @@
       {
         "baseContracts": [],
         "contractDependencies": [
+          943,
           2089,
-          2814,
-          943
+          2814
         ],
         "contractKind": "contract",
         "documentation": null,
@@ -15402,5 +15402,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-07-19T14:28:25.351Z"
+  "updatedAt": "2018-07-20T07:38:40.620Z"
 }
