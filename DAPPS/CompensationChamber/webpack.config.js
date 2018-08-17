@@ -2,7 +2,12 @@ const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-  entry: ['./app/scripts/dialog.js','./app/scripts/orderBook.js','./app/scripts/market.js','./app/scripts/onWindowsLoad.js'],
+  entry: {
+    dialog: './app/scripts/dialog.js',
+    orderBook:'./app/scripts/orderBook.js',
+    market: './app/scripts/market.js',
+    onWindowsLoad: './app/scripts/onWindowsLoad.js',
+  },
   mode: 'production',
   output: {
     path: path.resolve(__dirname, 'build'),

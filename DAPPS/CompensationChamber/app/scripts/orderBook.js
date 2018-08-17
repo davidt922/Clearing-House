@@ -1,4 +1,4 @@
-class OrderBook
+export default class OrderBook
 {
   constructor (instrumentID)
   {
@@ -150,7 +150,7 @@ class OrderBook
 
   addOrderBookToHTML()
   {
-    $("#orderBooks").append("<div class='orderBook'></div>");
+    $("#orderBooks").append("<div class='orderBook' id='orderBook"+this.instrumentID+"'></div>");
     $("#orderBook"+this.instrumentID).append("<div>"+this.instrumentID.toUpperCase()+"</div>");
     $("#orderBook"+this.instrumentID).append("<div class='orders' id='orders"+this.instrumentID+"'></div>");
     $("#orderBook"+this.instrumentID).append("<div><button class='twoButtons' id='buy"+this.instrumentID+"'>BUY</button><button class='twoButtons' style='background:#ff0000;' id='sell"+this.instrumentID+"'>SELL</button></div>");
@@ -169,9 +169,10 @@ class OrderBook
   }
 
 }
+exports.OrderBook = OrderBook;
 
 
-function createDialog(instrumentID, side)
+window.createDialog = function(instrumentID, side)
 {
   dialog.dialog({title: side+" "+instrumentID}).dialog(
   {

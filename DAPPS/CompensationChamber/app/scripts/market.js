@@ -5,6 +5,8 @@ import "../styles/app.css";
 import { default as Web3} from 'web3';
 import { default as contract } from 'truffle-contract';
 import {BigNumber} from 'bignumber.js';
+import OrderBook from './orderBook.js';
+
 
 // Import our contract artifacts and turn them into usable abstractions.
 import market_artifacts from '../../build/contracts/Market.json';
@@ -85,9 +87,9 @@ window.App = {
     .then(function(value)
     {
       console.log(value);
-      alert(value.logs[0].args.addressID);
+      //alert(value.logs[0].args.addressID);
       var addressID = new BigNumber(value.logs[0].args.addressID).toNumber();
-
+      console.log(addressID);
       if (addressID == -1)
       {
         alert("This email is already registred");
@@ -115,15 +117,15 @@ login: function (_email, _password)
     })
     .then(function(value)
     {
-      var addressID = new BigNumber(value[0]).toNumber();
-      var name = value[1];
+      var errorCode = new BigNumber(value[2]).toNumber();
+      var address = value[1];
 
-      if (addressID == -1)
+      if (errorCode == -1)
       {
         alert("This email is not registred");
         return -1;
       }
-      else if (addressID == -2)
+      else if (errorCode == -2)
       {
         alert("The password is incorrect");
         return -1;
@@ -132,7 +134,7 @@ login: function (_email, _password)
       {
          $("#index").remove();
          $("#main").show();
-         account = accounts[addressID];
+         account = address;
          setMarket();
       }
     });
@@ -156,14 +158,15 @@ login: function (_email, _password)
   }
 };
 
-function setMarket()
+
+window.setMarket = function()
 {
   var _market;
   Market.deployed().then(function(instance)
   {
     // for testing
     _market = instance;
-    return _market.addNewDerivative("IUDERB3", "BOE", 0, 120003000,{from: account, gas: 39000000});
+    return _market.addNewDerivative("IUDERB3", marketToInteger("BOE"), 0, 120003000,{from: account, gas: 39000000});
   }).then(function(value)
   {
     return _market.getInstruments({from: account, gas: 39000000});
@@ -171,10 +174,10 @@ function setMarket()
   {
     var instrumentArray = value.logs;
     var _instrumentID;
-
+    console.log(instrumentArray);
     for (var k = 0; k < instrumentArray.length; k++)
     {
-      _instrumentID = instrumentArray[k].args.instrumentID;
+      _instrumentID = web3.toUtf8(instrumentArray[k].args._instrumentID);
       instruments[_instrumentID] = new OrderBook(_instrumentID);
     }
   }).then(function(value)
@@ -182,4 +185,21 @@ function setMarket()
     _market.getMarket({from: account, gas: 39000000});
   });
 
+}
+
+
+window.marketToInteger = function(marketString)
+{
+  if (marketString == "BOE")
+  {
+    return 0;
+  }
+  else if (marketString == "EUREX")
+  {
+    return 1;
+  }
+  else if (marketString == "CME")
+  {
+    return 2;
+  }
 }

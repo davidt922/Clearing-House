@@ -3,13 +3,13 @@ $('.message a').click(function()
    $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
 });
 
-function showLogin()
+window.showLogin = function()
 {
   $('.register-form').hide();
   $('.login-form').show();
 }
 
-function showRegister()
+window.showRegister = function()
 {
   $('.register-form').show();
   $('.login-form').hide();
