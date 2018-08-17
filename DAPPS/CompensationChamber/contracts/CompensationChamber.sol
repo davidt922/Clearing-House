@@ -4,7 +4,7 @@ import "./Market.sol";
 import "./Utils.sol";
 import "./MarketData.sol";
 import "./Future.sol";
-//import "./Settlement.sol";
+import "./Settlement.sol";
 import "./DailyAutoExecution.sol";
 import "./PaymentRequest.sol";
 
@@ -39,7 +39,7 @@ contract CompensationChamber
      marketAddress = msg.sender;
      marketDataAddress = (new MarketData).value(3 ether)();
      numberOfClearingMembers = 0;
-     // settlementAddress = new Settlement(msg.sender);
+     settlementAddress = new Settlement(msg.sender);
    }
 
    function addClearingMember (bytes32 _name, bytes32 _email, bytes32 _password) onlyMarket public returns(int16 addressID)

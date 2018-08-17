@@ -26,9 +26,9 @@ contract Market
 
   constructor(uint timeStampNextVMRevision) public payable
   {
-    // require (msg.value >= 15 ether);
+    require (msg.value >= 15 ether);
     owner = msg.sender;
-    //compensationChamberAddress = (new CompensationChamber).value(12 ether)(timestampUntilNextVMRevision);
+    compensationChamberAddress = (new CompensationChamber).value(12 ether)(timeStampNextVMRevision);
   }
 
   event logAddressID(int16 addressID);
@@ -52,12 +52,12 @@ contract Market
     logPaymentRequest(_paymentRequestAddress, _value, _clearingMemberAddress);
   }
 
-  event logPaymentrequestState(bool _paymentRequestState);
+  event logPaymentRequestState(bool _paymentRequestState);
   function payPaymentRequest(address _paymentRequestAddress) public payable
   {
     PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
     bool _result = _paymentRequestContract.pay.value(msg.value)();
-    logPaymentrequestState(_result);
+    logPaymentRequestState(_result);
   }
   // _instrumentType 0 = future, 1 = swap
   function addNewDerivative (bytes32 _instrumentID, Utils.market _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public payable
