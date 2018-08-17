@@ -550,7 +550,7 @@ contract usingOraclize {
         return address(iaddr);
     }
 
-    function strCompare(string _a, string _b) internal pure returns (int) {
+    function strCompare(string _a, string _b) internal pure returns (int16) {
         bytes memory a = bytes(_a);
         bytes memory b = bytes(_b);
         uint minLength = a.length;
@@ -568,7 +568,7 @@ contract usingOraclize {
             return 0;
     }
 
-    function indexOf(string _haystack, string _needle) internal pure returns (int) {
+    function indexOf(string _haystack, string _needle) internal pure returns (int16) {
         bytes memory h = bytes(_haystack);
         bytes memory n = bytes(_needle);
         if(h.length < 1 || n.length < 1 || (n.length > h.length))
@@ -588,7 +588,7 @@ contract usingOraclize {
                         subindex++;
                     }
                     if(subindex == n.length)
-                        return int(i);
+                        return int16(i);
                 }
             }
             return -1;

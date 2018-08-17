@@ -1,196 +1,143 @@
-pragma experimental ABIEncoderV2;
-
-import "./strings.sol";
+pragma solidity ^0.4.24;
 
 import "./Utils.sol";
-import "./OrderBook.sol";
 import "./CompensationChamber.sol";
 import "./PaymentRequest.sol";
-
+import "./OrderBook.sol";
 contract Market
 {
-    address compensationChamberAddress;
-    address owner;
+  address compensationChamberAddress;
+  address owner;
 
-    mapping (string => address) mapInstrumentIdToOrderBookAddress;
-    string[] availableInstrumentIDs;
+  mapping (bytes32 => address) mapInstrumentIdToOrderBookAddress;
+  bytes32[] instrumentID;
 
-    modifier onlyCCP()
+  modifier onlyCCP()
+  {
+    require (msg.sender == compensationChamberAddress);
+    _;
+  }
+
+  modifier onlyOwner()
+  {
+      require (msg.sender == owner);
+      _;
+  }
+
+  constructor(uint timeStampNextVMRevision) public payable
+  {
+    // require (msg.value >= 15 ether);
+    owner = msg.sender;
+    //compensationChamberAddress = (new CompensationChamber).value(12 ether)(timestampUntilNextVMRevision);
+  }
+
+  event logAddressID(int16 addressID);
+  function addClearingMember (bytes32 _name, bytes32 _email, bytes32 _password)
+  {
+     CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    int16 addressID = _compensationChamber.addClearingMember(_name, _email, _password);
+    logAddressID(addressID);
+  }
+
+  function confirmClearingMemberAddress(bytes32 _email)
+  {
+    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    _compensationChamber.confirmClearingMemberAddress(_email);
+  }
+
+  event logPaymentRequest(address paymentRequestAddress, uint value, address clearingMemberAddress);
+
+  function paymentRequest(address _paymentRequestAddress, uint _value, address _clearingMemberAddress) public onlyCCP
+  {
+    logPaymentRequest(_paymentRequestAddress, _value, _clearingMemberAddress);
+  }
+
+  event logPaymentrequestState(bool _paymentRequestState);
+  function payPaymentRequest(address _paymentRequestAddress) public payable
+  {
+    PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
+    bool _result = _paymentRequestContract.pay.value(msg.value)();
+    logPaymentrequestState(_result);
+  }
+  // _instrumentType 0 = future, 1 = swap
+  function addNewDerivative (bytes32 _instrumentID, Utils.market _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public payable
+  {
+    if (mapInstrumentIdToOrderBookAddress[_instrumentID] == 0)
     {
-        require (msg.sender == compensationChamberAddress);
-        _;
+      mapInstrumentIdToOrderBookAddress[_instrumentID] = new OrderBook(_instrumentID, _market, _instrumentType, _settlementTimestamp);
+      instrumentID.push(_instrumentID);
     }
+  }
 
-    modifier onlyOwner()
+  function addFutureToCCP (address _longClearingMemberAddress, address _shortClearingMemberAddress, bytes32 _instrumentID, bytes32 _amount, bytes32 _price, uint _settlementTimestamp, Utils.market _market) public
+  {
+    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    _compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
+  }
+
+  function addOrder (bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side) // side 0 = buy, 1 = sell
+  {
+    address _orderBookAddress = mapInstrumentIdToOrderBookAddress[_instrumentID];
+
+    if (_orderBookAddress != 0)
     {
-        require (msg.sender == owner);
-        _;
-    }
+      OrderBook _orderBook = OrderBook(_orderBookAddress);
 
-    event logRegInfo(string getString);
-    event logString(string getString);
-
-    event logAddressID(int addressID);
-
-    event logBytes32(bytes32 getBytes32);
-
-    // side: bid-buy = 1, sell-ask = 0
-    event logMarketOrder(string instrumentID, uint quantity, uint price, uint side, uint orderType);
-
-    event logInstruments(string instrumentID);
-
-    function Market(uint timestampUntilNextVMRevision) public payable
-    {
-        require (msg.value >= 15 ether);
-
-        owner = msg.sender;
-        compensationChamberAddress = (new CompensationChamber).value(12 ether)(timestampUntilNextVMRevision);
-    }
-
-    function addClearingMember(string _name, string _email, string _password)
-    {
-       //Start for test
-      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-      int addressID = _compensationChamber.addClearingMember(_name, _email, msg.sender, _password);
-
-      if (addressID == -1)
+      if (_side == Utils.side.buy) // BUY
       {
-          logRegInfo("This email is alredy register");
+        _orderBook.addBuyOrder(_quantity, _price);
       }
-      else
+      else if (_side == Utils.side.sell)
       {
-          logRegInfo("Registration done!");
-      }
-      logAddressID(addressID);
-      // End for test
-    }
-
-    function confirmClearingMemberAddress(string email)
-    {
-      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-      _compensationChamber.confirmClearingMember(msg.sender, email);
-    }
-
-    event logPaymentRequestAddress(address paymentRequestAddress, uint value, address clearingMemberAddress);
-
-    function paymentRequest(address _paymentRequestAddress, uint _value, address _clearingMemberAddress) public onlyCCP
-    {
-        logPaymentRequestAddress(_paymentRequestAddress, _value, _clearingMemberAddress);
-    }
-
-    function payPaymentRequest(address _paymentRequestAddress) public payable
-    {
-        PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
-
-        require (_paymentRequestContract.getValue() <= msg.value);
-        bool result = _paymentRequestContract.pay.value(msg.value)();
-
-        if (result == true)
-        {
-            string memory _result = Utils.strConcat("Payment request ", Utils.addressToString(_paymentRequestAddress), "Payed successfully");
-            logString(_result);
-        }
-    }
-
-    function addNewDerivative (string _instrumentID, string _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public /*onlyOwner*/ payable
-    {
-      if (mapInstrumentIdToOrderBookAddress[_instrumentID] == 0)
-      {
-        mapInstrumentIdToOrderBookAddress[_instrumentID] = new OrderBook(_instrumentID, _market, _instrumentType, _settlementTimestamp);
-        availableInstrumentIDs.push(_instrumentID);
+        _orderBook.addSellOrder(_quantity, _price);
       }
     }
+  }
 
-    function addFutureToCCP(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string  _market) public
+  function signIn(bytes32 _email, bytes32 _password) public returns (bytes32 name, address memberAddress, int8 errorCode)
+  {
+    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    (name, memberAddress, errorCode) = _compensationChamber.checkSignInEmailAndPassword(_email, _password);
+  }
+
+  event logInstrumentID(bytes32 _instrumentID);
+
+  function getInstruments() public
+  {
+    for (uint i = 0; i < instrumentID.length; i++)
     {
-      logString("ADDED TO MARKET");
-      logPaymentRequestAddress(0x0, 20, 0x0);
-        CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-        _compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
+      emit logInstrumentID(instrumentID[i]);
     }
+  }
 
-    function addOrder(string _instrumentID, uint _quantity, uint _price, string _type) public payable
+  event logMarketOrder(bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side, Utils.orderType _orderType); // orderType 0 = add, 1 = remove
+  function OrderEvent(bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side, Utils.orderType _orderType)
+  {
+    emit logMarketOrder(_instrumentID, _quantity, _price, _side, _orderType);
+  }
+
+  function getMarket() public
+  {
+    uint j;
+    for (uint i = 0; i < instrumentID.length; i++)
     {
-        require (this.balance >= 1 ether);
-        address _orderBookAddress = mapInstrumentIdToOrderBookAddress[_instrumentID];
-
-        if (_orderBookAddress != 0)
-        {
-            OrderBook _orderBook = OrderBook(_orderBookAddress);
-            uint quantity;
-            uint price;
-
-            if (Utils.compareStrings(_type, "BUY"))
-            {
-                _orderBook.addBuyOrder(msg.sender, _quantity, _price);
-            }
-            else if (Utils.compareStrings(_type, "SELL"))
-            {
-                _orderBook.addSellOrder(msg.sender, _quantity, _price);
-            }
-        }
-    }
-
-    function signIn(string _email, string _password) public returns (int addressID, string name, address compensationMemberAddress)
-    {
-      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-      var( _addressID, _name, _compensationMemberAddress )=_compensationChamber.checkSignInEmailAndPassword(_email, _password);
-
-      addressID = _addressID;
-      name = _name;
-      compensationMemberAddress = _compensationMemberAddress;
-    }
-
-    mapping(uint => string) sideMap;
-
-    function getInstruments() public
-    {
-      for (uint i = 0; i < availableInstrumentIDs.length; i++)
-      {
-        emit logInstruments(availableInstrumentIDs[i]);
-      }
-    }
-
-    function addOrderEvent(string _instrumentID, uint _quantity, uint _price, uint _side)
-    {
-      emit logMarketOrder(_instrumentID, _quantity, _price, _side, 1);
-    }
-
-    function removeOrderEvent(string _instrumentID, uint _quantity, uint _price, uint _side)
-    {
-      emit logMarketOrder(_instrumentID, _quantity, _price, _side, 0);
-    }
-
-    function getMarket() public
-    {
-      for (uint i = 0; i < availableInstrumentIDs.length; i++)
-      {
-        address _orderBookAddress = mapInstrumentIdToOrderBookAddress[availableInstrumentIDs[i]];
+      address _orderBookAddress = mapInstrumentIdToOrderBookAddress[instrumentID[i]];
         OrderBook _orderBook = OrderBook(_orderBookAddress);
+      uint askLength = _orderBook.getAskOrdersLength();
 
-        string memory _instrumentID = _orderBook.getInstrumentID();
-
-        uint askLength = _orderBook.getAskOrdersLength();
-
-
-        Utils.marketOrder memory _marketOrder ;
-        uint j;
-
-        for (j = 0; j < askLength; j++)
-        {
-          _marketOrder = _orderBook.getAskOrders(j);
-          emit logMarketOrder(_instrumentID, _marketOrder.quantity, _marketOrder.price, 0, 1);
-        }
-
-        uint bidLength = _orderBook.getBidOrdersLength();
-
-        for (j = 0; j < bidLength; j++)
-        {
-          _marketOrder = _orderBook.getBidOrders(j);
-          emit logMarketOrder(_instrumentID, _marketOrder.quantity, _marketOrder.price, 1, 1);
-        }
-
+      uint16 _quantity;
+      uint16 _price;
+      for (j = 0; j < askLength; j++)
+      {
+        (_quantity, _price) = _orderBook.getAskOrders(j);
+        emit logMarketOrder(instrumentID[i], _quantity, _price, Utils.side.sell, Utils.orderType.add);
+      }
+      uint bidLength = _orderBook.getBidOrdersLength();
+      for (j = 0; j < bidLength; j++)
+      {
+        (_quantity, _price) = _orderBook.getBidOrders(j);
+        emit logMarketOrder(instrumentID[i], _quantity, _price, Utils.side.buy, Utils.orderType.add);
       }
     }
-
+  }
 }

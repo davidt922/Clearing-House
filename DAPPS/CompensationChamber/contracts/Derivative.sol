@@ -1,7 +1,5 @@
 pragma experimental ABIEncoderV2;
 
-import "./strings.sol";
-
 import "./Utils.sol";
 
 /**
@@ -10,85 +8,59 @@ import "./Utils.sol";
  * example (note that the function declaration header is terminated by ;):
  */
 
-contract Derivative
-{
-    string instrumentID;
-    string market;
+ contract Derivative
+ {
+   bytes32 instrumentID;
+   Utils.market market;
 
-    address marketDataAddress;
-    address compensationChamberAddress;
+   address marketDataAddress;
+   address compensationChamberAddress;
 
-    uint tradeTimestamp;
-    uint settlementTimestamp;
+   uint settlementTimeStamp;
+   uint novationTimeStamp;
 
-    string price;
+   bytes32 price;
 
-    // initialMargin store the PaymentRequest address of the initial margin for both counterparts
-    mapping (address => address) initialMargin;
+   // initialMargin store the initial margin payment value of each counterpart
+   mapping (address => uint) initialMargin;
+   /**
+   * Modifiers
+   */
 
-    // variationMargin store the last PaymentRequest address of the variation margin for both counterparts
-    // It is only stored the las one becaus if one counterpart don't each variation margin before the deadline the contract finishes
+   modifier onlyMarketData
+   {
+      require(msg.sender == marketDataAddress);
+      _;
+   }
 
-    mapping (address => address) variationMargin;
-    // in this map it sores the accumulated variation margin that each counterpart have payed in the contract
-    mapping(address => uint) accumulatedVariationMargin;
+   modifier onlyChamber
+   {
+      require(msg.sender == compensationChamberAddress);
+      _;
+   }
 
-    /**
-    * Modifiers
-    */
+  constructor (bytes32 _instrumentID, uint _settlementTimestamp, address _marketDataAddress, Utils.market _market, bytes32 _price) public
+  {
+        instrumentID = _instrumentID;
+        market = _market;
 
-    modifier onlyMarketData
-    {
-       require(msg.sender == marketDataAddress);
-       _;
-    }
+        marketDataAddress = _marketDataAddress;
+        compensationChamberAddress = msg.sender;
+        price = _price;
 
-    modifier onlyChamber
-    {
-       require(msg.sender == compensationChamberAddress);
-       _;
-    }
+        settlementTimeStamp = _settlementTimestamp;
+        novationTimeStamp = block.timestamp;
+  }
 
-    /**
-    * Constructor
-    */
-    function Derivative(string _instrumentID, uint _settlementTimestamp, address _marketDataAddress, string _market, string _price) public
-    {
-       instrumentID = _instrumentID;
-       market = _market;
+  function getTheContractCounterparts() public returns(address[2]);
+  function setIM(string result) onlyMarketData public;
+  function computeVM() public onlyChamber returns (Utils.variationMarginChange[2]);
 
-       marketDataAddress = _marketDataAddress;
-       compensationChamberAddress = msg.sender;
-       price = _price;
+  function initialMarginPayment (address memberAddress) payable
+  {
+    initialMargin[memberAddress] == msg.value;
+  }
 
-       settlementTimestamp = _settlementTimestamp;
-       tradeTimestamp = block.timestamp;
-    }
+  function settlement() onlyChamber public;
 
-    function getTheContractCounterparts() public returns(address[2]);
-
-    function getInitialMarginPaymentRequestAddress(address _clearingMemberAddress) public view returns(address)
-    {
-       address initialMarginParmentRequestAddress = initialMargin[_clearingMemberAddress];
-
-       if (initialMarginParmentRequestAddress != 0)
-       {
-           return initialMarginParmentRequestAddress;
-       }
-    }
-
-    function getVariationMarginPaymentRequestAddress(address _clearingMemberAddress) public view returns(address)
-    {
-       address initialMarginParmentRequestAddress = initialMargin[_clearingMemberAddress];
-
-       if (initialMarginParmentRequestAddress != 0)
-       {
-           return initialMarginParmentRequestAddress;
-       }
-    }
-
-    function setIM(string result);
-
-    function computeVM() public /*onlyChamber*/ returns (Utils.variationMarginChange[2]);
-
-}
+ }

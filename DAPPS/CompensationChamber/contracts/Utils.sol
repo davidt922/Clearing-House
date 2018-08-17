@@ -12,14 +12,14 @@ library Utils
     struct order
     {
         address clearingMemberAddress;
-        uint quantity;
+        uint16 quantity;
         uint timestamp;
-        uint price; // the las 3 numbers of the integer represents the decimals, so 3000 equals to 3.
+        uint16 price; // the las 3 numbers of the integer represents the decimals, so 3000 equals to 3.
     }
     struct marketOrder
     {
-      uint quantity;
-      uint price;
+      uint16 quantity;
+      uint16 price;
     }
 
     enum instrumentType
@@ -34,6 +34,25 @@ library Utils
         variationMargin
     }
 
+    enum side
+    {
+      buy,
+      sell
+    }
+
+    enum orderType
+    {
+      add,
+      remove
+    }
+
+
+    enum market
+    {
+      BOE,
+      EUREX,
+      CME
+    }
     struct variationMarginChange
     {
         address clearingMemberAddress;
@@ -42,11 +61,11 @@ library Utils
 
     struct clearingMember
     {
-      string name;
-      string email;
+      bytes32 name;
+      bytes32 email;
       address clearingMemberAddress;
-      string password;
-      int addressID;
+      bytes32 password;
+      int16 addressID;
     }
 
     // Convert from bytes32 to String
@@ -203,6 +222,42 @@ library Utils
     }
 
     // Convert Uint to bytes32
+  /*  function uintToBytes(uint v) internal pure returns (bytes32 ret)
+    {
+        if (v == 0)
+        {
+            ret = '0';
+        }
+        else
+        {
+            while (v > 0)
+            {
+                ret = bytes32(uint(ret) / (2 ** 8));
+                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+                v /= 10;
+            }
+        }
+        return ret;
+    }*/
+    // Convert Uint to bytes32
+    function uint16ToBytes(uint16 v) internal pure returns (bytes32 ret)
+    {
+        if (v == 0)
+        {
+            ret = '0';
+        }
+        else
+        {
+            while (v > 0)
+            {
+                ret = bytes32(uint(ret) / (2 ** 8));
+                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+                v /= 10;
+            }
+        }
+        return ret;
+    }
+        // Convert Uint to bytes32
     function uintToBytes(uint v) internal pure returns (bytes32 ret)
     {
         if (v == 0)
@@ -222,18 +277,18 @@ library Utils
     }
 
     // convert 123332 to 123.321
-    function uintPriceToString(uint price) internal pure returns(string)
+    function uint16PriceToBytes32(uint16 price) internal pure returns(bytes32)
     {
-        uint _int = uint(price/1000);
-        uint _v = _int * 1000;
-        uint _dec = price - _v;
+        uint16 _int = uint16(price/1000);
+        uint16 _v = _int * 1000;
+        uint16 _dec = price - _v;
 
-        bytes32 _intBytes32 = uintToBytes(_int);
-        bytes32 _decBytes32 = uintToBytes(_dec);
+        bytes32 _intBytes32 = uint16ToBytes(_int);
+        bytes32 _decBytes32 = uint16ToBytes(_dec);
         string memory _intString = bytes32ToString(_intBytes32);
         string memory _decString = bytes32ToString(_decBytes32);
 
-        return strConcat(_intString,".",_decString);
+        return stringToBytes32(strConcat(_intString,".",_decString));
     }
 
     function uintToString(uint value) internal pure returns(string)
@@ -243,6 +298,7 @@ library Utils
 
         return _valueString;
     }
+
 
     function removeOrder(order[] storage array, uint index) internal
     {

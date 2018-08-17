@@ -4,7 +4,6 @@ import "./Utils.sol";
 
 contract QuickSortOrder
 {
-    event sortDone(string a);
 
   function orderIncreasing(Utils.order[] storage arr) internal
   {

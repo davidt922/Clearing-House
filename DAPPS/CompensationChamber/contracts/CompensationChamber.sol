@@ -2,203 +2,165 @@ pragma experimental ABIEncoderV2;
 
 import "./Market.sol";
 import "./Utils.sol";
+import "./MarketData.sol";
 import "./Future.sol";
-import "./VariationMarginAutoExecution.sol";
+//import "./Settlement.sol";
+import "./DailyAutoExecution.sol";
+import "./PaymentRequest.sol";
 
 contract CompensationChamber
 {
-    address private marketAddress;
-    address private marketDataAddress;
-    address private settlementAddress;
+  address private marketAddress;
+  address private marketDataAddress;
+  address private settlementAddress;
 
-    mapping (address => bool) isAClearingMember;
-    mapping (string => bool) emailIsRegistred;
-    mapping (string => Utils.clearingMember) mapEmailToClearingMemberStruct;
-    address[] clearingMembersAddresses;
-    Utils.clearingMember[] clearingMembers;
+  mapping (address => bool) isAClearingMember;
+  mapping (bytes32 => bool) emailIsRegistred;
+  mapping (bytes32 => Utils.clearingMember) mapEmailToClearingMemberStruct;
+  address[] clearingMemberAddresses;
 
-    address[] payments;
-    address[] derivatives;
+  address[] payments;
+  address[] derivatives;
 
-    int numberOfClearingMembers;
+  int16 numberOfClearingMembers;
 
-    /**
-     * Modifiers
-     */
+  /**
+   * Modifiers
+   */
 
-    modifier onlyMarket
-    {
-        require (msg.sender == marketAddress);
-        _;
-    }
+   modifier onlyMarket
+   {
+     require (msg.sender == marketAddress);
+     _;
+   }
 
-    modifier onlySettlement
-    {
-        require (msg.sender == settlementAddress);
-        _;
-    }
+   constructor (uint timeStampUntilNextAutoExecution) public payable
+   {
+     marketAddress = msg.sender;
+     marketDataAddress = (new MarketData).value(3 ether)();
+     numberOfClearingMembers = 0;
+     // settlementAddress = new Settlement(msg.sender);
+   }
 
-    modifier onlyMarketData
-    {
-        require (msg.sender == marketDataAddress);
-        _;
-    }
+   function addClearingMember (bytes32 _name, bytes32 _email, bytes32 _password) onlyMarket public returns(int16 addressID)
+   {
+     if (emailIsRegistred[_email] == true)
+     {
+       return -1;
+     }
+     else
+     {
+       numberOfClearingMembers = numberOfClearingMembers + 1;
 
-    modifier onlyVMOrMarket
-    {
-        require (msg.sender == marketAddress/* || msg.sender == */);
-        _;
-    }
+       emailIsRegistred[_email] = true;
+       Utils.clearingMember memory _clearingMemberStruct = Utils.clearingMember(_name, _email, 0x0, _password, addressID);
+       mapEmailToClearingMemberStruct[_email] = _clearingMemberStruct;
 
-    function CompensationChamber(uint timestampUntilNextVMrevision) public payable
-    {
-        marketAddress = msg.sender;
-        marketDataAddress = (new MarketData).value(3 ether)();
-        numberOfClearingMembers = 0;
-        //uint timeUntilFirstVMRevisionInSeconds = timestampUntilNextVMrevision - block.timestamp;
-    }
+       return numberOfClearingMembers;
+     }
+   }
 
-    function addClearingMember(string _name, string _email, address _clearingMemberAddress, string _password) onlyMarket public returns(int)
-    {
-
-        if (emailIsRegistred[_email] == true)
-        {
-          return -1;
-        }
-        else
-        {
-          numberOfClearingMembers++;
-          int addressID = numberOfClearingMembers;
-
-          isAClearingMember[_clearingMemberAddress] = true;
-          emailIsRegistred[_email] = true;
-          Utils.clearingMember memory _clearingMemberStruct = Utils.clearingMember(_name, _email, 0x0, _password, addressID);
-          mapEmailToClearingMemberStruct[_email] = _clearingMemberStruct;
-          clearingMembers.push(_clearingMemberStruct);
-          clearingMembersAddresses.push(_clearingMemberAddress);
-
-          return addressID;
-        }
-    }
-
-    function confirmClearingMember(address _clearingMemberAddress, string _email)
-    {
-      if (isAClearingMember[_clearingMemberAddress] != true)
+   function confirmClearingMemberAddress (bytes32 _email) onlyMarket public
+   {
+     if (isAClearingMember[tx.origin] != true)
       {
-        isAClearingMember[_clearingMemberAddress] = true;
-        mapEmailToClearingMemberStruct[_email].clearingMemberAddress = _clearingMemberAddress;
+        isAClearingMember[tx.origin] = true;
+        mapEmailToClearingMemberStruct[_email].clearingMemberAddress = tx.origin;
+        clearingMemberAddresses.push(tx.origin);
       }
-    }
+   }
 
-    function checkSignInEmailAndPassword(string _email, string _password) onlyMarket public returns(int addressID, string name, address clearingMemberAddress)
-    {
-      if (emailIsRegistred[_email] != true)
-      {
-        addressID = -1;
-        name = "";
-        clearingMemberAddress = 0x0;
-      }
-      else if (Utils.compareStrings(mapEmailToClearingMemberStruct[_email].password, _password))
-      {
-        addressID = mapEmailToClearingMemberStruct[_email].addressID;
-        name = mapEmailToClearingMemberStruct[_email].name;
-        clearingMemberAddress = mapEmailToClearingMemberStruct[_email].clearingMemberAddress;
-      }
-      else
-      {
-        addressID = -2;
-        name = "";
-        clearingMemberAddress = 0x0;
-      }
-    }
+   function checkSignInEmailAndPassword (bytes32 _email, bytes32 _password) onlyMarket public returns (bytes32 name, address memberAddress, int8 errorCode)
+   {
+     if (emailIsRegistred[_email] != true)
+     {
+       errorCode = -1;
+     }
+     else if (_password == mapEmailToClearingMemberStruct[_email].password)
+     {
+       name = mapEmailToClearingMemberStruct[_email].name;
+       memberAddress = mapEmailToClearingMemberStruct[_email].clearingMemberAddress;
+       errorCode = 0;
+     }
+     else
+     {
+       errorCode = -2;
+     }
+   }
 
-    function futureNovation(address _longClearingMemberAddress, address _shortClearingMemberAddress, string _instrumentID, string _amount, string _price, uint _settlementTimestamp, string _market) public onlyMarket payable
-    {
-        bool _longClearingMemberAddressExist = isAClearingMember[_longClearingMemberAddress];
-        bool _shortClearingMemberAddressExist = isAClearingMember[_shortClearingMemberAddress];
+   function futureNovation (address _longClearingMemberAddress, address _shortClearingMemberAddress, bytes32 _instrumentID, bytes32 _amount, bytes32 _price, uint _settlementTimestamp, Utils.market _market) onlyMarket public payable
+   {
+      bool _longClearingMemberAddressExist = isAClearingMember[_longClearingMemberAddress];
+      bool _shortClearingMemberAddressExist = isAClearingMember[_shortClearingMemberAddress];
+      require(_longClearingMemberAddressExist == true && _shortClearingMemberAddressExist == true && msg.value >= 1 ether);
 
-        require(_longClearingMemberAddressExist == true && _shortClearingMemberAddressExist == true && msg.value >= 1 ether);
+      derivatives.push((new Future).value(msg.value)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, marketDataAddress, _market));
+   }
 
-        derivatives.push((new Future).value(msg.value)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, marketDataAddress, _market));
-    }
+   function paymentRequest(uint _value, address _clearingMemberAddress) public
+   {
+     payments.push(msg.sender);
+     Market _marketContract = Market(marketAddress);
+     _marketContract.paymentRequest(msg.sender, _value, _clearingMemberAddress);
+   }
 
-    //function swapNovation(address _fixedLegClearingMemberAddress, address _floatingLegClearingMemberAddress, string _instrumentID, string _nominal, uint _settlementTimestamp, string _market) public payable
-
-    function getMarketAddress() public view returns(address)
-    {
-        return marketAddress;
-    }
-
-    function paymentRequest(uint _value, address _clearingMemberAddress) public
-    {
-        payments.push(msg.sender);
-        Market _marketContract = Market(marketAddress);
-        _marketContract.paymentRequest(msg.sender, _value, _clearingMemberAddress);
-    }
-
-
-    // Compute
     uint counter;
-    mapping (address => uint) mapAddressToTotalVM;
-
-    function computeVariationMargin() /*onlyVMOrMarket*/ public
-    {
-        counter = derivatives.length * 2;
-        Utils.variationMarginChange[2] memory varMarginChangeArray;
-
-        for (uint i = 0; i < derivatives.length; i++)
-        {
-            Derivative _derivative = Derivative(derivatives[i]);
-            varMarginChangeArray = _derivative.computeVM();
-
-            variationMargin(varMarginChangeArray[0]);
-            variationMargin(varMarginChangeArray[1]);
-        }
-    }
 
     mapping (address => int) mapAddressToVMValue;
 
-    function variationMargin(Utils.variationMarginChange _VMStruct) private
+    function computeVariationMargin() public
     {
-        counter = counter - 1;
+      counter = derivatives.length * 2;
+      Utils.variationMarginChange[2] memory varMarginChangeArray;
 
-        mapAddressToVMValue[_VMStruct.clearingMemberAddress] = mapAddressToVMValue[_VMStruct.clearingMemberAddress] + _VMStruct.value;
+      for (uint i = 0; i < derivatives.length; i++)
+      {
+        Derivative _derivative = Derivative(derivatives[i]);
+        varMarginChangeArray = _derivative.computeVM();
 
-        if (counter == 0)
-        {
-            sendPaymentRequestOrSendPayment();
-            removeMapAddressToVMValue();
-        }
+        variationMargin(varMarginChangeArray[0]);
+        variationMargin(varMarginChangeArray[1]);
+      }
+    }
+
+    function variationMargin (Utils.variationMarginChange _VMStruct) private
+    {
+      counter = counter - 1;
+      mapAddressToVMValue[_VMStruct.clearingMemberAddress] = mapAddressToVMValue[_VMStruct.clearingMemberAddress] + _VMStruct.value;
+
+      if (counter == 0)
+      {
+        sendPaymentRequestOrSendPayment();
+        clearMapAddressToVMValue();
+      }
     }
 
     function sendPaymentRequestOrSendPayment() private
     {
-        int value;
-        address clearingMemberAddress;
+      int value;
+      address clearingMemberAddress;
 
-        address paymentRequestAddress;
+      for (uint i = 0; i < clearingMemberAddresses.length; i++)
+      {
+        clearingMemberAddress = clearingMemberAddresses[i];
+        value = mapAddressToVMValue[clearingMemberAddress];
 
-        for (uint i = 0; i < clearingMembersAddresses.length; i++)
+        if (value > 0)
         {
-            clearingMemberAddress = clearingMembersAddresses[i];
-            value = mapAddressToVMValue[clearingMemberAddress];
-
-            if (value > 0)
-            {
-                paymentRequestAddress = new PaymentRequest( uint(value), clearingMemberAddress, this, 1);
-            }
-            else if (value < 0)
-            {
-                clearingMemberAddress.transfer( uint(value/-1));
-            }
+          payments.push(new PaymentRequest(uint(value), clearingMemberAddress, this, Utils.paymentType.variationMargin));
         }
+        else if (value < 0)
+        {
+          clearingMemberAddress.transfer( uint(value/-1));
+        }
+      }
     }
 
-    function removeMapAddressToVMValue() private
+    function clearMapAddressToVMValue() private
     {
-        for (uint i = 0; i < clearingMembersAddresses.length; i++)
-        {
-            mapAddressToVMValue[clearingMembersAddresses[i]] = 0;
-        }
+      for (uint i = 0; i < clearingMemberAddresses.length; i++)
+      {
+          mapAddressToVMValue[clearingMemberAddresses[i]] = 0;
+      }
     }
 }

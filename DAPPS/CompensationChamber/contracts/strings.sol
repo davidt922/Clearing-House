@@ -195,7 +195,7 @@ library strings {
      * @param other The second slice to compare.
      * @return The result of the comparison.
      */
-    function compare(slice self, slice other) internal pure returns (int) {
+    function compare(slice self, slice other) internal pure returns (int16) {
         uint shortest = self._len;
         if (other._len < self._len)
             shortest = other._len;
@@ -217,12 +217,12 @@ library strings {
                 }
                 uint256 diff = (a & mask) - (b & mask);
                 if (diff != 0)
-                    return int(diff);
+                    return int16(diff);
             }
             selfptr += 32;
             otherptr += 32;
         }
-        return int(self._len) - int(other._len);
+        return int16(self._len) - int16(other._len);
     }
 
     /*
