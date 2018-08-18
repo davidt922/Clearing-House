@@ -44,7 +44,7 @@ window.App = {
       }
 
       accounts = accs;
-      account = accounts[0];
+      account = accounts[1];
     });
 
 
@@ -58,6 +58,7 @@ window.App = {
       {
         if(!error)
         {
+            console.log("TEST");
           console.log(result);
         }
       });
@@ -66,9 +67,12 @@ window.App = {
 
       marketOrderEvent.watch(function(error, result)
       {
-        if (!error)
+        if (!error && instruments[web3.toUtf8(result.args.instrumentID)] != null)
         {
-          instruments[web3.toUtf8(result.args.instrumentID)].order(result);
+          if (IntToPrice(result.args.price) != 0)
+          {
+              instruments[web3.toUtf8(result.args.instrumentID)].order(result);
+          }
         }
       });
     });
@@ -166,15 +170,17 @@ window.setMarket = function()
   {
     // for testing
     _market = instance;
+    console.log("1");
     return _market.addNewDerivative("IUDERB3", marketToInteger("BOE"), 0, 120003000,{from: account, gas: 39000000});
   }).then(function(value)
   {
+    console.log("2");
     return _market.getInstruments({from: account, gas: 39000000});
   }).then(function(value)
   {
     var instrumentArray = value.logs;
     var _instrumentID;
-    console.log(instrumentArray);
+    console.log("instrumentArray");
     for (var k = 0; k < instrumentArray.length; k++)
     {
       _instrumentID = web3.toUtf8(instrumentArray[k].args._instrumentID);
