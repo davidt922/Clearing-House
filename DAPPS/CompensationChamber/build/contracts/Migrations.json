@@ -1392,8 +1392,14 @@
       "links": {},
       "address": "0x5d361736025ae6f61341ba91e0824cbe12512897",
       "transactionHash": "0xa82decbc5e472528d1860236fb72e50deef4fa7568b479115ee37ff958238133"
+    },
+    "1534593492417": {
+      "events": {},
+      "links": {},
+      "address": "0xf82ccba4abf9c9799bac69f136c9c93bb313f6bd",
+      "transactionHash": "0xf021d8f82434f032165a601e8d229941bf83e61ddbbc5f215e113cc5bbd98c71"
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-08-18T10:53:40.106Z"
+  "updatedAt": "2018-08-18T12:00:14.353Z"
 }

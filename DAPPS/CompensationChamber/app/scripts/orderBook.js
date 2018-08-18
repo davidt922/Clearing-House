@@ -173,17 +173,17 @@ export default class OrderBook
 }
 exports.OrderBook = OrderBook;
 
-
+var doc = document;
 window.createDialog = function(instrumentID, side)
 {
-  var _quantity = parseInt(document.getElementById("quantity").value);
-  var _price = parseInt(document.getElementById("price").value * 10000); // The input of the smart contract is the price integer value moving the decimal point 3 positions to the right
   dialog.dialog({title: side+" "+instrumentID}).dialog(
   {
     buttons:
     {
       Buy: function()
       {
+        var _quantity = parseInt(document.getElementById("quantity").value);
+        var _price = parseInt(document.getElementById("price").value) * 10000; // The input of the smart contract is the price integer value moving the decimal point 3 positions to the right
         App.addOrderToBlockchain(instrumentID, _quantity, _price, side);
         dialog.dialog( "close" );
       },

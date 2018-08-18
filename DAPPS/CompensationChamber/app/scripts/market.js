@@ -68,6 +68,7 @@ window.App = {
       {
         if (!error)
         {
+          console.log("ORDER");
           instruments[web3.toUtf8(result.args.instrumentID)].order(result);
         }
       });
@@ -148,6 +149,7 @@ login: function (_email, _password)
     Market.deployed().then(function(instance)
       {
         _market = instance;
+        console.log(_instrumentID+" "+_quantity+" "+_price+" "+sideToInt(_side));
         return _market.addOrder(_instrumentID, _quantity, _price, sideToInt(_side), {from: account, gas: 39000000});
         //return _market.addOrder(_instrumentID, 2, 2, 0,/*, _quantity, _price, sideToInt(_side),*/ {from: account, gas: 39000000});
       }).then(function(value)
