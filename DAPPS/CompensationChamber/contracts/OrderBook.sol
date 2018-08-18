@@ -40,6 +40,7 @@ contract OrderBook is QuickSortOrder
     {
       uint i = 0;
       Market _marketContract = Market(marketAddress);
+      orderIncreasing(askOrders);
       while (_price >= askOrders[i].price && _quantity > 0 && askOrders.length != 0)
       {
         if (_quantity >= askOrders[i].quantity)
