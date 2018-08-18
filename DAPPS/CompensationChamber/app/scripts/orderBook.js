@@ -11,15 +11,14 @@ export default class OrderBook
 
   order(solOrderTx)
   {
-    console.log("Order receivede");
     var args = solOrderTx.args;
     var price = IntToPrice(args.price);
     var quantity = new BigNumber(args.quantity).toNumber();
-    // side is buy = 1 or sell = 0 (type int)
+    // side is buy = 0 or sell = 1 (type int)
     var side = new BigNumber(args.side).toNumber();
     // type is add = 0 or remove = 1 (type int)
     var type = new BigNumber(args.orderType).toNumber();
-
+    console.log(price+" "+quantity+" "+side+" "+type);
     if (type == 0)
     {
       this.addOrder(quantity, price, side);
@@ -33,12 +32,12 @@ export default class OrderBook
 
   addOrder(_quantity, _price, side)
   {
-    // side is the side of the order 1 for buy order (bid) and 0 for sell order (ask)
-    if (side == 1)
+    // side is the side of the order 0 for buy order (bid) and 1 for sell order (ask)
+    if (side == 0)
     {
       var bidOrder = this.bid.find(function(order)
       {
-          return order.price = _price;
+          return order.price == _price;
       });
 
       // if some orders exist at this price
@@ -51,11 +50,11 @@ export default class OrderBook
         this.bid.push({price: _price, quantity: _quantity});
       }
     }
-    else if (side == 0)
+    else if (side == 1)
     {
       var askOrder = this.ask.find(function(order)
       {
-          return order.price = _price;
+          return order.price == _price;
       });
 
       // if some orders exist at this price
@@ -68,6 +67,7 @@ export default class OrderBook
         this.ask.push({price: _price, quantity: _quantity});
       }
     }
+    console.log(this.bid);
     this.updateOrderBook();
   }
 
@@ -183,7 +183,7 @@ window.createDialog = function(instrumentID, side)
       Buy: function()
       {
         var _quantity = parseInt(document.getElementById("quantity").value);
-        var _price = parseInt(document.getElementById("price").value) * 10000; // The input of the smart contract is the price integer value moving the decimal point 3 positions to the right
+        var _price = priceToInt(document.getElementById("price").value); // The input of the smart contract is the price integer value moving the decimal point 3 positions to the right
         App.addOrderToBlockchain(instrumentID, _quantity, _price, side);
         dialog.dialog( "close" );
       },
@@ -225,10 +225,22 @@ window.priceToInt = function (price)
 }
 window.IntToPrice = function (int)
 {
-  console.log(new BigNumber(int).toNumber());
   var stringNum = new BigNumber(int).toNumber().toString();
-  var real = stringNum.substring(0, stringNum.length-3);
-  var decimal = stringNum.substring(stringNum.length-3);
-  console.log("Output "+real+"."+decimal)
+
+  var real;
+  var decimal;
+
+  if (stringNum.length < 4)
+  {
+    real = 0;
+    var zeros = 3 - stringNum.length;
+    var zeroString = "000";
+    decimal = zeroString.substring(0,zeros)+stringNum;
+  }
+  else
+  {
+    real = stringNum.substring(0, stringNum.length-3);
+    decimal = stringNum.substring(stringNum.length-3);
+  }
   return real+"."+decimal;
 }

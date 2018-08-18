@@ -68,7 +68,6 @@ window.App = {
       {
         if (!error)
         {
-          console.log("ORDER");
           instruments[web3.toUtf8(result.args.instrumentID)].order(result);
         }
       });
@@ -144,7 +143,7 @@ login: function (_email, _password)
   addOrderToBlockchain : function(_instrumentID, _quantity, _price, _side)
   {
     var _market;
-
+    console.log("price "+_price);
     // _market.addOrder("IUDERB3",10, 10000, "SELL",{from: account, gas: 39000000});
     Market.deployed().then(function(instance)
       {
