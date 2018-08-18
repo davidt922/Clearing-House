@@ -1,3 +1,4 @@
+import {BigNumber} from 'bignumber.js';
 export default class OrderBook
 {
   constructor (instrumentID)
@@ -10,21 +11,22 @@ export default class OrderBook
 
   order(solOrderTx)
   {
+    console.log("Order receivede");
     var args = solOrderTx.args;
-    var price = new BigNumber(args.price).toNumber();
+    var price = IntToPrice(args.price);
     var quantity = new BigNumber(args.quantity).toNumber();
     // side is buy = 1 or sell = 0 (type int)
     var side = new BigNumber(args.side).toNumber();
-    // type is add = 1 or remove = 0 (type int)
+    // type is add = 0 or remove = 1 (type int)
     var type = new BigNumber(args.orderType).toNumber();
 
-    if (type == 1)
+    if (type == 0)
     {
-      addOrder(quantity, price, side);
+      this.addOrder(quantity, price, side);
     }
-    else if (type == 0)
+    else if (type == 1)
     {
-      removeOrder(quantity, price, side);
+      this.removeOrder(quantity, price, side);
     }
 
   }
@@ -158,13 +160,13 @@ export default class OrderBook
 
     // add table
     $("#orders"+this.instrumentID).append("<table id='table"+this.instrumentID+"'><thead><tr><th>Bid Size</th><th>Price</th><th>Ask Size</th></tr></thead><tbody></tbody></table>");
-
+    var self = this;
     $("#buy"+this.instrumentID).click(function(){
-      createDialog(this.instrumentID, "BUY");
+      createDialog(self.instrumentID, "BUY"); // 0 = buy
     });
 
     $("#sell"+this.instrumentID).click(function(){
-      createDialog(this.instrumentID, "SELL");
+      createDialog(self.instrumentID, "SELL"); // 1 = sell
     });
   }
 
@@ -174,13 +176,15 @@ exports.OrderBook = OrderBook;
 
 window.createDialog = function(instrumentID, side)
 {
+  var _quantity = parseInt(document.getElementById("quantity").value);
+  var _price = parseInt(document.getElementById("price").value * 10000); // The input of the smart contract is the price integer value moving the decimal point 3 positions to the right
   dialog.dialog({title: side+" "+instrumentID}).dialog(
   {
     buttons:
     {
       Buy: function()
       {
-        App.addOrderToBlockchain(instrumentID, side);
+        App.addOrderToBlockchain(instrumentID, _quantity, _price, side);
         dialog.dialog( "close" );
       },
       Cancel: function()
@@ -189,4 +193,42 @@ window.createDialog = function(instrumentID, side)
       }
     }
   }).dialog( "open" );
+};
+
+window.sideToInt = function(string)
+{
+  if (string.toLowerCase() == "buy")
+  {
+    return 0;
+  }
+  else if (string.toLowerCase() == "sell")
+  {
+    return 1;
+  }
+}
+
+window.IntToSide = function(int)
+{
+  if (int == 0)
+  {
+    return "BUY";
+  }
+  else if (int == 1)
+  {
+    return "SELL";
+  }
+}
+
+window.priceToInt = function (price)
+{
+  return parseInt(price*1000);
+}
+window.IntToPrice = function (int)
+{
+  console.log(new BigNumber(int).toNumber());
+  var stringNum = new BigNumber(int).toNumber().toString();
+  var real = stringNum.substring(0, stringNum.length-3);
+  var decimal = stringNum.substring(stringNum.length-3);
+  console.log("Output "+real+"."+decimal)
+  return real+"."+decimal;
 }

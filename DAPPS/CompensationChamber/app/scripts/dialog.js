@@ -1,4 +1,5 @@
-var dialog;
+window.dialog = {};
+
 //$(function(){}); is equals to $(document).ready(function(){})
 $( function()
 {

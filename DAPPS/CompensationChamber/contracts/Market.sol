@@ -75,7 +75,7 @@ contract Market
     _compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
   }
 
-  function addOrder (bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side) // side 0 = buy, 1 = sell
+  function addOrder (bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side) public // side 0 = buy, 1 = sell
   {
     address _orderBookAddress = mapInstrumentIdToOrderBookAddress[_instrumentID];
 
@@ -110,7 +110,7 @@ contract Market
     }
   }
 
-  event logMarketOrder(bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side, Utils.orderType _orderType); // orderType 0 = add, 1 = remove
+  event logMarketOrder(bytes32 instrumentID, uint16 quantity, uint16 price, Utils.side side, Utils.orderType orderType); // orderType 0 = add, 1 = remove
   function OrderEvent(bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side, Utils.orderType _orderType)
   {
     emit logMarketOrder(_instrumentID, _quantity, _price, _side, _orderType);

@@ -68,7 +68,7 @@ window.App = {
       {
         if (!error)
         {
-          instruments[solOrderTx.args.instrumentID].order(result);
+          instruments[web3.toUtf8(result.args.instrumentID)].order(result);
         }
       });
     });
@@ -139,18 +139,17 @@ login: function (_email, _password)
       }
     });
 },
-
-  addOrderToBlockchain : function(_instrumentID, _type)
+// side 0 = buy, 1 = sell
+  addOrderToBlockchain : function(_instrumentID, _quantity, _price, _side)
   {
-    var _quantity = parseInt(document.getElementById("quantity").value);
-    var _price = parseInt(document.getElementById("price").value);
     var _market;
 
     // _market.addOrder("IUDERB3",10, 10000, "SELL",{from: account, gas: 39000000});
     Market.deployed().then(function(instance)
       {
         _market = instance;
-        return _market.addOrder(_instrumentID, _quantity, _price, _type, {from: account, gas: 39000000});
+        return _market.addOrder(_instrumentID, _quantity, _price, sideToInt(_side), {from: account, gas: 39000000});
+        //return _market.addOrder(_instrumentID, 2, 2, 0,/*, _quantity, _price, sideToInt(_side),*/ {from: account, gas: 39000000});
       }).then(function(value)
     {
       console.log(value);
