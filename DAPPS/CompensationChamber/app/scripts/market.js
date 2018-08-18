@@ -52,13 +52,6 @@ window.App = {
 
     Market.deployed().then(function(value)
     {
-      var logEvent = value.logEvent();
-      logEvent.watch(function(error, result)
-      {
-        var res = result.args;
-
-          console.log("String: "+res.a+" position:"+new BigNumber(res.b).toNumber()+" price: "+new BigNumber(res.c).toNumber()+" order quant "+new BigNumber(res.d).toNumber()+" order book quant: "+new BigNumber(res.e).toNumber());
-      });
       var paymentRequestEvent = value.logPaymentRequest();
 
       paymentRequestEvent.watch(function(error, result)
