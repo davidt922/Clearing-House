@@ -40,8 +40,7 @@ contract OrderBook is QuickSortOrder
     {
       uint i = 0;
       Market _marketContract = Market(marketAddress);
-
-      while (_price<= askOrders[i].price || _quantity > 0)
+      while (_price >= askOrders[i].price && _quantity > 0 && askOrders.length != 0)
       {
         if (_quantity >= askOrders[i].quantity)
         {
@@ -67,6 +66,11 @@ contract OrderBook is QuickSortOrder
         }
         (i, _quantity) = removeAskFromOrderBook(i, _quantity);
         i++;
+
+        if(i >= askOrders.length)
+        {
+          break;
+        }
       }
     }
     if (_quantity > 0)
@@ -81,8 +85,8 @@ contract OrderBook is QuickSortOrder
     {
       uint i = 0;
       Market _marketContract = Market(marketAddress);
-
-      while (_price >= bidOrders[i].price && _quantity > 0)
+      orderDecreasing(bidOrders);
+      while (_price <= bidOrders[i].price && _quantity > 0 && bidOrders.length != 0)
       {
         if (_quantity >= bidOrders[i].quantity)
         {
@@ -108,6 +112,11 @@ contract OrderBook is QuickSortOrder
         }
         (i, _quantity) = removeBidFromOrderBook(i, _quantity);
         i++;
+
+        if(i >= askOrders.length)
+        {
+          break;
+        }
       }
     }
 
@@ -119,7 +128,6 @@ contract OrderBook is QuickSortOrder
   function addBidToOrderBook(uint16 _quantity, uint16 _price) internal
   {
       bidOrders.push(Utils.order(tx.origin, _quantity, block.timestamp,  _price));
-      orderDecreasing(bidOrders);
       Market _marketContract = Market(marketAddress);
       _marketContract.OrderEvent(instrumentID, _quantity, _price, Utils.side.buy, Utils.orderType.add);
   }
@@ -127,7 +135,6 @@ contract OrderBook is QuickSortOrder
   function addAskToOrderBook(uint16 _quantity, uint16 _price) internal
   {
       askOrders.push(Utils.order(tx.origin, _quantity, block.timestamp,  _price));
-      orderDecreasing(askOrders);
       Market _marketContract = Market(marketAddress);
       _marketContract.OrderEvent(instrumentID, _quantity, _price, Utils.side.sell, Utils.orderType.add);
   }
@@ -137,14 +144,17 @@ contract OrderBook is QuickSortOrder
   {
     Market _marketContract = Market(marketAddress);
 
-    if (_quantity >= askOrders[i].quantity)
+    if (quantity >= askOrders[i].quantity)
     {
       quantity = quantity - askOrders[i].quantity;
       _marketContract.OrderEvent(instrumentID, askOrders[i].quantity, askOrders[i].price, Utils.side.sell, Utils.orderType.remove);
       Utils.removeOrder(askOrders, i);
-      i--;
+      if (i != 0)
+      {
+        i--;
+      }
     }
-    else if (_quantity < askOrders[i].quantity)
+    else if (quantity < askOrders[i].quantity)
     {
       askOrders[i].quantity = askOrders[i].quantity - quantity;
       _marketContract.OrderEvent(instrumentID, quantity, askOrders[i].price, Utils.side.sell, Utils.orderType.remove);
@@ -163,12 +173,15 @@ contract OrderBook is QuickSortOrder
       quantity = quantity - bidOrders[i].quantity;
       _marketContract.OrderEvent(instrumentID, bidOrders[i].quantity, bidOrders[i].price, Utils.side.buy, Utils.orderType.remove);
       Utils.removeOrder(bidOrders, i);
-      i--;
+      if (i != 0)
+      {
+        i--;
+      }
     }
-    else if (_quantity < bidOrders[i].quantity)
+    else if (quantity < bidOrders[i].quantity)
     {
       bidOrders[i].quantity = bidOrders[i].quantity - quantity;
-      _marketContract.OrderEvent(instrumentID, _quantity, bidOrders[i].price, Utils.side.buy, Utils.orderType.remove);
+      _marketContract.OrderEvent(instrumentID, quantity, bidOrders[i].price, Utils.side.buy, Utils.orderType.remove);
       quantity = 0;
     }
     _i = i;

@@ -67,18 +67,17 @@ export default class OrderBook
         this.ask.push({price: _price, quantity: _quantity});
       }
     }
-    console.log(this.bid);
     this.updateOrderBook();
   }
 
   removeOrder(_quantity, _price, side)
   {
     // side is the side of the order 1 for buy order (bid) and 0 for sell order (ask)
-    if (side == 1)
+    if (side == 0)
     {
       var bidOrder = this.bid.find(function(order)
       {
-          return order.price = _price;
+          return order.price == _price;
       });
 
       // if some orders exist at this price
@@ -96,17 +95,17 @@ export default class OrderBook
         console.error("The order have to exist to be removed");
       }
     }
-    else if (side == 0)
+    else if (side == 1)
     {
       var askOrder = this.ask.find(function(order)
       {
-          return order.price = _price;
+          return order.price == _price;
       });
 
       // if some orders exist at this price
       if (askOrder != undefined)
       {
-        askOrder.quantity = askOrder.quantity + _quantity;
+        askOrder.quantity = askOrder.quantity - _quantity;
 
         if (askOrder.quantity <= 0)
         {
@@ -127,7 +126,7 @@ export default class OrderBook
 
     if (this.ask.length > 0)
     {
-      this.ask.sort(function(a,b) {return (a.price > b.price) ? 1 : ((b.price > a.price) ? -1 : 0);} );
+      this.ask.sort(function(a,b) {return (priceToInt(a.price) > priceToInt(b.price)) ? 1 : ((priceToInt(b.price) > priceToInt(a.price)) ? -1 : 0);} );
 
       var j = this.ask.length > 4 ? 3 : this.ask.length - 1;
 
@@ -139,7 +138,7 @@ export default class OrderBook
 
     if (this.bid.length > 0)
     {
-      this.bid.sort(function(a,b) {return (a.price < b.price) ? 1 : ((b.price < a.price) ? -1 : 0);} );
+      this.bid.sort(function(a,b) {return (priceToInt(a.price) < priceToInt(b.price)) ? 1 : ((priceToInt(b.price) < priceToInt(a.price)) ? -1 : 0);} );
 
       var j = this.bid.length > 4 ? 4 : this.bid.length;
 
@@ -155,11 +154,11 @@ export default class OrderBook
     $("#orderBooks").append("<div class='orderBook' id='orderBook"+this.instrumentID+"'></div>");
     $("#orderBook"+this.instrumentID).append("<div>"+this.instrumentID.toUpperCase()+"</div>");
     $("#orderBook"+this.instrumentID).append("<div class='orders' id='orders"+this.instrumentID+"'></div>");
-    $("#orderBook"+this.instrumentID).append("<div><button class='twoButtons' id='buy"+this.instrumentID+"'>BUY</button><button class='twoButtons' style='background:#ff0000;' id='sell"+this.instrumentID+"'>SELL</button></div>");
+    $("#orderBook"+this.instrumentID).append("<div><button class='twoButtons' style='background:#ff0000;' id='sell"+this.instrumentID+"'>SELL</button><button class='twoButtons' id='buy"+this.instrumentID+"'>BUY</button></div>");
 
 
     // add table
-    $("#orders"+this.instrumentID).append("<table id='table"+this.instrumentID+"'><thead><tr><th>Bid Size</th><th>Price</th><th>Ask Size</th></tr></thead><tbody></tbody></table>");
+    $("#orders"+this.instrumentID).append("<table id='table"+this.instrumentID+"'><thead><tr><th>BUY</th><th>Price</th><th>SELL</th></tr></thead><tbody></tbody></table>");
     var self = this;
     $("#buy"+this.instrumentID).click(function(){
       createDialog(self.instrumentID, "BUY"); // 0 = buy
@@ -180,7 +179,7 @@ window.createDialog = function(instrumentID, side)
   {
     buttons:
     {
-      Buy: function()
+      ADD_ORDER: function()
       {
         var _quantity = parseInt(document.getElementById("quantity").value);
         var _price = priceToInt(document.getElementById("price").value); // The input of the smart contract is the price integer value moving the decimal point 3 positions to the right

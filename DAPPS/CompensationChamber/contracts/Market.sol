@@ -71,8 +71,8 @@ contract Market
 
   function addFutureToCCP (address _longClearingMemberAddress, address _shortClearingMemberAddress, bytes32 _instrumentID, bytes32 _amount, bytes32 _price, uint _settlementTimestamp, Utils.market _market) public
   {
-    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-    _compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
+    //CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    //_compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
   }
 
   function addOrder (bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side) public // side 0 = buy, 1 = sell
