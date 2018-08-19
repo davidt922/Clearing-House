@@ -13,7 +13,8 @@ export default class PaymentRequest
     var paymentRequest = {paymentRequestAddress: args.paymentRequestAddress,clearingMemberAddress: args.clearingMemberAddress, value: new BigNumber(args.value).toNumber()};
     this.paymentRequest.push(paymentRequest);
 
-    if (account == paymentRequest.paymentRequestAddress)
+    console.log(account+" "+paymentRequest.paymentRequestAddress);
+    if (account == paymentRequest.clearingMemberAddress)
     {
       if (confirm("You have to pay "+ paymentRequest.value/1000000000000000000))
       {

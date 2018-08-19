@@ -51,8 +51,8 @@ contract Future is Derivative
       initialMargin[shortMemberAddress] = shortMemberInitialMarginInWei;
 
       CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
-      _compensationChamberContract.paymentRequest(300000000, longMemberAddress);
-        _compensationChamberContract.paymentRequest(300000000, shortMemberAddress);
+      _compensationChamberContract.paymentRequest(800000000000000, longMemberAddress);
+        _compensationChamberContract.paymentRequest(100000000000000, shortMemberAddress);
       //new PaymentRequest(longMemberInitialMarginInWei, longMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
       //new PaymentRequest(shortMemberInitialMarginInWei, shortMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
   }

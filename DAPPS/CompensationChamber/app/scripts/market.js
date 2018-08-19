@@ -14,7 +14,7 @@ import market_artifacts from '../../build/contracts/Market.json';
 // Market is our usable abstraction, which we'll use thow the code below
 var Market = contract(market_artifacts);
 
-var accounts;
+window.accounts = {};
 window.account = {};
 var ignore = true;
 var instruments = [];
@@ -59,6 +59,8 @@ window.App = {
 
       paymentRequestEvent.watch(function(error, result)
       {
+        console.log(account+" "+accounts[1]);
+        console.log(result);
         if(!error && account != accounts[1]) // I don't know why, the events are autoexecuted once when webpage is loaded
         {
           paymentRequest.addNewPaymentRequest(result);
@@ -69,7 +71,7 @@ window.App = {
 
       marketOrderEvent.watch(function(error, result)
       {
-        if (!error && account != accounts[1])
+        if (!error && instruments[web3.toUtf8(result.args.instrumentID)] != null)
         {
           if (IntToPrice(result.args.price) != 0)
           {
@@ -209,7 +211,7 @@ window.signIn = function()
     return 0;
   }).then(function(value)
   {
-    _market.unpayedPaymentRequest({from: account, gas: 39000000});
+    //_market.unpayedPaymentRequest({from: account, gas: 39000000});
     //_market.test({from: account, gas: 39000000});
   });
 
