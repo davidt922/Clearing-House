@@ -36,7 +36,7 @@ contract Market
   {
      CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
     int16 addressID = _compensationChamber.addClearingMember(_name, _email, _password);
-    logAddressID(addressID);
+    emit logAddressID(addressID);
   }
 
   function confirmClearingMemberAddress(bytes32 _email)
@@ -47,17 +47,15 @@ contract Market
 
   event logPaymentRequest(address paymentRequestAddress, uint value, address clearingMemberAddress);
 
-  function paymentRequest(address _paymentRequestAddress, uint _value, address _clearingMemberAddress) public onlyCCP
+  function paymentRequest(address _paymentRequestAddress, uint _value, address _clearingMemberAddress) public /*onlyCCP*/
   {
-    logPaymentRequest(_paymentRequestAddress, _value, _clearingMemberAddress);
+    emit logPaymentRequest(_paymentRequestAddress, _value, _clearingMemberAddress);
   }
 
-  event logPaymentRequestState(bool _paymentRequestState);
-  function payPaymentRequest(address _paymentRequestAddress) public payable
+  function payPaymentRequest(address _paymentRequestAddress) public payable returns(bool)
   {
     PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
-    bool _result = _paymentRequestContract.pay.value(msg.value)();
-    logPaymentRequestState(_result);
+    return _paymentRequestContract.pay.value(msg.value)();
   }
   // _instrumentType 0 = future, 1 = swap
   function addNewDerivative (bytes32 _instrumentID, Utils.market _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public payable
@@ -71,8 +69,8 @@ contract Market
 
   function addFutureToCCP (address _longClearingMemberAddress, address _shortClearingMemberAddress, bytes32 _instrumentID, bytes32 _amount, bytes32 _price, uint _settlementTimestamp, Utils.market _market) public
   {
-    //CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
-    //_compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
+    CompensationChamber _compensationChamber = CompensationChamber(compensationChamberAddress);
+    _compensationChamber.futureNovation.value(1 ether)(_longClearingMemberAddress, _shortClearingMemberAddress, _instrumentID, _amount, _price, _settlementTimestamp, _market);
   }
 
   function addOrder (bytes32 _instrumentID, uint16 _quantity, uint16 _price, Utils.side _side) public // side 0 = buy, 1 = sell
@@ -139,5 +137,16 @@ contract Market
         emit logMarketOrder(instrumentID[i], _quantity, _price, Utils.side.buy, Utils.orderType.add);
       }
     }
+  }
+
+  function unpayedPaymentRequest() public
+  {
+    CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
+    _compensationChamberContract.unpayedPaymentRequest();
+  }
+
+  function test() public
+  {
+    paymentRequest(msg.sender, 10, msg.sender);
   }
 }

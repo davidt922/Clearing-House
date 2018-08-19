@@ -19,7 +19,7 @@ contract MarketData is usingOraclize
 
   uint gasLimit = 4000000;
 
-  string ipPort = "https://83.231.14.17:3002";
+  string ipPort = "http://185.219.137.96:3001";
 
   constructor() public payable
   {

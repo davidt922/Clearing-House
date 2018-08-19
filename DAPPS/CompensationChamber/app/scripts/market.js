@@ -6,7 +6,7 @@ import { default as Web3} from 'web3';
 import { default as contract } from 'truffle-contract';
 import {BigNumber} from 'bignumber.js';
 import OrderBook from './orderBook.js';
-
+import PaymentRequest from './paymentRequest.js';
 
 // Import our contract artifacts and turn them into usable abstractions.
 import market_artifacts from '../../build/contracts/Market.json';
@@ -15,16 +15,19 @@ import market_artifacts from '../../build/contracts/Market.json';
 var Market = contract(market_artifacts);
 
 var accounts;
-var account;
-
+window.account = {};
+var ignore = true;
 var instruments = [];
+
+window.paymentRequest = {};
 
 window.App = {
 
   start: function()
   {
+    console.log("7");
     var self = this;
-
+    paymentRequest = new PaymentRequest();
     // Bootstrap the MetaCoin abstraction for Use.
     Market.setProvider(web3.currentProvider);
 
@@ -56,10 +59,9 @@ window.App = {
 
       paymentRequestEvent.watch(function(error, result)
       {
-        if(!error)
+        if(!error && account != accounts[1]) // I don't know why, the events are autoexecuted once when webpage is loaded
         {
-          console.log("TEST");
-          console.log(result);
+          paymentRequest.addNewPaymentRequest(result);
         }
       });
 
@@ -67,11 +69,10 @@ window.App = {
 
       marketOrderEvent.watch(function(error, result)
       {
-        if (!error && instruments[web3.toUtf8(result.args.instrumentID)] != null)
+        if (!error && account != accounts[1])
         {
           if (IntToPrice(result.args.price) != 0)
           {
-            console.log(result.args.instrumentID);
               instruments[web3.toUtf8(result.args.instrumentID)].order(result);
           }
         }
@@ -81,6 +82,7 @@ window.App = {
 
   addCompensationMember: function(_name, _email, _password)
   {
+    console.log("8");
     var self = this;
     var _market;
 
@@ -109,8 +111,26 @@ window.App = {
     });
 },
 
+payPaymentRequest: function(_paymentRequestAddress, _value)
+{
+  console.log("9");
+  var self = this;
+  var _market;
+
+  Market.deployed().then(function(instance)
+  {
+    _market = instance;
+    return _market.payPaymentRequest(_paymentRequestAddress, {from: account, gas: 39000000, value: _value});
+  })
+  .then(function(value)
+  {
+    console.log(value);
+  });
+},
+
 login: function (_email, _password)
 {
+  console.log("10");
   var self = this;
   var _market;
 
@@ -140,7 +160,7 @@ login: function (_email, _password)
          $("#index").remove();
          $("#main").show();
          account = address;
-         setMarket();
+         signIn();
       }
     });
 },
@@ -155,7 +175,6 @@ login: function (_email, _password)
         _market = instance;
         console.log(_instrumentID+" "+_quantity+" "+_price+" "+sideToInt(_side));
         return _market.addOrder(_instrumentID, _quantity, _price, sideToInt(_side), {from: account, gas: 39000000});
-        //return _market.addOrder(_instrumentID, 2, 2, 0,/*, _quantity, _price, sideToInt(_side),*/ {from: account, gas: 39000000});
       }).then(function(value)
     {
       console.log(value);
@@ -164,24 +183,21 @@ login: function (_email, _password)
 };
 
 
-window.setMarket = function()
+window.signIn = function()
 {
   var _market;
   Market.deployed().then(function(instance)
   {
     // for testing
     _market = instance;
-    console.log("1");
     return _market.addNewDerivative("IUDERB3", marketToInteger("BOE"), 0, 120003000,{from: account, gas: 39000000});
   }).then(function(value)
   {
-    console.log("2");
     return _market.getInstruments({from: account, gas: 39000000});
   }).then(function(value)
   {
     var instrumentArray = value.logs;
     var _instrumentID;
-    console.log("instrumentArray");
     for (var k = 0; k < instrumentArray.length; k++)
     {
       _instrumentID = web3.toUtf8(instrumentArray[k].args._instrumentID);
@@ -190,9 +206,16 @@ window.setMarket = function()
   }).then(function(value)
   {
     _market.getMarket({from: account, gas: 39000000});
+    return 0;
+  }).then(function(value)
+  {
+    _market.unpayedPaymentRequest({from: account, gas: 39000000});
+    //_market.test({from: account, gas: 39000000});
   });
 
-}
+};
+
+
 
 
 window.marketToInteger = function(marketString)
@@ -202,7 +225,7 @@ window.marketToInteger = function(marketString)
     return 0;
   }
   else if (marketString == "EUREX")
-  {
+  {call
     return 1;
   }
   else if (marketString == "CME")

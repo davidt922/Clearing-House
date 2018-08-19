@@ -22,4 +22,5 @@ $( function()
   {
     event.preventDefault();
   });
+    console.log("6");
 });

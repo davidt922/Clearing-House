@@ -27,6 +27,7 @@ $(document).ready(function ()
   {
     showRegister();
   });
+  console.log("5");
 });
 
 window.addEventListener('load', function()
@@ -52,6 +53,7 @@ window.addEventListener('load', function()
     var name = document.getElementById("name1").value;
     var email = document.getElementById("email1").value;
     var password = document.getElementById("password1").value;
+    console.log("2");
       App.addCompensationMember(name, email, password);
   }, false);
 
@@ -59,6 +61,8 @@ window.addEventListener('load', function()
   {
     var email = document.getElementById("email2").value;
     var password = document.getElementById("password2").value;
+    console.log("3");
      App.login(email, password);
   });
+  console.log("4");
 });

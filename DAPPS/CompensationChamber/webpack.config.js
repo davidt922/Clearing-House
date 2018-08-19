@@ -7,6 +7,7 @@ module.exports = {
     orderBook:'./app/scripts/orderBook.js',
     market: './app/scripts/market.js',
     onWindowsLoad: './app/scripts/onWindowsLoad.js',
+    paymentRequest: './app/scripts/paymentRequest.js',
   },
   mode: 'production',
   output: {

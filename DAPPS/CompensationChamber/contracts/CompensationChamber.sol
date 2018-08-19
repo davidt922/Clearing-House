@@ -56,7 +56,7 @@ contract CompensationChamber
        Utils.clearingMember memory _clearingMemberStruct = Utils.clearingMember(_name, _email, 0x0, _password, addressID);
        mapEmailToClearingMemberStruct[_email] = _clearingMemberStruct;
 
-       return numberOfClearingMembers;
+       return numberOfClearingMembers + 1;
      }
    }
 
@@ -68,6 +68,21 @@ contract CompensationChamber
         mapEmailToClearingMemberStruct[_email].clearingMemberAddress = tx.origin;
         clearingMemberAddresses.push(tx.origin);
       }
+   }
+
+   function unpayedPaymentRequest() public onlyMarket
+   {
+     Market _marketContract = Market(marketAddress);
+     PaymentRequest _paymentRequestContract;
+     for (uint i = 0; i < payments.length; i++)
+     {
+       _paymentRequestContract = PaymentRequest(payments[i]);
+
+       if (_paymentRequestContract.isPayed() == false)
+       {
+         _marketContract.paymentRequest(payments[i], _paymentRequestContract.getValue(), _paymentRequestContract.getClearingMember());
+       }
+     }
    }
 
    function checkSignInEmailAndPassword (bytes32 _email, bytes32 _password) onlyMarket public returns (bytes32 name, address memberAddress, int8 errorCode)
