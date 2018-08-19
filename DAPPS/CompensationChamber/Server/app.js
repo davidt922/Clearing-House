@@ -418,7 +418,7 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
    {
      var VaR1 = Math.abs(intRate.computeVaR(parseFloat(probability)));
      var VaR2 = Math.abs(intRate.computeVaR(parseFloat(1 - probability)));
-      res.send(ToWEI(change, VaR1)+" "+ToWEI(change, VaR2)); 
+      res.send(ToWEI(change, VaR1)+" "+ToWEI(change, VaR2));
    }, 7000);
  });
 
@@ -461,7 +461,14 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
    setTimeout(function()
    {
      var a = intRate.computeMtM()
-     res.send(ToWEI(change, a)); // Revisar // Return this in wei
+     if(parseFloat(a) > 0)
+     {
+       res.send("0."+ToWEI(change, a)); // Revisar // Return this in wei
+     }
+     else
+     {
+       res.send("1."+ToWEI(change, a)); // Revisar // Return this in wei
+     }
    }, 7000);
  });
 
@@ -501,7 +508,14 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
    setTimeout(function()
    {
      var a = intRate.computeMtM()
-     res.send(ToWEI(change, a)); // Revisar // Return this in wei
+     if(parseFloat(a) > 0)
+     {
+       res.send("0."+ToWEI(change, a)); // Revisar // Return this in wei
+     }
+     else
+     {
+       res.send("1."+ToWEI(change, a)); // Revisar // Return this in wei
+     }
    }, 7000);
  });
 
@@ -540,6 +554,13 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
    setTimeout(function()
    {
      var a = intRate.computeMtM()
-     res.send(ToWEI(change, a)); // Revisar // Return this in wei
+     if(parseFloat(a) > 0)
+     {
+       res.send("0."+ToWEI(change, a)); // Revisar // Return this in wei
+     }
+     else
+     {
+       res.send("1."+ToWEI(change, a)); // Revisar // Return this in wei
+     }
    }, 7000);
  });

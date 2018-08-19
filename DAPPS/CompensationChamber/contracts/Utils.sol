@@ -110,25 +110,28 @@ library Utils
             result := mload(add(source, 32))
         }
     }
-    // Convert string to Uint
-    function stringToUint(string s) internal pure returns (uint result)
+
+    // Convert string of type 0.125 to int, the first value will be 0 for positive and 1 for negative, so 0.125 = 125 and 1.125 = -125
+    function stringToInt(string s) internal pure returns (uint result)
     {
-        bytes memory b = bytes(s);
-        uint i;
-        result = 0;
-
-        for (i = 0; i < b.length; i++)
-        {
-            uint c = uint(b[i]);
-
-            if (c >= 48 && c <= 57)
-            {
-                result = result * 10 + (c - 48);
-            }
-        }
+      var sliceVal = a.toSlice();
+      strings.slice memory part;
+      var num = sliceVal.split(".".toSlice(), part);
+      string memory numString = num.toString();
+      var numVal = sliceVal.split(".".toSlice(), part);
+      uint result = stringToUint(numVal.toString());
+      int resultInt = int(result);
+      if (compareStrings(numString, "0"))
+      {
+          return resultInt;
+      }
+      else
+      {
+       return resultInt * -1;
+      }
     }
     // Convert string to Uint
-    function stringToInt(string s) internal pure returns (int result)
+    function stringToUint(string s) internal pure returns (uint result)
     {
         bytes memory b = bytes(s);
         uint i;
