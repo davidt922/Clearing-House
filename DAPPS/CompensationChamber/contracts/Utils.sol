@@ -112,9 +112,9 @@ library Utils
     }
 
     // Convert string of type 0.125 to int, the first value will be 0 for positive and 1 for negative, so 0.125 = 125 and 1.125 = -125
-    function stringToInt(string s) internal pure returns (uint result)
+    function stringToInt(string s) internal pure returns (int)
     {
-      var sliceVal = a.toSlice();
+      var sliceVal = s.toSlice();
       strings.slice memory part;
       var num = sliceVal.split(".".toSlice(), part);
       string memory numString = num.toString();
