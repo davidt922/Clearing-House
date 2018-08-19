@@ -1,7 +1,6 @@
 pragma experimental ABIEncoderV2;
 
 import "./Utils.sol";
-
 /**
  * Derivative is an abstract contract: Contracts are marked as abstract when at
  * least one of their functions lacks an implementation as in the following
@@ -53,8 +52,9 @@ import "./Utils.sol";
   }
 
   function getTheContractCounterparts() public returns(address[2]);
-  function setIM(string result) onlyMarketData public;
-  function computeVM() public onlyChamber returns (Utils.variationMarginChange[2]);
+  function setIM(uint, uint) onlyMarketData public;
+  function computeVM() public onlyChamber;
+  function setVM(int) onlyMarketData public;
 
   function initialMarginPayment (address memberAddress) payable
   {

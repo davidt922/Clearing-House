@@ -4,7 +4,7 @@ import "./Derivative.sol";
 import "./MarketData.sol";
 import "./Utils.sol";
 import "./PaymentRequest.sol";
-
+  import "./CompensationChamber.sol";
 contract Future is Derivative
 {
   address longMemberAddress; // The one who will have to buy the asset (subyacente) in the settlementTimestamp
@@ -44,21 +44,47 @@ contract Future is Derivative
       return [longMemberAddress, shortMemberAddress];
   }
 
-  function setIM(string result) onlyMarketData public
+  function setIM(uint longMemberInitialMarginInWei, uint shortMemberInitialMarginInWei) onlyMarketData public
   {
-       //new PaymentRequest();
-     // initialMargin[shortMemberAddress] = //new PaymentRequest(100, shortMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
+      initialMargin[longMemberAddress] = longMemberInitialMarginInWei;
+      initialMargin[shortMemberAddress] = shortMemberInitialMarginInWei;
+
+      new PaymentRequest(longMemberInitialMarginInWei, longMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
+      new PaymentRequest(shortMemberInitialMarginInWei, shortMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
   }
 
 
-  function computeVM() public onlyChamber returns (Utils.variationMarginChange[2])
+  function setVM(int MtMChangeForLongMember) onlyMarketData public
   {
-      Utils.variationMarginChange[2] ret;
-      ret[0] = Utils.variationMarginChange(0xca35b7d915458ef540ade6068dfe2f44e8fa733c, 10);
-      ret[1] = Utils.variationMarginChange(0xca35b7d915458ef540ade6068dfe2f44e8fa733c, 10);
-      return ret;
+      Utils.variationMarginChange[2] memory ret;
+      int MtMChangeForShortMember = MtMChangeForLongMember * -1;
+
+      ret[0] = Utils.variationMarginChange(longMemberAddress, MtMChangeForLongMember);
+      ret[1] = Utils.variationMarginChange(shortMemberAddress, MtMChangeForShortMember);
+
+      CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
+      _compensationChamberContract.variationMargin(ret[0], ret[1]);
+
   }
 
+  function computeVM() public onlyChamber
+  {
+    MarketData _marketDataContract = MarketData(marketDataAddress);
+
+      if (market == Utils.market.BOE) // Bank of england
+      {
+        _marketDataContract.getIMFutureBOE.value(1 ether)(amount, instrumentID);
+      }
+      else if (market == Utils.market.EUREX) // https://www.quandl.com/data/EUREX-EUREX-Futures-Data
+      {
+        _marketDataContract.getIMFutureEUREX.value(1 ether)(amount, instrumentID);
+      }
+      else if (market == Utils.market.CME) // Chicago Mercantile Exchanges // https://www.quandl.com/data/CME-Chicago-Mercantile-Exchange-Futures-Data
+      {
+        _marketDataContract.getIMFutureCME.value(1 ether)(amount, instrumentID);
+      }
+
+  }
   function settlement() onlyChamber public
   {
     longMemberAddress.transfer(uint(initialMargin[longMemberAddress]*9/10));

@@ -58,7 +58,7 @@ window.App = {
       {
         if(!error)
         {
-            console.log("TEST");
+          console.log("TEST");
           console.log(result);
         }
       });
@@ -71,6 +71,7 @@ window.App = {
         {
           if (IntToPrice(result.args.price) != 0)
           {
+            console.log(result.args.instrumentID);
               instruments[web3.toUtf8(result.args.instrumentID)].order(result);
           }
         }

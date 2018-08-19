@@ -127,6 +127,23 @@ library Utils
             }
         }
     }
+    // Convert string to Uint
+    function stringToInt(string s) internal pure returns (int result)
+    {
+        bytes memory b = bytes(s);
+        uint i;
+        result = 0;
+
+        for (i = 0; i < b.length; i++)
+        {
+            uint c = uint(b[i]);
+
+            if (c >= 48 && c <= 57)
+            {
+                result = result * 10 + (c - 48);
+            }
+        }
+    }
 
     // convert string of type: [aa, cc] to an array of bytes32 ["aa", "cc"]
     function stringToBytes32Array2(string result) internal pure returns (bytes32[2] memory)
@@ -148,8 +165,8 @@ library Utils
     function stringToUintArray2(string result) internal pure returns (uint[2] memory)
     {
         var stringToParse = result.toSlice();
-        stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
-        var delim = ",".toSlice();
+        //stringToParse.beyond("[".toSlice()).until("]".toSlice()); //remove [ and ]
+        var delim = " ".toSlice();
         uint[2] memory parts;
 
         for (uint i = 0; i < parts.length; i++)

@@ -111,22 +111,19 @@ contract CompensationChamber
     function computeVariationMargin() public
     {
       counter = derivatives.length * 2;
-      Utils.variationMarginChange[2] memory varMarginChangeArray;
 
       for (uint i = 0; i < derivatives.length; i++)
       {
         Derivative _derivative = Derivative(derivatives[i]);
-        varMarginChangeArray = _derivative.computeVM();
-
-        variationMargin(varMarginChangeArray[0]);
-        variationMargin(varMarginChangeArray[1]);
+         _derivative.computeVM();
       }
     }
 
-    function variationMargin (Utils.variationMarginChange _VMStruct) private
+    function variationMargin (Utils.variationMarginChange _VMStruct, Utils.variationMarginChange _VMStruct2)
     {
-      counter = counter - 1;
+      counter = counter - 2;
       mapAddressToVMValue[_VMStruct.clearingMemberAddress] = mapAddressToVMValue[_VMStruct.clearingMemberAddress] + _VMStruct.value;
+      mapAddressToVMValue[_VMStruct2.clearingMemberAddress] = mapAddressToVMValue[_VMStruct2.clearingMemberAddress] + _VMStruct2.value;
 
       if (counter == 0)
       {
