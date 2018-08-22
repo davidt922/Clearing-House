@@ -8,6 +8,7 @@ module.exports = {
     market: './app/scripts/market.js',
     onWindowsLoad: './app/scripts/onWindowsLoad.js',
     paymentRequest: './app/scripts/paymentRequest.js',
+    accountDialog: './app/scripts/accountDialog.js',
   },
   mode: 'production',
   output: {

@@ -7,23 +7,53 @@ export default class PaymentRequest
   {
     this.paymentRequest = [];
   }
+
   addNewPaymentRequest(_transactionResult)
   {
-    var args = _transactionResult.args;
-    var paymentRequest = {paymentRequestAddress: args.paymentRequestAddress,clearingMemberAddress: args.clearingMemberAddress, value: new BigNumber(args.value).toNumber()};
-    this.paymentRequest.push(paymentRequest);
-
-
-    if (account == paymentRequest.clearingMemberAddress)
+    if (account == _transactionResult.args.clearingMemberAddress)
     {
+      var args = _transactionResult.args;
+      var paymentRequest = {paymentRequestAddress: args.paymentRequestAddress,clearingMemberAddress: args.clearingMemberAddress, value: new BigNumber(args.value).toNumber()};
+      this.paymentRequest.push(paymentRequest);
+
       if (confirm("You have to pay "+ paymentRequest.value/1000000000000000000))
       {
-        //txt = "You pressed OK!";
-      }
-      else
-      {
-        //txt = "You pressed Cancel!";
+        this.payPaymentRequest(paymentRequest.paymentRequestAddress);
       }
     }
+  }
+  addNewPaymentRequestAtSetup(_transactionResult)
+  {
+    if (account == _transactionResult.args.clearingMemberAddress)
+    {
+      var args = _transactionResult.args;
+      var paymentRequest = {paymentRequestAddress: args.paymentRequestAddress,clearingMemberAddress: args.clearingMemberAddress, value: new BigNumber(args.value).toNumber()};
+      this.paymentRequest.push(paymentRequest);
+    }
+  }
+  payPaymentRequest(_paymentRequestAddress)
+  {
+    var paymentReq = this.paymentRequest.find(function(paymentRequest)
+    {
+        return paymentRequest.paymentRequestAddress == _paymentRequestAddress;
+    });
+    App.payPaymentRequest(paymentReq.paymentRequestAddress, paymentReq.value);
+  }
+  checkIfPayed(_ispayed, _paymentRequestAddress)
+  {
+    if(_ispayed == true)
+    {
+      var paymentReq = this.paymentRequest.find(function(paymentRequest)
+      {
+          return paymentRequest.paymentRequestAddress == _paymentRequestAddress;
+      });
+      this.paymentRequest.splice(paymentReq,1);
+      alert("Payment request: "+_paymentRequestAddress+" has been payed");
+    }
+  }
+
+  getUnpayedTransactions()
+  {
+    return this.paymentRequest;
   }
 }

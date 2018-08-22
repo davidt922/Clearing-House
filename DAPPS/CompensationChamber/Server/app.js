@@ -259,11 +259,9 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
  */
  app.get("/BOE/computeVaR/:probability/:nominalOrNumberOfAssets/:instrumentID/", function(req, res)
  {
-   //var portfolio = req.params.portfolio;
    var nominalOrNumberOfAssets = parseFloat(req.params.nominalOrNumberOfAssets);
-   var instrumentID = web3.toUtf8(req.params.instrumentID);
-   console.log(instrumentID);
-   var probability = req.params.probability;
+   var instrumentID = req.params.instrumentID;
+   var probability = parseFloat(req.params.probability);
 
    var intRate = new InterestRate(instrumentID, nominalOrNumberOfAssets);
 
@@ -307,6 +305,8 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
    {
      var VaR1 = Math.abs(intRate.computeVaR(parseFloat(probability)));
      var VaR2 = Math.abs(intRate.computeVaR(parseFloat(1 - probability)));
+     console.log(VaR1+" "+VaR2);
+     console.log(ToWEI(change, VaR1)+" "+ToWEI(change, VaR2));
      res.send(ToWEI(change, VaR1)+" "+ToWEI(change, VaR2));
    }, 7000);
  });
@@ -316,9 +316,8 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
  {
    //var portfolio = req.params.portfolio;
    var nominalOrNumberOfAssets = parseFloat(req.params.nominalOrNumberOfAssets);
-   var instrumentID = web3.toUtf8(req.params.instrumentID);
-   console.log(instrumentID);
-   var probability = req.params.probability;
+   var instrumentID = req.params.instrumentID;
+   var probability = parseFloat(req.params.probability);
 
    var intRate = new InterestRate(instrumentID, nominalOrNumberOfAssets);
 
@@ -367,7 +366,7 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
 
  ToWEI = function(exchangeValue, price)
  {
-   return parseInt(parseFloat(exchangeValue)*parseFloat(price)*1000000000000000000);
+   return parseInt(parseFloat(price)/parseFloat(exchangeValue)*1000000000000000000);
  }
 
 
@@ -375,8 +374,8 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
  {
    //var portfolio = req.params.portfolio;
    var nominalOrNumberOfAssets = parseFloat(req.params.nominalOrNumberOfAssets);
-   var instrumentID = web3.toUtf8(req.params.instrumentID);
-   var probability = req.params.probability;
+   var instrumentID = req.params.instrumentID;
+   var probability = parseFloat(req.params.probability);
 
    var intRate = new InterestRate(instrumentID, nominalOrNumberOfAssets);
 
@@ -430,9 +429,8 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
  {
    //var portfolio = req.params.portfolio;
    var nominalOrNumberOfAssets = parseFloat(req.params.nominalOrNumberOfAssets);
-   var instrumentID = web3.toUtf8(req.params.instrumentID);
-   console.log(instrumentID);
-   var probability = req.params.probability;
+   var instrumentID = req.params.instrumentID;
+   var probability = parseFloat(req.params.probability);
 
    var intRate = new InterestRate(instrumentID, nominalOrNumberOfAssets);
 
@@ -478,9 +476,8 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
  {
    //var portfolio = req.params.portfolio;
    var nominalOrNumberOfAssets = parseFloat(req.params.nominalOrNumberOfAssets);
-   var instrumentID = web3.toUtf8(req.params.instrumentID);
-   console.log(instrumentID);
-   var probability = req.params.probability;
+   var instrumentID = req.params.instrumentID;
+   var probability = parseFloat(req.params.probability);
 
    var intRate = new InterestRate(instrumentID, nominalOrNumberOfAssets);
 
@@ -524,9 +521,8 @@ app.get("/computeVaR/:probability/:portfolio", function(req, res)
  {
    //var portfolio = req.params.portfolio;
    var nominalOrNumberOfAssets = parseFloat(req.params.nominalOrNumberOfAssets);
-   var instrumentID = web3.toUtf8(req.params.instrumentID);
-   console.log(instrumentID);
-   var probability = req.params.probability;
+   var instrumentID = req.params.instrumentID;
+   var probability = parseFloat(req.params.probability);
 
    var intRate = new InterestRate(instrumentID, nominalOrNumberOfAssets);
 

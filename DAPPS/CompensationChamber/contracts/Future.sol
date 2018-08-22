@@ -18,8 +18,8 @@ contract Future is Derivative
     longMemberAddress = _longMemberAddress;
     shortMemberAddress = _shortMemberAddress;
     amount = _amount;
-    //computeIM();
-    setIM(100000000000000, 30000000000000);
+    computeIM();
+    //setIM(100000000000000, 30000000000000);
   }
 
   function computeIM() private
@@ -50,11 +50,11 @@ contract Future is Derivative
       initialMargin[longMemberAddress] = longMemberInitialMarginInWei;
       initialMargin[shortMemberAddress] = shortMemberInitialMarginInWei;
 
-      CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
-      _compensationChamberContract.paymentRequest(800000000000000, longMemberAddress);
-        _compensationChamberContract.paymentRequest(100000000000000, shortMemberAddress);
-      //new PaymentRequest(longMemberInitialMarginInWei, longMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
-      //new PaymentRequest(shortMemberInitialMarginInWei, shortMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
+      //CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
+      //_compensationChamberContract.paymentRequest(longMemberInitialMarginInWei, longMemberAddress);
+      //  _compensationChamberContract.paymentRequest(shortMemberInitialMarginInWei, shortMemberAddress);
+      new PaymentRequest(longMemberInitialMarginInWei, longMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
+      new PaymentRequest(shortMemberInitialMarginInWei, shortMemberAddress, compensationChamberAddress, Utils.paymentType.initialMargin);
   }
 
 

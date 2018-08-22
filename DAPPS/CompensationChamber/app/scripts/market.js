@@ -92,12 +92,31 @@ window.App = {
         }
       });
 
+      var paymentRequestAddressAtSetup = value.logPaymentRequestAddressAtSetup();
+
+      paymentRequestAddressAtSetup.watch(function(error, result)
+      {
+        if(!error && account != accounts[1])
+        {
+          //console.log(result.args.paymentRequestAddress);
+          value.getPaymentRequest(result.args.paymentRequestAddress, {from: account, gas: 39000000});
+        }
+      });
+
+      var paymentRequestAtSetup = value.logPaymentRequestAtSetup();
+      paymentRequestAtSetup.watch(function(error, result)
+      {
+        if(!error && account != accounts[1])
+        {
+          paymentRequest.addNewPaymentRequestAtSetup(result);
+        }
+      });
+
     });
   },
 
   addCompensationMember: function(_name, _email, _password)
   {
-    console.log("8");
     var self = this;
     var _market;
 
@@ -128,7 +147,6 @@ window.App = {
 
 payPaymentRequest: function(_paymentRequestAddress, _value)
 {
-  console.log("9");
   var self = this;
   var _market;
 
@@ -139,7 +157,7 @@ payPaymentRequest: function(_paymentRequestAddress, _value)
   })
   .then(function(value)
   {
-    console.log(value);
+    paymentRequest.checkIfPayed(value.logs[0].args._isPayed, _paymentRequestAddress);
   });
 },
 

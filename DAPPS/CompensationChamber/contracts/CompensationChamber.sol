@@ -175,4 +175,17 @@ contract CompensationChamber
           mapAddressToVMValue[clearingMemberAddresses[i]] = 0;
       }
     }
+
+    function getUnpayedPaymentRequest() public onlyMarket returns (address[] memory)
+    {
+      PaymentRequest _paymentrequestContract;
+      address[] memory paymentRequestMemory = new address[](payments.length);
+
+      for(uint j = 0; j < payments.length; j++)
+      {
+        paymentRequestMemory[j] = payments[j];
+      }
+      return paymentRequestMemory;
+    }
+
 }

@@ -52,10 +52,13 @@ contract Market
     emit logPaymentRequest(_paymentRequestAddress, _value, _clearingMemberAddress);
   }
 
+  event isPayed(bool _isPayed);
   function payPaymentRequest(address _paymentRequestAddress) public payable returns(bool)
   {
     PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
-    return _paymentRequestContract.pay.value(msg.value)();
+    bool _isPayed = _paymentRequestContract.pay.value(msg.value)();
+    emit isPayed(_isPayed);
+    return _isPayed;
   }
   // _instrumentType 0 = future, 1 = swap
   function addNewDerivative (bytes32 _instrumentID, Utils.market _market, Utils.instrumentType _instrumentType, uint _settlementTimestamp) public payable
@@ -114,6 +117,8 @@ contract Market
     emit logMarketOrder(_instrumentID, _quantity, _price, _side, _orderType);
   }
   event logMarketOrder2(bytes32 instrumentID, uint16 quantity, uint16 price, Utils.side side, Utils.orderType orderType, address txOrigin); // orderType 0 = add, 1 = remove
+
+  event logPaymentRequestAddressAtSetup(address paymentRequestAddress);
   function getMarket() public
   {
     uint j;
@@ -136,6 +141,23 @@ contract Market
         (_quantity, _price) = _orderBook.getBidOrders(j);
         emit logMarketOrder2(instrumentID[i], _quantity, _price, Utils.side.buy, Utils.orderType.add, tx.origin);
       }
+    }
+    CompensationChamber _compensationChamberContract = CompensationChamber(compensationChamberAddress);
+    address[] memory paymentRequest = _compensationChamberContract.getUnpayedPaymentRequest();
+
+    for (uint k = 0; k < paymentRequest.length; k++)
+    {
+      emit logPaymentRequestAddressAtSetup(paymentRequest[i]);
+    }
+  }
+
+  event logPaymentRequestAtSetup(address paymentRequestAddress, uint value, address clearingMemberAddress);
+  function getPaymentRequest(address _paymentRequestAddress)
+  {
+    PaymentRequest _paymentRequestContract = PaymentRequest(_paymentRequestAddress);
+    if (_paymentRequestContract.isPayed() == false)
+    {
+      emit logPaymentRequestAtSetup(_paymentRequestAddress, _paymentRequestContract.getValue(), _paymentRequestContract.getClearingMember());
     }
   }
 

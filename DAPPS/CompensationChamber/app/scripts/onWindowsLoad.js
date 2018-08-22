@@ -1,8 +1,3 @@
-$('.message a').click(function()
-{
-   $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
-});
-
 window.showLogin = function()
 {
   $('.register-form').hide();
@@ -27,7 +22,11 @@ $(document).ready(function ()
   {
     showRegister();
   });
-  console.log("5");
+
+  $('#account').click(function()
+  {
+    openAccountDialog();
+  });
 });
 
 window.addEventListener('load', function()
@@ -53,8 +52,7 @@ window.addEventListener('load', function()
     var name = document.getElementById("name1").value;
     var email = document.getElementById("email1").value;
     var password = document.getElementById("password1").value;
-    console.log("2");
-      App.addCompensationMember(name, email, password);
+    App.addCompensationMember(name, email, password);
   }, false);
 
   document.getElementById("loginButton").addEventListener("click", function()
@@ -64,5 +62,4 @@ window.addEventListener('load', function()
     console.log("3");
      App.login(email, password);
   });
-  console.log("4");
 });

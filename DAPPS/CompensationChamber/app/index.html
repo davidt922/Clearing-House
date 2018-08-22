@@ -11,10 +11,10 @@
         <script src="./market.js"></script>
         <script src="./onWindowsLoad.js"></script>
         <script src="./paymentRequest.js"></script>
+        <script src="./accountDialog.js"></script>
     </head>
 
     <body>
-    <!--  <button id="buttonID">CLICK</button>-->
       <div id="index">
         <div class="login-page">
             <div class="form">
@@ -39,10 +39,8 @@
       </div>
       <div id="main" style="display:none">
         <div class="topnav">
-          <a class="active" href="#home">Home</a>
-          <a href="#news">News</a>
-          <a href="#contact">Contact</a>
-          <a href="#about"style="float:right">Account</a>
+          <div class="active" id="home">Home</div>
+          <div id="account" style="float:right">Account</div>
         </div>
         <div id="orderBooks" class="orderBooks"></div>
       </div>
@@ -63,4 +61,17 @@
     </form>
   </div>
 
+  <div id="account-dialog">
+    <div>
+      <p style='display:inline-block'>Balance: </p><p style="display:inline-block" id="accountBalance"></p><p style="display:inline-block">ETH</p>
+    </div>
+  	<table>
+      <tr>
+        <th>Unpayed Payments</th>
+        <th>Value [ETH]</th>
+      </tr>
+      <tbody id="unpayedTransactionsBody">
+      </tbody>
+    </table>
+  </div>
 </html>

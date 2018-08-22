@@ -34,11 +34,11 @@ contract MarketData is usingOraclize
       string memory _nominal = Utils.bytes32ToString(_nominalBytes32);
       string memory _instrumentID = Utils.bytes32ToString(_instrumentIDBytes32);
 
-      string memory URL = strConcat("json(", ipPort,"/BOE/computeVaR/");
+      string memory URL = strConcat(ipPort,"/BOE/computeVaR/");
       //string memory URL = "json(https://tidy-jellyfish-22.localtunnel.me/BOE/computeVaR/";
       string memory query1 = "0.95";
       string memory query2_4 = "/";
-      string memory query6 = "/).*";
+      string memory query6 = "/";
 
       string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
       string memory query = strConcat(_query, _instrumentID, query6);
@@ -55,10 +55,10 @@ contract MarketData is usingOraclize
       string memory _nominal = Utils.bytes32ToString(_nominalBytes32);
       string memory _instrumentID = Utils.bytes32ToString(_instrumentIDBytes32);
 
-      string memory URL = strConcat("json(", ipPort,"/EUREX/computeVaR/");
+      string memory URL = strConcat(ipPort,"/EUREX/computeVaR/");
       string memory query1 = "0.95";
       string memory query2_4 = "/";
-      string memory query6 = "/).*";
+      string memory query6 = "/";
 
       string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
       string memory query = strConcat(_query, _instrumentID, query6);
@@ -75,10 +75,10 @@ contract MarketData is usingOraclize
       string memory _nominal = Utils.bytes32ToString(_nominalBytes32);
       string memory _instrumentID = Utils.bytes32ToString(_instrumentIDBytes32);
 
-      string memory URL = strConcat("json(", ipPort,"/CME/computeVaR/");
+      string memory URL = strConcat(ipPort,"/CME/computeVaR/");
       string memory query1 = "0.95";
       string memory query2_4 = "/";
-      string memory query6 = "/).*";
+      string memory query6 = "/";
 
       string memory _query = strConcat(URL, query1, query2_4, _nominal, query2_4);
       string memory query = strConcat(_query, _instrumentID, query6);
@@ -95,11 +95,11 @@ contract MarketData is usingOraclize
       string memory _nominal = Utils.bytes32ToString(_nominalBytes32);
       string memory _instrumentID = Utils.bytes32ToString(_instrumentIDBytes32);
 
-      string memory URL = strConcat("json(", ipPort,"/BOE/computeMtM/");
+      string memory URL = strConcat(ipPort,"/BOE/computeMtM/");
       //string memory URL = "json(https://tidy-jellyfish-22.localtunnel.me/BOE/computeVaR/";
       string memory query1 = "0.95";
       string memory query2_4 = "/";
-      string memory query6 = "/).*";
+      string memory query6 = "/";
 
       string memory query = strConcat(URL, _nominal, query2_4, _instrumentID, query6);
       bytes32 queryID = oraclize_query("URL",query, gasLimit);
@@ -115,10 +115,10 @@ contract MarketData is usingOraclize
       string memory _nominal = Utils.bytes32ToString(_nominalBytes32);
       string memory _instrumentID = Utils.bytes32ToString(_instrumentIDBytes32);
 
-      string memory URL = strConcat("json(", ipPort,"/EUREX/computeMtM/");
+      string memory URL = strConcat(ipPort,"/EUREX/computeMtM/");
       string memory query1 = "0.95";
       string memory query2_4 = "/";
-      string memory query6 = "/).*";
+      string memory query6 = "/";
 
       string memory query = strConcat(URL, _nominal, query2_4, _instrumentID, query6);
       bytes32 queryID = oraclize_query("URL",query, gasLimit);
@@ -134,10 +134,10 @@ contract MarketData is usingOraclize
       string memory _nominal = Utils.bytes32ToString(_nominalBytes32);
       string memory _instrumentID = Utils.bytes32ToString(_instrumentIDBytes32);
 
-      string memory URL = strConcat("json(", ipPort,"/CME/computeMtM/");
+      string memory URL = strConcat(ipPort,"/CME/computeMtM/");
       string memory query1 = "0.95";
       string memory query2_4 = "/";
-      string memory query6 = "/).*";
+      string memory query6 = "/";
 
       string memory query = strConcat(URL, _nominal, query2_4, _instrumentID, query6);
       bytes32 queryID = oraclize_query("URL",query, gasLimit);
