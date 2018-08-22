@@ -113,7 +113,7 @@ contract Market
   {
     emit logMarketOrder(_instrumentID, _quantity, _price, _side, _orderType);
   }
-
+  event logMarketOrder2(bytes32 instrumentID, uint16 quantity, uint16 price, Utils.side side, Utils.orderType orderType, address txOrigin); // orderType 0 = add, 1 = remove
   function getMarket() public
   {
     uint j;
@@ -128,13 +128,13 @@ contract Market
       for (j = 0; j < askLength; j++)
       {
         (_quantity, _price) = _orderBook.getAskOrders(j);
-        emit logMarketOrder(instrumentID[i], _quantity, _price, Utils.side.sell, Utils.orderType.add);
+        emit logMarketOrder2(instrumentID[i], _quantity, _price, Utils.side.sell, Utils.orderType.add, tx.origin);
       }
       uint bidLength = _orderBook.getBidOrdersLength();
       for (j = 0; j < bidLength; j++)
       {
         (_quantity, _price) = _orderBook.getBidOrders(j);
-        emit logMarketOrder(instrumentID[i], _quantity, _price, Utils.side.buy, Utils.orderType.add);
+        emit logMarketOrder2(instrumentID[i], _quantity, _price, Utils.side.buy, Utils.orderType.add, tx.origin);
       }
     }
   }

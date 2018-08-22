@@ -1,4 +1,5 @@
 import {BigNumber} from 'bignumber.js';
+import { default as Web3} from 'web3';
 export default class OrderBook
 {
   constructor (instrumentID)
@@ -18,7 +19,7 @@ export default class OrderBook
     var side = new BigNumber(args.side).toNumber();
     // type is add = 0 or remove = 1 (type int)
     var type = new BigNumber(args.orderType).toNumber();
-    console.log(price+" "+quantity+" "+side+" "+type);
+
     if (type == 0)
     {
       this.addOrder(quantity, price, side);
@@ -26,6 +27,17 @@ export default class OrderBook
     else if (type == 1)
     {
       this.removeOrder(quantity, price, side);
+    }
+
+  }
+  orderSetup(solOrderTx)
+  {
+    var args = solOrderTx.args;
+    var txOrigin = args.txOrigin;
+
+    if (txOrigin == account)
+    {
+      this.order(solOrderTx);
     }
 
   }

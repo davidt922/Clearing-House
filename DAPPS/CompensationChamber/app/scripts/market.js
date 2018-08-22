@@ -79,6 +79,19 @@ window.App = {
           }
         }
       });
+
+      var marketOrderEventStart = value.logMarketOrder2();
+      marketOrderEventStart.watch(function(error, result)
+      {
+        if (!error && instruments[web3.toUtf8(result.args.instrumentID)] != null)
+        {
+          if (IntToPrice(result.args.price) != 0)
+          {
+              instruments[web3.toUtf8(result.args.instrumentID)].orderSetup(result);
+          }
+        }
+      });
+
     });
   },
 
